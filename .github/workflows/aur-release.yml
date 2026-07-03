@@ -1,0 +1,78 @@
+# frank_go: publishes the AUR package (frank-go) when a v* tag is pushed.
+#
+# Follows the packaging layout of akitaonrails/ai-jail (PKGBUILD template
+# tracked in packaging/aur/); the actual AUR push uses the standard
+# github-actions-deploy-aur action. Requires the AUR_SSH_KEY repository
+# secret (private key registered with the AUR account); without it the
+# workflow tests the PKGBUILD generation and skips the push with a warning.
+
+name: AUR Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci --no-audit --no-fund
+      - run: npm test
+      - run: npm run bundle
+
+  aur:
+    needs: test
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate PKGBUILD from template
+        id: pkgbuild
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          TARBALL_URL="https://github.com/${GITHUB_REPOSITORY}/archive/refs/tags/v${VERSION}.tar.gz"
+
+          echo "Computing sha256 of ${TARBALL_URL}"
+          SHA=$(curl -sL "$TARBALL_URL" | sha256sum | awk '{print $1}')
+          if [ -z "$SHA" ]; then
+            echo "::error::Could not download the release tarball"
+            exit 1
+          fi
+
+          mkdir -p aur-out
+          sed -e "s/^pkgver=.*/pkgver=${VERSION}/" \
+              -e "s/^sha256sums=.*/sha256sums=('${SHA}')/" \
+              packaging/aur/PKGBUILD > aur-out/PKGBUILD
+
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          cat aur-out/PKGBUILD
+
+      - name: Check AUR_SSH_KEY
+        id: guard
+        env:
+          AUR_SSH_KEY: ${{ secrets.AUR_SSH_KEY }}
+        run: |
+          if [ -z "$AUR_SSH_KEY" ]; then
+            echo "::warning::Skipping AUR publish — no AUR_SSH_KEY secret set"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publish to AUR
+        if: steps.guard.outputs.skip != 'true'
+        uses: KSXGitHub/github-actions-deploy-aur@v4.1.1
+        with:
+          pkgname: frank-go
+          pkgbuild: aur-out/PKGBUILD
+          commit_username: AkitaOnRails
+          commit_email: boss@akitaonrails.com
+          ssh_private_key: ${{ secrets.AUR_SSH_KEY }}
+          commit_message: 'frank-go ${{ steps.pkgbuild.outputs.version }}'

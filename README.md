@@ -1,120 +1,106 @@
-<!-- frank_go -->
-
 # frank_go
 
-A beginner-focused, offline-first Go/Baduk trainer built on top of
-[Sabaki](https://github.com/SabakiHQ/Sabaki). On top of everything Sabaki does
-(below), frank_go adds:
+**Learn and enjoy Go (Baduk/Weiqi) — a friendly, offline trainer for
+beginners.**
 
-- **Tsumego practice** (`Practice > Start Tsumego Practice`, Ctrl/Cmd+Shift+K) —
-  4,341 bundled life & death problems from classic collections, served at your
-  level: solve 5 in a row to level up (1–10).
-- **Beginner area painting** (Ctrl/Cmd+Shift+B) — a toggleable overlay that
-  paints each player's influence as a soft gradient and settled territory in
-  solid color, so you learn to see what stones are aiming at.
-- **One-command local KataGo** — `node scripts/frank/setup-katago.mjs` downloads
-  the engine + a CPU-friendly network and registers beginner/full-strength
-  opponents; then `Practice > Play vs KataGo`.
-- **A local game database** — 13 annotated landmark games bundled (Ear-Reddening
-  1846 → AlphaGo–Ke Jie 2017); 90,000+ pro games via
-  `node scripts/frank/fetch-games.mjs`.
+![Tsumego practice in frank_go](docs/images/tsumego-practice.jpg)
 
-Start here: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) ·
-[docs/UPSTREAM-REBASE.md](docs/UPSTREAM-REBASE.md) ·
-[data/SOURCES.md](data/SOURCES.md) · [docs/research/](docs/research/README.md)
+Go is a beautiful game, but the first steps are hard: you can't tell who is
+winning, you don't know what to study, and strong software is built for strong
+players. frank_go is built for the rest of us.
 
-Run it:
-`npm install && node scripts/frank/build-tsumego-index.mjs && npm run bundle && npm start`
+## What you can do
 
----
+- 🧩 **Practice tsumego (life & death puzzles)** — 4,341 problems from the
+  classic collections (Cho Chikun's Encyclopedia, Gokyo Shumyo, Xuanxuan Qijing,
+  and more), served at _your_ level. Solve 5 in a row to level up, from level 1
+  (beginner) to 10 (expert).
+- 🤖 **The puzzles fight back** — if KataGo is installed, it answers your moves
+  inside the puzzle. When it gives up the area, frank_go judges the result and
+  marks the puzzle **solved automatically**.
+- 🎨 **Area painting** — a toggleable overlay that paints each player's
+  influence as a soft gradient and settled territory in solid color, so you can
+  _see_ what the stones are doing.
+- ⚫ **Play against KataGo** — a one-command setup gives you a beginner-friendly
+  opponent (and a full-strength one). Score estimate, undo, pass and restart are
+  one click away in the sidebar.
+- 📖 **Study famous games** — from the Ear-Reddening Game (1846) to AlphaGo vs
+  Lee Sedol, with the story behind each game.
+- 🛜 **Fully offline** — no account, no server, your progress stays on your
+  machine.
 
-# ![Sabaki: An elegant Go/Baduk/Weiqi board and SGF editor for a more civilized age.](./banner.png)
+Everything lives in the **practice panel** on the right side: pick an activity,
+play, and the controls follow along. Menus are trimmed down to the essentials
+(View → _Show Advanced Menus_ brings the full power-user menus back).
 
-[![Download the latest release](https://img.shields.io/github/downloads/SabakiHQ/Sabaki/latest/total?label=download)](https://github.com/SabakiHQ/Sabaki/releases)
-[![CI](https://github.com/SabakiHQ/Sabaki/workflows/CI/badge.svg?branch=master&event=push)](https://github.com/SabakiHQ/Sabaki/actions)
-[![Donate](https://img.shields.io/badge/donate-paypal-blue.svg)](https://www.paypal.me/yishn/5)
+## Install
 
-## Features
+### Arch Linux (AUR)
 
-- Fuzzy stone placement
-- Read and save SGF games and collections, open wBaduk NGF and Tygem GIB files
-- Display formatted SGF comments using a
-  [subset of Markdown](https://github.com/SabakiHQ/Sabaki/blob/master/docs/guides/markdown.md)
-  and annotate board positions & moves
-- Personalize board appearance with
-  [textures & themes](https://github.com/SabakiHQ/Sabaki/blob/master/docs/guides/theme-directory.md)
-- SGF editing tools, including lines & arrows board markup
-- Copy & paste variations
-- Powerful undo/redo
-- Fast game tree
-- Score estimator & scoring tool
-- Find move by move position and comment text
-- [GTP engines](https://github.com/SabakiHQ/Sabaki/blob/master/docs/guides/engines.md)
-  support with
-  [board analysis for supported engines](https://github.com/SabakiHQ/Sabaki/blob/master/docs/guides/engine-analysis-integration.md)
-- Guess mode
-- Autoplay games
+```sh
+yay -S frank-go
+```
 
-![Screenshot](screenshot.png)
+(Optional, for the AI opponent: `pacman -S katago` or let `npm run frank:katago`
+set it up.)
 
-## Documentation
+### From source (any platform)
 
-For more information visit the
-[documentation](https://github.com/SabakiHQ/Sabaki/blob/master/docs/README.md).
-You're welcome to
-[contribute](https://github.com/SabakiHQ/Sabaki/blob/master/CONTRIBUTING.md) to
-this project.
+```sh
+git clone https://github.com/akitaonrails/frank_go.git
+cd frank_go
+npm install
+npm run bundle
+npm start
+```
 
-## Building & Tests
+Optional but recommended — set up the local KataGo opponent (downloads the
+engine and a small CPU-friendly network, no GPU needed):
 
-See
-[Building & Tests](https://github.com/SabakiHQ/Sabaki/blob/master/docs/guides/building-tests.md)
-in the documentation.
+```sh
+npm run frank:katago            # add --human for a human-like ~5k opponent
+```
+
+More game records for studying (90,000+ professional games):
+
+```sh
+npm run frank:games
+```
+
+## Keyboard shortcuts
+
+| Shortcut           | Action                 |
+| ------------------ | ---------------------- |
+| `Ctrl/Cmd+Shift+K` | Start tsumego practice |
+| `Ctrl/Cmd+Shift+B` | Toggle area painting   |
+| `Ctrl/Cmd+P`       | Pass                   |
+| `←` / `→`          | Step through moves     |
+
+## Built on Sabaki
+
+frank_go is a fork of [Sabaki](https://sabaki.yichuanshen.de/), the excellent
+open source Go board and SGF editor by Yichuan Shen — all of Sabaki's editing,
+analysis and engine features are still here (enable _Show Advanced Menus_ to
+reach them). The original Sabaki README is preserved in
+[docs/SABAKI.md](docs/SABAKI.md).
+
+## For developers & the curious
+
+- [Architecture](docs/ARCHITECTURE.md) — how the trainer is built on top of
+  Sabaki, module by module.
+- [Staying rebaseable on upstream](docs/UPSTREAM-REBASE.md) — the fork strategy
+  and the upgrade procedure.
+- [Data sources & licensing](data/SOURCES.md) — where every bundled problem and
+  game record comes from.
+- [Go ecosystem research](docs/research/README.md) — the survey of clients, AI
+  engines and SGF resources that shaped this project.
+- [AUR packaging](packaging/aur/) — PKGBUILD template published by the release
+  workflow.
+
+Tests: `npm test` · Bundle: `npm run bundle` · Data rebuild:
+`npm run frank:data`
 
 ## License
 
-This project is licensed under the
-[MIT license](https://github.com/SabakiHQ/Sabaki/blob/master/LICENSE.md).
-
-## Donators
-
-A big thank you to these lovely people:
-
-- Eric Wainwright
-- Michael Noll
-- John Hager
-- Azim Palmer
-- Nicolas Puyaubreau
-- Hans Christian Poerschke
-- David Göbel
-- Dominik Olszewski
-- Brian Weaver
-- Philippe Fanaro
-- James Tudor
-- Frank Orben
-- Dekun Song
-- Dimitri Rusin
-- Andrew Thieman
-- Adrian Petrescu
-- Karlheinz Agsteiner
-- Petr Růžička
-- Sergio Villegas
-- Jake Pivnik
-
-## Related
-
-- [Shudan](https://github.com/SabakiHQ/Shudan) - A highly customizable,
-  low-level Preact Goban component.
-- [boardmatcher](https://github.com/SabakiHQ/boardmatcher) - Finds patterns &
-  shapes in Go board arrangements and names moves.
-- [deadstones](https://github.com/SabakiHQ/deadstones) - Simple Monte Carlo
-  functions to determine dead stones.
-- [go-board](https://github.com/SabakiHQ/go-board) - A Go board data type.
-- [gtp](https://github.com/SabakiHQ/gtp) - A Node.js module for handling GTP
-  engines.
-- [immutable-gametree](https://github.com/SabakiHQ/immutable-gametree) - An
-  immutable game tree data type.
-- [influence](https://github.com/SabakiHQ/influence) - Simple heuristics for
-  estimating influence maps on Go positions.
-- [sgf](https://github.com/SabakiHQ/sgf) - A library for parsing and creating
-  SGF files.
+MIT, same as Sabaki. Bundled problem collections and game records have their own
+provenance — see [data/SOURCES.md](data/SOURCES.md).
