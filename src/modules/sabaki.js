@@ -88,6 +88,7 @@ class Sabaki extends EventEmitter {
       // frank_go: beginner assistance
       frankShowBeginnerOverlay: null,
       frankTsumego: null,
+      frankKatagoGame: null,
 
       // Sidebar
 
@@ -266,7 +267,13 @@ class Sabaki extends EventEmitter {
         return state.gameTrees[state.gameIndex]
       },
       get showSidebar() {
-        return state.showGameGraph || state.showCommentBox
+        // frank_go: practice activities need their sidebar controls
+        return (
+          state.showGameGraph ||
+          state.showCommentBox ||
+          state.frankTsumego != null ||
+          state.frankKatagoGame != null
+        )
       },
       get gameInfo() {
         return self.getGameInfo()

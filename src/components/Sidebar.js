@@ -7,6 +7,9 @@ import Slider from './sidebars/Slider.js'
 import GameGraph from './sidebars/GameGraph.js'
 import CommentBox from './sidebars/CommentBox.js'
 
+// frank_go: practice controls
+import PracticeSidebar from './frank/PracticeSidebar.js'
+
 const setting = {
   get: (key) => window.sabaki.setting.get(key),
   set: (key, value) => window.sabaki.setting.set(key, value),
@@ -128,12 +131,19 @@ export default class Sidebar extends Component {
     let level = gameTree.getLevel(treePosition)
     showWinrateGraph = showWinrateGraph && winrateData.some((x) => x != null)
 
+    // frank_go: practice controls dock at the top of the sidebar
+    let practiceActive =
+      this.props.frankTsumego != null || this.props.frankKatagoGame != null
+
     return h(
       'section',
       {
         ref: (el) => (this.element = el),
         id: 'sidebar',
+        class: practiceActive ? 'frank-practice' : '',
       },
+
+      practiceActive && h(PracticeSidebar, this.props),
 
       h(SplitContainer, {
         vertical: true,

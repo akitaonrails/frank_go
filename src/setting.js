@@ -224,6 +224,7 @@ let defaults = {
   'frank.tsumego_level': 1,
   'frank.tsumego_streak': 0,
   'frank.tsumego_solved': '{}',
+  'frank.tsumego_sparring': true,
 }
 
 let eventEmitters = {}

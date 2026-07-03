@@ -16,9 +16,6 @@ import InputBox from './InputBox.js'
 import BusyScreen from './BusyScreen.js'
 import InfoOverlay from './InfoOverlay.js'
 
-// frank_go: beginner assistance
-import TsumegoPanel from './frank/TsumegoPanel.js'
-
 import i18n from '../i18n.js'
 import sabaki from '../modules/sabaki.js'
 import * as gametree from '../modules/gametree.js'
@@ -408,9 +405,6 @@ class App extends Component {
         text: state.infoOverlayText,
         show: state.showInfoOverlay,
       }),
-
-      // frank_go: tsumego practice panel
-      h(TsumegoPanel, {tsumego: state.frankTsumego}),
     )
   }
 }

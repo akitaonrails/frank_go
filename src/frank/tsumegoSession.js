@@ -1,13 +1,15 @@
 // frank_go: tsumego practice session (renderer only).
 //
 // Orchestrates the practice loop: pick a problem near the player's level,
-// load it into Sabaki's board, let the player read/play it out, then
-// self-grade with Solved/Missed. Progress (level, streak, solved ids) is
-// persisted in settings so it survives restarts.
+// load it into Sabaki's board, let the player play it out, then grade with
+// Solved/Missed. Progress (level, streak, solved ids) is persisted in
+// settings so it survives restarts.
 //
-// Problems ship without solution trees (see data/SOURCES.md), so grading is
-// honest self-assessment — like reading problems from a book, with the
-// board available to play out lines.
+// If a KataGo engine is configured (npm run frank:katago), it is attached
+// as a sparring partner: it answers the player's moves inside the problem,
+// so the position fights back. "Check position" gives a heuristic life &
+// death verdict (positionJudge.js). Bundled problems ship without solution
+// trees (see data/SOURCES.md), so the final grade is the player's call.
 
 import sabaki from '../modules/sabaki.js'
 import {getSharedStore, problemToSgf, createRng} from './data/problemStore.js'
@@ -17,6 +19,7 @@ import {
   initialProgress,
   pickProblem,
 } from './tsumegoProgress.js'
+import {findKataGoEngine} from './katagoPlay.js'
 
 const setting = {
   get: (key) => window.sabaki.setting.get(key),
@@ -27,6 +30,8 @@ const MAX_SOLVED_REMEMBERED = 20000
 
 let rng = createRng()
 let currentProblem = null
+let sessionStats = {solved: 0, missed: 0}
+let sparringSyncerId = null
 
 function loadSolvedIds() {
   try {
@@ -54,9 +59,12 @@ function publishState(progress, lastEvent = null) {
               level: currentProblem.level,
               category: currentProblem.category,
               toPlay: currentProblem.toPlay,
+              region: currentProblem.region,
             },
             progress,
             streakTarget: STREAK_TO_LEVEL_UP,
+            sessionStats: {...sessionStats},
+            sparring: sparringSyncerId != null,
             lastEvent,
           },
   })
@@ -74,10 +82,42 @@ function saveProgress(progress) {
   setting.set('frank.tsumego_streak', progress.streak)
 }
 
+// The engine plays the problem's opposing color and auto-answers through
+// Sabaki's regular engine flow (generateMove after each human move).
+function assignSparringColors() {
+  if (sparringSyncerId == null || currentProblem == null) return
+
+  let engineIsWhite = currentProblem.toPlay === 'B'
+
+  sabaki.setState({
+    blackEngineSyncerId: engineIsWhite ? null : sparringSyncerId,
+    whiteEngineSyncerId: engineIsWhite ? sparringSyncerId : null,
+  })
+}
+
+function ensureSparringPartner() {
+  if (setting.get('frank.tsumego_sparring') === false) return
+
+  if (
+    sparringSyncerId != null &&
+    sabaki.state.attachedEngineSyncers.some((s) => s.id === sparringSyncerId)
+  ) {
+    return
+  }
+
+  let engine = findKataGoEngine()
+  if (engine == null) return
+
+  let [syncer] = sabaki.attachEngines([engine])
+  sparringSyncerId = syncer != null ? syncer.id : null
+}
+
 async function loadProblemIntoBoard(problem, {firstLoad = false} = {}) {
   await sabaki.loadContent(problemToSgf(problem), 'sgf', {
     suppressAskForSave: !firstLoad,
   })
+
+  assignSparringColors()
 }
 
 export function isActive() {
@@ -94,6 +134,12 @@ export async function startPractice() {
 
   if (problem == null) return
 
+  sessionStats = {solved: 0, missed: 0}
+  ensureSparringPartner()
+
+  // Beginners don't need the raw GTP console.
+  setting.set('view.show_leftsidebar', false)
+
   currentProblem = problem
   await loadProblemIntoBoard(problem, {firstLoad: true})
   publishState(progress)
@@ -105,6 +151,7 @@ export async function answer(correct) {
   let progress = loadProgress()
   let next = applyResult(progress, correct)
   saveProgress(next)
+  sessionStats[correct ? 'solved' : 'missed']++
 
   if (correct) {
     let solvedIds = loadSolvedIds()
@@ -148,7 +195,31 @@ export async function retryProblem() {
   publishState(loadProgress())
 }
 
+export function setSparring(enabled) {
+  setting.set('frank.tsumego_sparring', enabled)
+
+  if (enabled) {
+    ensureSparringPartner()
+    assignSparringColors()
+  } else {
+    sparringSyncerId = null
+    sabaki.setState({blackEngineSyncerId: null, whiteEngineSyncerId: null})
+  }
+
+  publishState(loadProgress())
+}
+
 export function stopPractice() {
   currentProblem = null
-  sabaki.setState({frankTsumego: null})
+
+  if (sparringSyncerId != null) {
+    sabaki.detachEngines([sparringSyncerId])
+    sparringSyncerId = null
+  }
+
+  sabaki.setState({
+    frankTsumego: null,
+    blackEngineSyncerId: null,
+    whiteEngineSyncerId: null,
+  })
 }

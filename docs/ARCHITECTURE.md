@@ -25,12 +25,13 @@ scripts/frank/
 src/frank/                    ← all frank_go renderer logic
   data/problemStore.js        ← queryable problem DB (level/category/…)
   tsumegoProgress.js          ← pure progression rules (streaks, levels)
-  tsumegoSession.js           ← practice orchestration (loads problems, persists)
+  tsumegoSession.js           ← practice orchestration + KataGo sparring
   beginnerOverlay.js          ← influence "area painting" paint maps
-  katagoPlay.js               ← play-vs-KataGo glue
+  positionJudge.js            ← dead-stone heuristics: score estimate, L&D verdict
+  katagoPlay.js               ← play-vs-KataGo game lifecycle (restart/undo/…)
 
 src/components/frank/
-  TsumegoPanel.js             ← floating practice panel (Preact)
+  PracticeSidebar.js          ← practice controls docked in the right sidebar
 
 style/frank.css               ← styles for frank_go UI
 test/frank/*Tests.js          ← mocha tests (run via `npm test`)
@@ -53,11 +54,16 @@ rendering, theming and transformations come for free. Toggle lives in
 `tsumegoSession.startPractice()` picks a problem near the player's level from
 `problemStore` (seeded RNG, unsolved-first), renders it to SGF (`problemToSgf`)
 and pushes it through `sabaki.loadContent` — the problem is just a normal game
-on the board. `TsumegoPanel` (mounted from `App`) drives the loop: Solved/Missed
-call `applyResult` (5-streak → level up, 2 misses → level down), persist via
-`frank.tsumego_*` settings, and load the next problem. Bundled problems have
-**no solution trees** (see `data/SOURCES.md`), so grading is self-assessment;
-engine-verified grading is the next milestone (below).
+on the board. If a KataGo engine is configured, it is attached as a **sparring
+partner** on the problem's opposing color, so the position answers back
+(toggleable in the sidebar; `frank.tsumego_sparring`). The `PracticeSidebar`
+(docked at the top of the right sidebar, which auto-opens) drives the loop:
+Solved/Missed call `applyResult` (5-streak → level up, 2 misses → level down)
+and persist via `frank.tsumego_*` settings; "Check position" shows a heuristic
+life & death verdict from `positionJudge.judgeRegion` (dead-stone Monte Carlo).
+Bundled problems have **no solution trees** (see `data/SOURCES.md`), so the
+final grade stays the player's call; engine-verified grading is the next
+milestone (below).
 
 ### Play vs KataGo (Practice menu)
 
@@ -65,7 +71,10 @@ engine-verified grading is the next milestone (below).
 registers it in Sabaki's `engines.list`. `katagoPlay.playAgainstKataGo(sign)`
 starts a new game, attaches the best-matching KataGo entry and assigns it the
 opposite color; Sabaki's own engine flow (`generateMove` after each human move)
-does the rest. The area painting overlay works during play.
+does the rest. The `PracticeSidebar` offers Estimate Score
+(`positionJudge.estimateScore`), Undo (player move + engine reply), Pass,
+Restart and Quit, and both practice flows auto-hide the raw GTP console
+(`view.show_leftsidebar`). The area painting overlay works during play.
 
 ## Testing
 
