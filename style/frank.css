@@ -1,4 +1,6 @@
-/* frank_go: styles for beginner-assistance UI (practice sidebar) */
+/* frank_go: styles for the practice sidebar and beginner-assistance UI.
+   Visual language: warm wood-and-cream tones matching the goban, rounded
+   cards, playful but calm. */
 
 /* When practice is active, the sidebar stacks our panel above the
    graph/comments area (upstream defines a single 100%/100% grid cell). */
@@ -8,200 +10,277 @@
 
 #frank-practice-sidebar {
   overflow-y: auto;
-  max-height: 55vh;
-  padding: 0.8em 1em;
-  background: #262626;
-  border-bottom: 1px solid #444;
-  color: #eee;
-  font-size: 0.9em;
+  max-height: 60vh;
+  padding: 1em 1.1em 1.1em;
+  background: linear-gradient(175deg, #322b22 0%, #262019 100%);
+  border-bottom: 2px solid #4a3f2e;
+  color: #efe6d5;
+  font-size: 0.92em;
+  line-height: 1.4;
 }
+
+/* Header */
 
 #frank-practice-sidebar .header {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  margin-bottom: 0.5em;
+  margin-bottom: 0.6em;
 }
 
 #frank-practice-sidebar .header .title {
   font-weight: bold;
-  font-size: 1.05em;
+  font-size: 1.15em;
+  color: #f2d99a;
+  letter-spacing: 0.02em;
 }
 
 #frank-practice-sidebar .header .stop {
-  color: #999;
+  color: #a89878;
   text-decoration: none;
   font-size: 0.85em;
+  border-bottom: 1px dotted #a89878;
 }
 
 #frank-practice-sidebar .header .stop:hover {
-  color: #fff;
-  text-decoration: underline;
+  color: #f2d99a;
+  border-bottom-color: #f2d99a;
 }
+
+/* Level + streak stones */
 
 #frank-practice-sidebar .levelrow {
   display: flex;
   align-items: center;
-  gap: 0.7em;
-  margin-bottom: 0.5em;
+  gap: 0.8em;
+  margin-bottom: 0.6em;
+  padding: 0.45em 0.7em;
+  background: rgba(0, 0, 0, 0.22);
+  border-radius: 999px;
 }
 
 #frank-practice-sidebar .levelrow .level {
   font-weight: bold;
-  color: #f0c674;
+  color: #f2c96b;
+}
+
+#frank-practice-sidebar .dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
 }
 
 #frank-practice-sidebar .dots .dot {
   display: inline-block;
-  width: 0.6em;
-  height: 0.6em;
-  margin-right: 0.25em;
+  width: 0.75em;
+  height: 0.75em;
   border-radius: 50%;
-  background: #444;
-  border: 1px solid #666;
+  background: radial-gradient(circle at 35% 35%, #5a5a5a, #262626);
+  border: 1px solid #555;
+  transition: all 0.25s ease;
 }
 
 #frank-practice-sidebar .dots .dot.filled {
-  background: #7bd47b;
-  border-color: #7bd47b;
+  background: radial-gradient(circle at 35% 35%, #ffffff, #c8c8c8);
+  border-color: #ddd;
+  box-shadow: 0 0 6px rgba(255, 240, 200, 0.45);
 }
 
 #frank-practice-sidebar .event.level-up {
-  color: #7bd47b;
+  color: #a4e0a4;
   font-weight: bold;
 }
 
 #frank-practice-sidebar .event.level-down {
-  color: #e08a8a;
+  color: #e0a4a4;
 }
+
+/* Problem line */
 
 #frank-practice-sidebar .problem {
   display: flex;
   align-items: center;
-  gap: 0.5em;
-  margin-bottom: 0.4em;
+  gap: 0.55em;
+  margin-bottom: 0.55em;
 }
 
 #frank-practice-sidebar .problem .toplay {
   flex-shrink: 0;
-  padding: 0.1em 0.55em;
+  padding: 0.15em 0.65em;
   border-radius: 999px;
-  background: #111;
-  border: 1px solid #555;
+  background: radial-gradient(circle at 35% 30%, #444, #0a0a0a);
+  border: 1px solid #666;
   color: #fff;
   font-size: 0.85em;
+  font-weight: bold;
 }
 
 #frank-practice-sidebar .problem .toplay.white {
-  background: #f5f5f5;
-  color: #111;
+  background: radial-gradient(circle at 35% 30%, #ffffff, #d5d5d5);
+  border-color: #bbb;
+  color: #222;
 }
 
 #frank-practice-sidebar .problem .name {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: #bbb;
+  color: #c9bda6;
   font-size: 0.85em;
 }
 
 #frank-practice-sidebar .guide {
-  margin: 0 0 0.6em;
-  color: #ccc;
-  line-height: 1.35;
+  margin: 0 0 0.7em;
+  color: #d8cdb8;
 }
+
+/* Buttons */
 
 #frank-practice-sidebar .actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4em;
-  margin-bottom: 0.5em;
+  gap: 0.45em;
+  margin-bottom: 0.55em;
 }
 
 #frank-practice-sidebar .actions button {
   flex: 1 1 auto;
-  padding: 0.3em 0.6em;
-  border: 1px solid #555;
-  border-radius: 4px;
-  background: #3a3a3a;
-  color: #eee;
+  padding: 0.42em 0.7em;
+  border: 1px solid #5a4d38;
+  border-radius: 9px;
+  background: linear-gradient(180deg, #463b2c 0%, #3a3225 100%);
+  color: #efe6d5;
   cursor: pointer;
   font-size: 1em;
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease,
+    background 0.12s ease;
 }
 
 #frank-practice-sidebar .actions button:hover:not(:disabled) {
-  background: #4a4a4a;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
+  background: linear-gradient(180deg, #524633 0%, #453b2b 100%);
+}
+
+#frank-practice-sidebar .actions button:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: none;
 }
 
 #frank-practice-sidebar .actions button:disabled {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: default;
 }
 
 #frank-practice-sidebar .actions.main button {
-  padding: 0.45em 0.6em;
+  padding: 0.55em 0.7em;
   font-weight: bold;
+  font-size: 1.05em;
 }
 
+#frank-practice-sidebar .actions button.solved {
+  background: linear-gradient(180deg, #3d6b3d 0%, #2f562f 100%);
+  border-color: #4f8a4f;
+}
+
+#frank-practice-sidebar .actions button.solved:hover {
+  background: linear-gradient(180deg, #497d49 0%, #386238 100%);
+}
+
+#frank-practice-sidebar .actions button.missed {
+  background: linear-gradient(180deg, #6b3d3d 0%, #562f2f 100%);
+  border-color: #8a4f4f;
+}
+
+#frank-practice-sidebar .actions button.missed:hover {
+  background: linear-gradient(180deg, #7d4949 0%, #623838 100%);
+}
+
+/* Home panel start buttons */
+
 #frank-practice-sidebar .actions.start button {
-  padding: 0.55em 0.6em;
+  padding: 0.65em 0.8em;
   text-align: left;
+  font-size: 1.02em;
 }
 
 #frank-practice-sidebar .actions.start button.primary {
-  background: #2e4a5c;
-  border-color: #3f6a7a;
+  background: linear-gradient(180deg, #3d5a6b 0%, #2f4656 100%);
+  border-color: #4f7a8a;
   font-weight: bold;
 }
 
 #frank-practice-sidebar .actions.start button.primary:hover {
-  background: #395d72;
+  background: linear-gradient(180deg, #49687d 0%, #385262 100%);
 }
 
-#frank-practice-sidebar .actions button.solved {
-  background: #2e5c2e;
-  border-color: #3f7a3f;
-}
-
-#frank-practice-sidebar .actions button.solved:hover {
-  background: #397239;
-}
-
-#frank-practice-sidebar .actions button.missed {
-  background: #5c2e2e;
-  border-color: #7a3f3f;
-}
-
-#frank-practice-sidebar .actions button.missed:hover {
-  background: #723939;
-}
+/* Status + verdict */
 
 #frank-practice-sidebar .status-text {
-  margin: 0.4em 0;
-  padding: 0.4em 0.6em;
-  border-radius: 4px;
-  background: #1c2c1c;
-  border: 1px solid #3f5a3f;
-  color: #cfe8cf;
+  margin: 0.5em 0;
+  padding: 0.5em 0.75em;
+  border-radius: 9px;
+  background: rgba(120, 160, 120, 0.12);
+  border: 1px solid #5a7a5a;
+  color: #d5e8d0;
 }
 
+#frank-practice-sidebar .auto-verdict {
+  margin: 0 0 0.7em;
+  padding: 0.6em 0.8em;
+  border-radius: 9px;
+  font-weight: bold;
+  animation: frank-verdict-pop 0.35s ease;
+}
+
+#frank-practice-sidebar .auto-verdict.solved {
+  background: linear-gradient(180deg, #2c5a2c 0%, #234a23 100%);
+  border: 1px solid #4f8a4f;
+  color: #c8ecc0;
+}
+
+#frank-practice-sidebar .auto-verdict.failed {
+  background: linear-gradient(180deg, #5a2c2c 0%, #4a2323 100%);
+  border: 1px solid #8a4f4f;
+  color: #ecc0c0;
+}
+
+@keyframes frank-verdict-pop {
+  0% {
+    transform: scale(0.92);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Footer bits */
+
 #frank-practice-sidebar .session {
-  margin: 0.4em 0;
-  color: #999;
+  margin: 0.5em 0 0.3em;
+  color: #a89878;
   font-size: 0.85em;
 }
 
 #frank-practice-sidebar .overlay-toggle {
   display: block;
-  margin-top: 0.3em;
-  color: #bbb;
-  font-size: 0.85em;
+  margin-top: 0.35em;
+  color: #c9bda6;
+  font-size: 0.88em;
   cursor: pointer;
   user-select: none;
 }
 
 #frank-practice-sidebar .overlay-toggle:hover {
-  color: #fff;
+  color: #f2d99a;
+}
+
+#frank-practice-sidebar .overlay-toggle input {
+  accent-color: #f2c96b;
 }
 
 /* Stone cursor over the board during practice: a translucent stone in the
@@ -219,26 +298,4 @@ main.frank-cursor-white #goban {
     url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28"><defs><radialGradient id="g" cx="35%25" cy="35%25" r="80%25"><stop offset="0%25" stop-color="%23ffffff"/><stop offset="100%25" stop-color="%23c8c8c8"/></radialGradient></defs><circle cx="14" cy="14" r="12.5" fill="url(%23g)" fill-opacity="0.8" stroke="%23555555" stroke-opacity="0.6"/></svg>')
       14 14,
     pointer;
-}
-
-/* Automatic verdict banner (tsumego auto-grading) */
-
-#frank-practice-sidebar .auto-verdict {
-  margin: 0 0 0.6em;
-  padding: 0.5em 0.7em;
-  border-radius: 4px;
-  font-weight: bold;
-  line-height: 1.35;
-}
-
-#frank-practice-sidebar .auto-verdict.solved {
-  background: #244a24;
-  border: 1px solid #3f7a3f;
-  color: #b8e8b8;
-}
-
-#frank-practice-sidebar .auto-verdict.failed {
-  background: #4a2424;
-  border: 1px solid #7a3f3f;
-  color: #e8b8b8;
 }

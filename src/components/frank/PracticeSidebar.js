@@ -188,7 +188,7 @@ export default class PracticeSidebar extends Component {
       h(
         'div',
         {class: 'header'},
-        h('span', {class: 'title'}, t('Tsumego Practice')),
+        h('span', {class: 'title'}, '🧩 ', t('Tsumego Practice')),
         h(
           'a',
           {href: '#', class: 'stop', onClick: this.handleStopTsumego},
@@ -313,7 +313,7 @@ export default class PracticeSidebar extends Component {
       h(
         'div',
         {class: 'header'},
-        h('span', {class: 'title'}, t('Playing KataGo')),
+        h('span', {class: 'title'}, '⚔️ ', t('Playing KataGo')),
         h(
           'a',
           {href: '#', class: 'stop', onClick: this.handleStopGame},
@@ -359,7 +359,7 @@ export default class PracticeSidebar extends Component {
       h(
         'div',
         {class: 'header'},
-        h('span', {class: 'title'}, t('Practice')),
+        h('span', {class: 'title'}, '⚫⚪ ', t('Practice')),
         h(
           'a',
           {href: '#', class: 'stop', onClick: this.handleHidePanel},
@@ -367,7 +367,7 @@ export default class PracticeSidebar extends Component {
         ),
       ),
 
-      h('p', {class: 'guide'}, t('What would you like to do?')),
+      h('p', {class: 'guide'}, t('Welcome! What shall we play today?')),
 
       h(
         'div',
@@ -375,7 +375,7 @@ export default class PracticeSidebar extends Component {
         h(
           'button',
           {class: 'primary', onClick: this.handleStartTsumego},
-          `${t('Tsumego practice')} · ${t('Level')} ${level}`,
+          `🧩 ${t('Tsumego practice')} · ${t('Level')} ${level}`,
         ),
       ),
 
@@ -386,12 +386,12 @@ export default class PracticeSidebar extends Component {
             h(
               'button',
               {onClick: this.handlePlayBlack},
-              `${t('Play KataGo')} — ${t('Black')} ⚫`,
+              `⚫ ${t('Play KataGo')} — ${t('you take Black')}`,
             ),
             h(
               'button',
               {onClick: this.handlePlayWhite},
-              `${t('Play KataGo')} — ${t('White')} ⚪`,
+              `⚪ ${t('Play KataGo')} — ${t('you take White')}`,
             ),
           )
         : h(
@@ -406,7 +406,7 @@ export default class PracticeSidebar extends Component {
         h(
           'button',
           {disabled: this.state.busy, onClick: this.handleStudyGame},
-          t('Study a famous game'),
+          '📖 ' + t('Study a famous game'),
         ),
       ),
 

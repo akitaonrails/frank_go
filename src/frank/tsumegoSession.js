@@ -35,7 +35,7 @@ const MAX_SOLVED_REMEMBERED = 20000
 
 // An engine move farther than this (Chebyshev) outside the problem's
 // bounding box counts as tenuki — the engine has left the local fight.
-const TENUKI_MARGIN = 4
+const TENUKI_MARGIN = 3
 
 const AUTO_ADVANCE_DELAY = 2600
 
@@ -256,12 +256,18 @@ function attachMoveListener() {
     handleMoveMake().catch(() => {})
   }
 
+  // Engine moves don't go through makeMove (generateMove appends the node
+  // and only navigates), so 'moveMake' never fires for them — listen to
+  // 'navigate' as well. handleMoveMake is idempotent and only reacts when
+  // the current node is an engine-colored move.
   sabaki.events.on('moveMake', moveListener)
+  sabaki.events.on('navigate', moveListener)
 }
 
 function detachMoveListener() {
   if (moveListener != null) {
     sabaki.events.removeListener('moveMake', moveListener)
+    sabaki.events.removeListener('navigate', moveListener)
     moveListener = null
   }
 }
