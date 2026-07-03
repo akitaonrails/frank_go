@@ -11,6 +11,7 @@ const sabaki = isRenderer ? require('./modules/sabaki').default : null
 const dialog = isRenderer ? require('./modules/dialog') : null
 // frank_go: practice features (renderer only)
 const frankTsumego = isRenderer ? require('./frank/tsumegoSession') : null
+const frankKatago = isRenderer ? require('./frank/katagoPlay') : null
 const setting = isRenderer
   ? {
       get: (key) => window.sabaki.setting.get(key),
@@ -577,6 +578,15 @@ exports.get = function (props = {}) {
         {
           label: i18n.t('menu.practice', 'Sto&p Practicing'),
           click: () => frankTsumego.stopPractice(),
+        },
+        {type: 'separator'},
+        {
+          label: i18n.t('menu.practice', 'Play vs &KataGo (You: Black)'),
+          click: () => frankKatago.playAgainstKataGo(1),
+        },
+        {
+          label: i18n.t('menu.practice', 'Play vs KataGo (You: &White)'),
+          click: () => frankKatago.playAgainstKataGo(-1),
         },
         {type: 'separator'},
         {
