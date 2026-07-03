@@ -44,6 +44,8 @@ exports.get = function (props = {}) {
     showCommentBox,
     showLeftSidebar,
     engineGameOngoing,
+    // frank_go: beginner assistance
+    frankShowBeginnerOverlay,
   } = props
 
   let data = [
@@ -769,6 +771,14 @@ exports.get = function (props = {}) {
           checked: !!showAnalysis,
           accelerator: 'CmdOrCtrl+H',
           click: () => toggleSetting('board.show_analysis'),
+        },
+        {
+          // frank_go: beginner influence overlay
+          label: i18n.t('menu.view', 'Show &Beginner Area Painting'),
+          type: 'checkbox',
+          checked: !!frankShowBeginnerOverlay,
+          accelerator: 'CmdOrCtrl+Shift+B',
+          click: () => toggleSetting('frank.show_beginner_overlay'),
         },
         {type: 'separator'},
         {

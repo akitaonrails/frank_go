@@ -11,6 +11,9 @@ import FindBar from './bars/FindBar.js'
 import sabaki from '../modules/sabaki.js'
 import * as gametree from '../modules/gametree.js'
 
+// frank_go: beginner assistance
+import {getBeginnerPaintMap} from '../frank/beginnerOverlay.js'
+
 export default class MainView extends Component {
   constructor(props) {
     super(props)
@@ -123,6 +126,9 @@ export default class MainView extends Component {
       for (let [x, y] of blockedGuesses) {
         paintMap[y][x] = 1
       }
+    } else if (this.props.frankShowBeginnerOverlay) {
+      // frank_go: beginner influence overlay ("area painting")
+      paintMap = getBeginnerPaintMap(board)
     }
 
     return h(

@@ -85,6 +85,10 @@ class Sabaki extends EventEmitter {
       animateStonePlacement: null,
       boardTransformation: '',
 
+      // frank_go: beginner assistance
+      frankShowBeginnerOverlay: null,
+      frankTsumego: null,
+
       // Sidebar
 
       consoleLog: [],
@@ -328,6 +332,8 @@ class Sabaki extends EventEmitter {
       'graph.node_size': 'graphNodeSize',
       'engines.list': 'engines',
       'scoring.method': 'scoringMethod',
+      // frank_go: beginner assistance
+      'frank.show_beginner_overlay': 'frankShowBeginnerOverlay',
     }
 
     if (key == null) {

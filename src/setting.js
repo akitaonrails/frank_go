@@ -218,6 +218,12 @@ let defaults = {
   'window.minwidth': 526,
   'window.width': 564,
   'window.maximized': false,
+
+  // frank_go: beginner-assistance settings
+  'frank.show_beginner_overlay': false,
+  'frank.tsumego_level': 1,
+  'frank.tsumego_streak': 0,
+  'frank.tsumego_solved': '{}',
 }
 
 let eventEmitters = {}

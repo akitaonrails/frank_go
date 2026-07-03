@@ -373,6 +373,8 @@ class App extends Component {
         showCommentBox: state.showCommentBox,
         showLeftSidebar: state.showLeftSidebar,
         engineGameOngoing: state.engineGameOngoing,
+        // frank_go: beginner assistance
+        frankShowBeginnerOverlay: state.frankShowBeginnerOverlay,
       }),
 
       h(TripleSplitContainer, {
