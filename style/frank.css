@@ -203,3 +203,20 @@
 #frank-practice-sidebar .overlay-toggle:hover {
   color: #fff;
 }
+
+/* Stone cursor over the board during practice: a translucent stone in the
+   color to play (SVG data URIs, 28px, hotspot centered). */
+
+main.frank-cursor-black #goban {
+  cursor:
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28"><defs><radialGradient id="g" cx="35%25" cy="35%25" r="80%25"><stop offset="0%25" stop-color="%23666666"/><stop offset="100%25" stop-color="%23000000"/></radialGradient></defs><circle cx="14" cy="14" r="12.5" fill="url(%23g)" fill-opacity="0.72" stroke="%23000000" stroke-opacity="0.5"/></svg>')
+      14 14,
+    pointer;
+}
+
+main.frank-cursor-white #goban {
+  cursor:
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28"><defs><radialGradient id="g" cx="35%25" cy="35%25" r="80%25"><stop offset="0%25" stop-color="%23ffffff"/><stop offset="100%25" stop-color="%23c8c8c8"/></radialGradient></defs><circle cx="14" cy="14" r="12.5" fill="url(%23g)" fill-opacity="0.8" stroke="%23555555" stroke-opacity="0.6"/></svg>')
+      14 14,
+    pointer;
+}

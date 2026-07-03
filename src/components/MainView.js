@@ -131,13 +131,23 @@ export default class MainView extends Component {
       paintMap = getBeginnerPaintMap(board)
     }
 
+    // frank_go: during practice, the cursor over the board becomes a
+    // translucent stone in the color to play (see style/frank.css)
+    let frankStoneCursor =
+      (this.props.frankTsumego != null || this.props.frankKatagoGame != null) &&
+      mode === 'play'
+        ? currentPlayer > 0
+          ? 'frank-cursor-black'
+          : 'frank-cursor-white'
+        : null
+
     return h(
       'section',
       {id: 'main'},
 
       h(
         'main',
-        {ref: (el) => (this.mainElement = el)},
+        {ref: (el) => (this.mainElement = el), class: frankStoneCursor},
 
         h(Goban, {
           gameTree,
