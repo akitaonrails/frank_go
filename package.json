@@ -115,7 +115,7 @@
     "jschardet": "^3.0.0",
     "natsort": "^2.0.2",
     "pikaday": "^1.8.0",
-    "preact": "^10.4.0",
+    "preact": "^10.29.4",
     "react-markdown": "^10.1.0",
     "remark-breaks": "^3.0.2",
     "rimraf": "^6.1.2",
