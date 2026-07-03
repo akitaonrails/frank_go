@@ -470,6 +470,33 @@ export async function continueAfterSolve() {
   answer(true)
 }
 
+// Human-friendly rank labels for the 1-10 difficulty scale.
+export const LEVEL_RANKS = {
+  1: '~18 kyu',
+  2: '~13 kyu',
+  3: '~10 kyu',
+  4: '~8 kyu',
+  5: '~5 kyu',
+  6: '~3 kyu',
+  7: '~1 dan',
+  8: '~2 dan',
+  9: '~4 dan',
+  10: '~6 dan+',
+}
+
+// Lets the player choose their own difficulty; loads a fresh problem at
+// the new level without grading the current one.
+export async function setLevel(level) {
+  if (currentProblem == null) return
+
+  level = Math.min(10, Math.max(1, Math.round(level)))
+  cancelAutoAdvance()
+  setting.set('frank.tsumego_level', level)
+  setting.set('frank.tsumego_streak', 0)
+
+  await advanceToNextProblem()
+}
+
 export async function skipProblem() {
   if (currentProblem == null) return
 

@@ -21,15 +21,28 @@ const setting = {
 
 let game = null // {playerSign, engineName, syncerId}
 
-// Prefers the beginner-friendly engine installed by setup-katago.mjs, but
-// accepts any engine whose name mentions KataGo.
+// All configured KataGo variants (setup-katago.mjs registers Beginner /
+// Full / Human rank engines).
+export function listKataGoEngines(engines = setting.get('engines.list') || []) {
+  return engines.filter((engine) => /katago/i.test(engine.name))
+}
+
+// Prefers the player's chosen opponent (frank.katago_engine), then the
+// beginner-friendly engine, then any KataGo.
 export function findKataGoEngine(engines = setting.get('engines.list') || []) {
+  let preferred = setting.get('frank.katago_engine')
+
   return (
+    (preferred && engines.find((engine) => engine.name === preferred)) ||
     engines.find((engine) => /katago.*beginner/i.test(engine.name)) ||
     engines.find((engine) => /katago.*human/i.test(engine.name)) ||
     engines.find((engine) => /katago/i.test(engine.name)) ||
     null
   )
+}
+
+export function setPreferredEngine(name) {
+  setting.set('frank.katago_engine', name)
 }
 
 function publishState() {

@@ -299,3 +299,44 @@ main.frank-cursor-white #goban {
       14 14,
     pointer;
 }
+
+/* Level stepper + opponent strength picker */
+
+#frank-practice-sidebar .levelrow .levelstep {
+  width: 1.6em;
+  height: 1.6em;
+  padding: 0;
+  border: 1px solid #5a4d38;
+  border-radius: 50%;
+  background: #3a3225;
+  color: #efe6d5;
+  font-weight: bold;
+  cursor: pointer;
+  line-height: 1;
+}
+
+#frank-practice-sidebar .levelrow .levelstep:hover:not(:disabled) {
+  background: #524633;
+}
+
+#frank-practice-sidebar .levelrow .levelstep:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+#frank-practice-sidebar .strength {
+  display: block;
+  margin-bottom: 0.5em;
+  color: #d8cdb8;
+  font-size: 0.9em;
+}
+
+#frank-practice-sidebar .strength select {
+  max-width: 100%;
+  margin-top: 0.2em;
+  padding: 0.25em 0.4em;
+  border: 1px solid #5a4d38;
+  border-radius: 6px;
+  background: #3a3225;
+  color: #efe6d5;
+}

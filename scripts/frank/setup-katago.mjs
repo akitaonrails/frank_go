@@ -54,6 +54,9 @@ const binDir = join(kataDir, 'bin')
 const netDir = join(kataDir, 'networks')
 const logDir = join(kataDir, 'logs')
 
+// Human-imitation opponents registered with --human (weakest to strongest)
+const HUMAN_RANKS = ['15k', '5k', '1d']
+
 const args = process.argv.slice(2)
 const wantHuman = args.includes('--human')
 const wantStrong = args.includes('--strong')
@@ -239,27 +242,30 @@ function writeConfigs({human}) {
   }
 
   if (human) {
-    // Mirrors KataGo's official gtp_human5k_example.cfg
-    configs['gtp-human5k.cfg'] = [
-      '# frank_go: imitates a ~5-kyu human (requires -human-model)',
-      '# Change humanSLProfile to e.g. preaz_15k, preaz_1d to adjust rank.',
-      ...common,
-      'allowResignation = false',
-      'maxVisits = 40',
-      'numSearchThreads = 1',
-      'delayMoveScale = 2.0',
-      'delayMoveMax = 10.0',
-      'humanSLProfile = preaz_5k',
-      'humanSLChosenMoveProp = 1.0',
-      'humanSLChosenMoveIgnorePass = true',
-      'humanSLChosenMovePiklLambda = 100000000',
-      'humanSLRootExploreProbWeightless = 0.0',
-      'humanSLRootExploreProbWeightful = 0.0',
-      'humanSLPlaExploreProbWeightless = 0.0',
-      'humanSLPlaExploreProbWeightful = 0.0',
-      'humanSLOppExploreProbWeightless = 0.0',
-      'humanSLOppExploreProbWeightful = 0.0',
-    ]
+    // Mirrors KataGo's official gtp_human5k_example.cfg, at several ranks
+    // so beginners can pick an opponent that matches their level.
+    for (let rank of HUMAN_RANKS) {
+      configs[`gtp-human${rank}.cfg`] = [
+        `# frank_go: imitates a ~${rank} human (requires -human-model)`,
+        '# Change humanSLProfile (e.g. preaz_20k .. preaz_9d) to adjust.',
+        ...common,
+        'allowResignation = false',
+        'maxVisits = 40',
+        'numSearchThreads = 1',
+        'delayMoveScale = 2.0',
+        'delayMoveMax = 10.0',
+        `humanSLProfile = preaz_${rank}`,
+        'humanSLChosenMoveProp = 1.0',
+        'humanSLChosenMoveIgnorePass = true',
+        'humanSLChosenMovePiklLambda = 100000000',
+        'humanSLRootExploreProbWeightless = 0.0',
+        'humanSLRootExploreProbWeightful = 0.0',
+        'humanSLPlaExploreProbWeightless = 0.0',
+        'humanSLPlaExploreProbWeightful = 0.0',
+        'humanSLOppExploreProbWeightless = 0.0',
+        'humanSLOppExploreProbWeightful = 0.0',
+      ]
+    }
   }
 
   for (let [name, lines] of Object.entries(configs)) {
@@ -303,12 +309,14 @@ function registerEngines({binary, fastNet, strongNet, humanNet}) {
   ]
 
   if (humanNet) {
-    engines.push({
-      name: 'KataGo (Human ~5k)',
-      path: binary,
-      args: `gtp -config ${join(kataDir, 'gtp-human5k.cfg')} -model ${strongNet || fastNet} -human-model ${humanNet}`,
-      commands: '',
-    })
+    for (let rank of HUMAN_RANKS) {
+      engines.push({
+        name: `KataGo (Human ~${rank})`,
+        path: binary,
+        args: `gtp -config ${join(kataDir, `gtp-human${rank}.cfg`)} -model ${strongNet || fastNet} -human-model ${humanNet}`,
+        commands: '',
+      })
+    }
   }
 
   let settingsPath = sabakiSettingsPath()

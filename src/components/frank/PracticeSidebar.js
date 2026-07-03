@@ -7,8 +7,10 @@ import classNames from 'classnames'
 import i18n from '../../i18n.js'
 import * as gametree from '../../modules/gametree.js'
 import * as tsumegoSession from '../../frank/tsumegoSession.js'
+import {LEVEL_RANKS} from '../../frank/tsumegoSession.js'
 import * as katagoPlay from '../../frank/katagoPlay.js'
 import * as famousGames from '../../frank/famousGames.js'
+import * as sabakiDialog from '../../modules/dialog.js'
 import {
   describeVerdict,
   estimateScore,
@@ -51,6 +53,23 @@ export default class PracticeSidebar extends Component {
     this.handleStopTsumego = () => tsumegoSession.stopPractice()
 
     this.handleNextNow = () => tsumegoSession.continueAfterSolve()
+
+    this.handleLevelDown = () => {
+      let {frankTsumego} = this.props
+      if (frankTsumego != null)
+        tsumegoSession.setLevel(frankTsumego.progress.level - 1)
+    }
+
+    this.handleLevelUp = () => {
+      let {frankTsumego} = this.props
+      if (frankTsumego != null)
+        tsumegoSession.setLevel(frankTsumego.progress.level + 1)
+    }
+
+    this.handleEngineChoice = (evt) => {
+      katagoPlay.setPreferredEngine(evt.currentTarget.value)
+      this.forceUpdate()
+    }
 
     this.handleToggleSparring = () =>
       tsumegoSession.setSparring(!this.props.frankTsumego.sparring)
@@ -112,7 +131,7 @@ export default class PracticeSidebar extends Component {
     this.handleStudyGame = async () => {
       this.setState({busy: true})
 
-      let game = await famousGames.studyRandomGame()
+      let game = await famousGames.studyRandomGame('famous')
 
       this.setState({
         busy: false,
@@ -120,6 +139,32 @@ export default class PracticeSidebar extends Component {
           game == null
             ? t('Could not find the famous games pack.')
             : `${game.title} (${game.date}, ${game.result}) — ${game.why}`,
+      })
+    }
+
+    this.hikaruAboutShown = false
+
+    this.handleStudyHikaru = async () => {
+      // First time: explain that the manga games are real pro games.
+      if (!this.hikaruAboutShown) {
+        this.hikaruAboutShown = true
+        let about = famousGames.packAbout('hikaru')
+
+        if (about != null) {
+          await sabakiDialog.showMessageBox(about, 'info', [t('Let me see!')])
+        }
+      }
+
+      this.setState({busy: true})
+
+      let game = await famousGames.studyRandomGame('hikaru')
+
+      this.setState({
+        busy: false,
+        statusText:
+          game == null
+            ? t('Could not find the Hikaru no Go pack.')
+            : `${game.manga} · ${game.title} (${game.result}) — ${game.trivia}`,
       })
     }
 
@@ -201,7 +246,34 @@ export default class PracticeSidebar extends Component {
       h(
         'div',
         {class: 'levelrow'},
-        h('span', {class: 'level'}, t('Level'), ' ', progress.level, '/10'),
+        h(
+          'button',
+          {
+            class: 'levelstep',
+            title: t('Easier problems'),
+            disabled: progress.level <= 1,
+            onClick: this.handleLevelDown,
+          },
+          '−',
+        ),
+        h(
+          'span',
+          {class: 'level', title: t('Choose your difficulty')},
+          t('Level'),
+          ' ',
+          progress.level,
+          ` (${LEVEL_RANKS[progress.level]})`,
+        ),
+        h(
+          'button',
+          {
+            class: 'levelstep',
+            title: t('Harder problems'),
+            disabled: progress.level >= 10,
+            onClick: this.handleLevelUp,
+          },
+          '+',
+        ),
         h(
           'span',
           {class: 'dots', title: t('Solve 5 in a row to level up')},
@@ -368,7 +440,9 @@ export default class PracticeSidebar extends Component {
 
   renderHome() {
     let level = setting.get('frank.tsumego_level') || 1
-    let hasKatago = katagoPlay.findKataGoEngine() != null
+    let engines = katagoPlay.listKataGoEngines()
+    let hasKatago = engines.length > 0
+    let chosenEngine = katagoPlay.findKataGoEngine()
 
     return h(
       'div',
@@ -400,17 +474,46 @@ export default class PracticeSidebar extends Component {
       hasKatago
         ? h(
             'div',
-            {class: 'actions start'},
+            {class: 'katago-start'},
+            engines.length > 1 &&
+              h(
+                'label',
+                {class: 'strength'},
+                t('Opponent:'),
+                ' ',
+                h(
+                  'select',
+                  {
+                    value: chosenEngine != null ? chosenEngine.name : '',
+                    onChange: this.handleEngineChoice,
+                  },
+                  engines.map((engine) =>
+                    h('option', {value: engine.name}, engine.name),
+                  ),
+                ),
+              ),
             h(
-              'button',
-              {onClick: this.handlePlayBlack},
-              `⚫ ${t('Play KataGo')} — ${t('you take Black')}`,
+              'div',
+              {class: 'actions start'},
+              h(
+                'button',
+                {onClick: this.handlePlayBlack},
+                `⚫ ${t('Play KataGo')} — ${t('you take Black')}`,
+              ),
+              h(
+                'button',
+                {onClick: this.handlePlayWhite},
+                `⚪ ${t('Play KataGo')} — ${t('you take White')}`,
+              ),
             ),
-            h(
-              'button',
-              {onClick: this.handlePlayWhite},
-              `⚪ ${t('Play KataGo')} — ${t('you take White')}`,
-            ),
+            engines.length <= 2 &&
+              h(
+                'p',
+                {class: 'session'},
+                t(
+                  'Tip: `npm run frank:katago -- --human` adds human-like ranked opponents (15k / 5k / 1d).',
+                ),
+              ),
           )
         : h(
             'p',
@@ -425,6 +528,11 @@ export default class PracticeSidebar extends Component {
           'button',
           {disabled: this.state.busy, onClick: this.handleStudyGame},
           '📖 ' + t('Study a famous game'),
+        ),
+        h(
+          'button',
+          {disabled: this.state.busy, onClick: this.handleStudyHikaru},
+          '🎌 ' + t('Hikaru no Go game'),
         ),
       ),
 

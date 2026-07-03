@@ -40,6 +40,16 @@ heuristic metadata).
   curated research collection. Game move sequences as such are generally not
   subject to copyright, and we redistribute only a tiny curated selection with
   attribution. `index.json` descriptions are our own.
+- `hikaru/` — 15 real professional games that appear in the **Hikaru no Go**
+  manga/anime, curated from the same CWI database. The chapter-to-game mapping
+  was compiled by the go community on
+  [Sensei's Library — HikaruNoGo/Games](https://senseis.xmp.net/?HikaruNoGoGames)
+  (the manga's go content was supervised by pro player Yukari Umezawa). We
+  redistribute only the historical game records plus our own trivia text — no
+  manga imagery or text.
+- The five AlphaGo–Lee Sedol records in `famous/` are the **commented** versions
+  from the CWI database (move-by-move English commentary embedded as SGF `C[]`
+  comments; commentary author as distributed by the database).
 - `bulk/` — **not in git.** `node scripts/frank/fetch-games.mjs` downloads the
   full 90,000+ game archive from the same source for local study features.
 
