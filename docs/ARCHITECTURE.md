@@ -29,6 +29,7 @@ src/frank/                    ← all frank_go renderer logic
   beginnerOverlay.js          ← influence "area painting" paint maps
   positionJudge.js            ← dead-stone heuristics: score estimate, L&D verdict
   katagoPlay.js               ← play-vs-KataGo game lifecycle (restart/undo/…)
+  famousGames.js              ← loads the famous-games pack for study
 
 src/components/frank/
   PracticeSidebar.js          ← practice controls docked in the right sidebar
@@ -64,6 +65,16 @@ life & death verdict from `positionJudge.judgeRegion` (dead-stone Monte Carlo).
 Bundled problems have **no solution trees** (see `data/SOURCES.md`), so the
 final grade stays the player's call; engine-verified grading is the next
 milestone (below).
+
+### Home panel
+
+When nothing is running, the sidebar (open by default, `frank.show_home_panel`)
+shows a start panel: continue tsumego at the saved level, play KataGo as
+Black/White (or a setup hint when no engine is configured), and "Study a famous
+game", which loads a random game from `data/games/famous` and shows its story.
+In beginner mode (default) the advanced Sabaki menus (Edit, Find, Engines,
+Tools, Developer) are removed from the menu bar; View > Show Advanced Menus
+restores them (`frank.advanced_mode`).
 
 ### Play vs KataGo (Practice menu)
 

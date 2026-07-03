@@ -131,9 +131,12 @@ export default class Sidebar extends Component {
     let level = gameTree.getLevel(treePosition)
     showWinrateGraph = showWinrateGraph && winrateData.some((x) => x != null)
 
-    // frank_go: practice controls dock at the top of the sidebar
+    // frank_go: practice controls (or the start panel) dock at the top of
+    // the sidebar
     let practiceActive =
-      this.props.frankTsumego != null || this.props.frankKatagoGame != null
+      this.props.frankTsumego != null ||
+      this.props.frankKatagoGame != null ||
+      this.props.frankShowHomePanel !== false
 
     return h(
       'section',

@@ -226,6 +226,7 @@ let defaults = {
   'frank.tsumego_solved': '{}',
   'frank.tsumego_sparring': true,
   'frank.advanced_mode': false,
+  'frank.show_home_panel': true,
 }
 
 let eventEmitters = {}

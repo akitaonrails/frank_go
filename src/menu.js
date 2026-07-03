@@ -50,6 +50,7 @@ exports.get = function (props = {}) {
     // frank_go: beginner assistance
     frankShowBeginnerOverlay,
     frankAdvancedMode,
+    frankShowHomePanel,
   } = props
 
   // frank_go: beginner-first menus — advanced Sabaki menus are hidden until
@@ -590,6 +591,13 @@ exports.get = function (props = {}) {
         },
         {type: 'separator'},
         {
+          label: i18n.t('menu.practice', 'Show Practice Pa&nel'),
+          type: 'checkbox',
+          checked: frankShowHomePanel !== false,
+          click: () => toggleSetting('frank.show_home_panel'),
+        },
+        {type: 'separator'},
+        {
           label: i18n.t('menu.practice', 'Play vs &KataGo (You: Black)'),
           click: () => frankKatago.playAgainstKataGo(1),
         },
@@ -1088,17 +1096,15 @@ exports.get = function (props = {}) {
     viewMenu.submenu.splice(0, 1)
   }
 
-  // frank_go: beginner mode hides the advanced top-level menus. Items stay
-  // in the template (stable ids for the IPC click listeners) — they are
-  // only made invisible, and reappear via View > Show Advanced Menus.
-  if (!advancedMode) {
+  // frank_go: beginner mode drops the advanced top-level menus from the
+  // built menu (Electron ignores `visible` on top-level items on Linux).
+  // Safe for the IPC click listeners: top-level menus carry explicit ids,
+  // so the derived submenu ids never shift — and the renderer's
+  // registration call (menu.get() without props) always sees the full
+  // template. Toggle via View > Show Advanced Menus.
+  if (!advancedMode && Object.keys(props).length > 0) {
     let advancedIds = ['edit', 'find', 'engines', 'tools', 'developer']
-
-    for (let item of data) {
-      if (advancedIds.includes(item.id)) {
-        item.visible = false
-      }
-    }
+    data = data.filter((item) => !advancedIds.includes(item.id))
   }
 
   let processMenu = (menu, idPrefix = '') => {

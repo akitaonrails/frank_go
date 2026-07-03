@@ -143,6 +143,21 @@
   font-weight: bold;
 }
 
+#frank-practice-sidebar .actions.start button {
+  padding: 0.55em 0.6em;
+  text-align: left;
+}
+
+#frank-practice-sidebar .actions.start button.primary {
+  background: #2e4a5c;
+  border-color: #3f6a7a;
+  font-weight: bold;
+}
+
+#frank-practice-sidebar .actions.start button.primary:hover {
+  background: #395d72;
+}
+
 #frank-practice-sidebar .actions button.solved {
   background: #2e5c2e;
   border-color: #3f7a3f;

@@ -8,6 +8,7 @@ import i18n from '../../i18n.js'
 import * as gametree from '../../modules/gametree.js'
 import * as tsumegoSession from '../../frank/tsumegoSession.js'
 import * as katagoPlay from '../../frank/katagoPlay.js'
+import * as famousGames from '../../frank/famousGames.js'
 import {
   describeVerdict,
   estimateScore,
@@ -99,15 +100,44 @@ export default class PracticeSidebar extends Component {
         'frank.show_beginner_overlay',
         !setting.get('frank.show_beginner_overlay'),
       )
+
+    this.handleStartTsumego = () => tsumegoSession.startPractice()
+
+    this.handlePlayBlack = () => katagoPlay.playAgainstKataGo(1)
+
+    this.handlePlayWhite = () => katagoPlay.playAgainstKataGo(-1)
+
+    this.handleStudyGame = async () => {
+      this.setState({busy: true})
+
+      let game = await famousGames.studyRandomGame()
+
+      this.setState({
+        busy: false,
+        statusText:
+          game == null
+            ? t('Could not find the famous games pack.')
+            : `${game.title} (${game.date}, ${game.result}) — ${game.why}`,
+      })
+    }
+
+    this.handleHidePanel = () => {
+      this.setState({statusText: null})
+      setting.set('frank.show_home_panel', false)
+    }
   }
 
   componentWillReceiveProps(nextProps) {
-    // Judgments/estimates describe a position — drop them when the
-    // problem changes.
-    let prevId = this.props.frankTsumego?.problem?.id
-    let nextId = nextProps.frankTsumego?.problem?.id
+    // Judgments/estimates/stories describe a position — drop them when the
+    // problem or the kind of activity changes.
+    let activity = (props) =>
+      props.frankTsumego != null
+        ? `tsumego:${props.frankTsumego.problem.id}`
+        : props.frankKatagoGame != null
+          ? 'katago'
+          : 'home'
 
-    if (prevId !== nextId) {
+    if (activity(this.props) !== activity(nextProps)) {
       this.setState({statusText: null})
     }
   }
@@ -301,15 +331,86 @@ export default class PracticeSidebar extends Component {
     )
   }
 
-  render({frankTsumego, frankKatagoGame}) {
-    if (frankTsumego == null && frankKatagoGame == null) return null
+  renderHome() {
+    let level = setting.get('frank.tsumego_level') || 1
+    let hasKatago = katagoPlay.findKataGoEngine() != null
 
     return h(
-      'section',
-      {id: 'frank-practice-sidebar'},
+      'div',
+      {class: 'activity home'},
+
+      h(
+        'div',
+        {class: 'header'},
+        h('span', {class: 'title'}, t('Practice')),
+        h(
+          'a',
+          {href: '#', class: 'stop', onClick: this.handleHidePanel},
+          t('hide'),
+        ),
+      ),
+
+      h('p', {class: 'guide'}, t('What would you like to do?')),
+
+      h(
+        'div',
+        {class: 'actions start'},
+        h(
+          'button',
+          {class: 'primary', onClick: this.handleStartTsumego},
+          `${t('Tsumego practice')} · ${t('Level')} ${level}`,
+        ),
+      ),
+
+      hasKatago
+        ? h(
+            'div',
+            {class: 'actions start'},
+            h(
+              'button',
+              {onClick: this.handlePlayBlack},
+              `${t('Play KataGo')} — ${t('Black')} ⚫`,
+            ),
+            h(
+              'button',
+              {onClick: this.handlePlayWhite},
+              `${t('Play KataGo')} — ${t('White')} ⚪`,
+            ),
+          )
+        : h(
+            'p',
+            {class: 'session'},
+            t('To play against KataGo, run: npm run frank:katago'),
+          ),
+
+      h(
+        'div',
+        {class: 'actions start'},
+        h(
+          'button',
+          {disabled: this.state.busy, onClick: this.handleStudyGame},
+          t('Study a famous game'),
+        ),
+      ),
+
+      this.renderStatus(),
+
+      this.renderOverlayToggle(),
+    )
+  }
+
+  render({frankTsumego, frankKatagoGame, frankShowHomePanel}) {
+    let content =
       frankTsumego != null
         ? this.renderTsumego(frankTsumego)
-        : this.renderKatagoGame(frankKatagoGame),
-    )
+        : frankKatagoGame != null
+          ? this.renderKatagoGame(frankKatagoGame)
+          : frankShowHomePanel !== false
+            ? this.renderHome()
+            : null
+
+    if (content == null) return null
+
+    return h('section', {id: 'frank-practice-sidebar'}, content)
   }
 }
