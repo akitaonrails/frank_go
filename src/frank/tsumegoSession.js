@@ -1,21 +1,25 @@
 // frank_go: tsumego practice session (renderer only).
 //
 // Orchestrates the practice loop: pick a problem near the player's level,
-// load it into Sabaki's board, let the player play it out, then grade.
+// load it into Sabaki's board, let the player play it out — and grade
+// automatically whenever a sparring engine is available.
 //
-// If a KataGo engine is configured (npm run frank:katago), it is attached
-// as a sparring partner: it answers the player's moves inside the problem,
-// so the position fights back. When the engine plays far away from the
-// problem region (tenuki) or passes, the local fight is settled — we drop
-// that stray move, judge the region against the problem's inferred goal
-// (kill the opponent / make our group live) and, on success, auto-grade
-// Solved. The verdict is a heuristic (positionJudge.js), so the manual
-// Solved/Missed buttons always remain available; bundled problems ship
-// without solution trees (see data/SOURCES.md).
+// With KataGo attached (npm run frank:katago) the flow is fully automatic:
+// the engine answers inside the problem; when it leaves the area or passes
+// the region is judged against the problem's inferred goal — success shows
+// a banner and advances, failure records a miss and offers Retry/Next in a
+// dialog. For kill problems the session also notices early when all the
+// stones the player threw in have died. Without an engine, the player
+// self-grades with Solved/Missed buttons (the panel adapts).
+//
+// The verdicts come from a Monte-Carlo heuristic (positionJudge.js);
+// bundled problems ship without solution trees (see data/SOURCES.md).
 
 import sabaki from '../modules/sabaki.js'
 import sgf from '@sabaki/sgf'
 import * as gametree from '../modules/gametree.js'
+import * as dialog from '../modules/dialog.js'
+import i18n from '../i18n.js'
 import {getSharedStore, problemToSgf, createRng} from './data/problemStore.js'
 import {
   STREAK_TO_LEVEL_UP,
@@ -24,7 +28,9 @@ import {
   pickProblem,
 } from './tsumegoProgress.js'
 import {findKataGoEngine} from './katagoPlay.js'
-import {judgeRegion} from './positionJudge.js'
+import {judgeRegion, guessDeadSet} from './positionJudge.js'
+
+const t = i18n.context('frank.tsumego')
 
 const setting = {
   get: (key) => window.sabaki.setting.get(key),
@@ -51,6 +57,7 @@ let judging = false
 let autoVerdict = null // {result: 'solved'|'failed', text}
 let autoAdvanceTimer = null
 let moveListener = null
+let attemptMoves = [] // vertices the player has placed this attempt
 
 function loadSolvedIds() {
   try {
@@ -175,8 +182,138 @@ function isInsideRegion(vertex, region, margin = TENUKI_MARGIN) {
   )
 }
 
-// Called after every move; reacts when the sparring engine leaves the
-// problem area (or passes), which means the local fight is settled.
+function opponentName() {
+  return currentProblem.toPlay === 'B' ? t('White') : t('Black')
+}
+
+function successText() {
+  return goal === 'live'
+    ? t('KataGo gave up the attack — your group lives. Solved!')
+    : t('KataGo left the fight — {{opponent}} is dead. Solved!').replace(
+        '{{opponent}}',
+        opponentName().toLowerCase(),
+      )
+}
+
+function failureText(early = false) {
+  if (early) return t('Your stones died — that line does not work.')
+
+  return goal === 'live'
+    ? t('The fight is over, but your group is still dead.')
+    : t('The fight is over, but {{opponent}} still lives.').replace(
+        '{{opponent}}',
+        opponentName().toLowerCase(),
+      )
+}
+
+function scheduleAutoSolve() {
+  autoVerdict = {result: 'solved', text: successText()}
+  publishState(loadProgress())
+
+  cancelAutoAdvance()
+  autoAdvanceTimer = setTimeout(() => {
+    autoAdvanceTimer = null
+    answer(true)
+  }, AUTO_ADVANCE_DELAY)
+}
+
+// Records the miss once, shows the verdict, and lets the player choose
+// between retrying the same problem (no double penalty) or moving on.
+async function failAndPrompt(text) {
+  let progress = loadProgress()
+  let next = applyResult(progress, false)
+  saveProgress(next)
+  sessionStats.missed++
+
+  autoVerdict = {result: 'failed', text}
+  publishState(next, next.event)
+
+  let choice = await dialog.showMessageBox(
+    `${text}\n\n${t('Do you want to try this problem again?')}`,
+    'info',
+    [t('Retry'), t('Next problem')],
+    0,
+  )
+
+  if (currentProblem == null) return
+
+  if (choice === 0) {
+    await retryProblem()
+  } else {
+    await advanceToNextProblem()
+  }
+}
+
+// Advances without grading (the miss/solve has already been recorded).
+async function advanceToNextProblem() {
+  let progress = loadProgress()
+  let problem = pickProblem(getSharedStore(), {
+    level: progress.level,
+    solvedIds: new Set([
+      ...loadSolvedIds(),
+      ...(currentProblem ? [currentProblem.id] : []),
+    ]),
+    rng,
+  })
+
+  if (problem != null) {
+    currentProblem = problem
+    await loadProblemIntoBoard(problem)
+  }
+
+  publishState(progress)
+}
+
+async function settleAndJudge(strayTreePosition = null) {
+  settled = true
+  judging = true
+
+  let problem = currentProblem
+  unassignSparringColors()
+
+  if (strayTreePosition != null) {
+    await sabaki.removeNode(strayTreePosition, {suppressConfirmation: true})
+  }
+
+  let verdict
+  try {
+    verdict = await judgeRegion(currentBoard(), problem.region)
+  } finally {
+    judging = false
+  }
+
+  if (currentProblem !== problem) return
+
+  let mine = problem.toPlay === 'B' ? verdict.black : verdict.white
+  let theirs = problem.toPlay === 'B' ? verdict.white : verdict.black
+  let success = goal === 'live' ? mine === 'alive' : theirs === 'dead'
+
+  if (success) {
+    scheduleAutoSolve()
+  } else {
+    await failAndPrompt(failureText())
+  }
+}
+
+// For kill problems: if the player has committed stones and every one of
+// them now looks dead while the fight is still on, the attempt has failed.
+async function checkAttemptStonesDead() {
+  if (goal !== 'kill' || attemptMoves.length < 2) return false
+
+  let deadSet = await guessDeadSet(currentBoard())
+  let board = currentBoard()
+
+  let allGone = attemptMoves.every(([x, y]) => {
+    let sign = board.get([x, y])
+    let mySign = currentProblem.toPlay === 'B' ? 1 : -1
+
+    return sign !== mySign || deadSet.has(`${x},${y}`)
+  })
+
+  return allGone
+}
+
+// Called on every move/navigation; drives the automatic grading.
 async function handleMoveMake() {
   if (
     currentProblem == null ||
@@ -189,7 +326,19 @@ async function handleMoveMake() {
 
   let {gameTrees, gameIndex, treePosition} = sabaki.state
   let node = gameTrees[gameIndex].get(treePosition)
-  let engineColor = currentProblem.toPlay === 'B' ? 'W' : 'B'
+  let myColor = currentProblem.toPlay
+  let engineColor = myColor === 'B' ? 'W' : 'B'
+
+  // Track the player's own stones for the early-failure check.
+  if (node.data[myColor] != null && node.data[myColor][0] !== '') {
+    let vertex = sgf.parseVertex(node.data[myColor][0])
+
+    if (!attemptMoves.some(([x, y]) => x === vertex[0] && y === vertex[1])) {
+      attemptMoves.push(vertex)
+    }
+
+    return
+  }
 
   if (node.data[engineColor] == null) return
 
@@ -197,56 +346,27 @@ async function handleMoveMake() {
   let vertex = raw === '' ? null : sgf.parseVertex(raw)
 
   if (vertex != null && isInsideRegion(vertex, currentProblem.region)) {
-    return // local answer — the fight goes on
+    // Local answer — check whether the player's attempt has already died.
+    judging = true
+
+    let failedEarly
+    try {
+      failedEarly = await checkAttemptStonesDead()
+    } finally {
+      judging = false
+    }
+
+    if (failedEarly && !settled && currentProblem != null) {
+      settled = true
+      unassignSparringColors()
+      await failAndPrompt(failureText(true))
+    }
+
+    return
   }
 
-  // Tenuki or pass: judge the region without the stray move.
-  settled = true
-  judging = true
-
-  let problem = currentProblem
-  unassignSparringColors()
-  await sabaki.removeNode(treePosition, {suppressConfirmation: true})
-
-  let verdict
-  try {
-    verdict = await judgeRegion(currentBoard(), problem.region)
-  } finally {
-    judging = false
-  }
-
-  if (currentProblem !== problem) return // player moved on meanwhile
-
-  let mine = problem.toPlay === 'B' ? verdict.black : verdict.white
-  let theirs = problem.toPlay === 'B' ? verdict.white : verdict.black
-  let opponentName = problem.toPlay === 'B' ? 'White' : 'Black'
-  let success = goal === 'live' ? mine === 'alive' : theirs === 'dead'
-
-  autoVerdict = success
-    ? {
-        result: 'solved',
-        text:
-          goal === 'live'
-            ? 'KataGo gave up the attack — your group looks alive. Solved!'
-            : `KataGo left the fight — ${opponentName.toLowerCase()} looks dead. Solved!`,
-      }
-    : {
-        result: 'failed',
-        text:
-          goal === 'live'
-            ? 'The fight is over, but your group still looks dead. Reset to retry, or mark Missed.'
-            : `The fight is over, but ${opponentName.toLowerCase()} still looks alive. Reset to retry, or mark Missed.`,
-      }
-
-  publishState(loadProgress())
-
-  if (success) {
-    cancelAutoAdvance()
-    autoAdvanceTimer = setTimeout(() => {
-      autoAdvanceTimer = null
-      answer(true)
-    }, AUTO_ADVANCE_DELAY)
-  }
+  // Tenuki or pass: the local fight is settled — judge it.
+  await settleAndJudge(vertex != null || raw === '' ? treePosition : null)
 }
 
 function attachMoveListener() {
@@ -258,8 +378,8 @@ function attachMoveListener() {
 
   // Engine moves don't go through makeMove (generateMove appends the node
   // and only navigates), so 'moveMake' never fires for them — listen to
-  // 'navigate' as well. handleMoveMake is idempotent and only reacts when
-  // the current node is an engine-colored move.
+  // 'navigate' as well. handleMoveMake is idempotent and only reacts to
+  // move nodes.
   sabaki.events.on('moveMake', moveListener)
   sabaki.events.on('navigate', moveListener)
 }
@@ -276,6 +396,7 @@ async function loadProblemIntoBoard(problem, {firstLoad = false} = {}) {
   cancelAutoAdvance()
   settled = false
   autoVerdict = null
+  attemptMoves = []
 
   await sabaki.loadContent(problemToSgf(problem), 'sgf', {
     suppressAskForSave: !firstLoad,
@@ -313,6 +434,8 @@ export async function startPractice() {
   publishState(progress)
 }
 
+// Manual grading — used by the auto-solve timer, the "Next" button on a
+// success banner, and the self-grade buttons when no engine is attached.
 export async function answer(correct) {
   if (currentProblem == null) return
 
@@ -340,24 +463,18 @@ export async function answer(correct) {
   publishState(next, next.event)
 }
 
+// Skips the auto-advance delay after an automatic solve.
+export async function continueAfterSolve() {
+  if (autoVerdict == null || autoVerdict.result !== 'solved') return
+
+  answer(true)
+}
+
 export async function skipProblem() {
   if (currentProblem == null) return
 
   cancelAutoAdvance()
-
-  let progress = loadProgress()
-  let problem = pickProblem(getSharedStore(), {
-    level: progress.level,
-    solvedIds: new Set([...loadSolvedIds(), currentProblem.id]),
-    rng,
-  })
-
-  if (problem != null) {
-    currentProblem = problem
-    await loadProblemIntoBoard(problem)
-  }
-
-  publishState(progress)
+  await advanceToNextProblem()
 }
 
 export async function retryProblem() {

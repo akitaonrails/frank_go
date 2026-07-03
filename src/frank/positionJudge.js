@@ -32,6 +32,12 @@ async function withDeadStonesRemoved(board) {
   return {deadVertices, cleared}
 }
 
+// Set of "x,y" keys for stones that look dead on the given board.
+export async function guessDeadSet(board) {
+  let {deadVertices} = await withDeadStonesRemoved(board)
+  return new Set(deadVertices.map(([x, y]) => `${x},${y}`))
+}
+
 // Rough Japanese-style score estimate of the current board.
 export async function estimateScore(board, {komi = 6.5, handicap = 0} = {}) {
   let {deadVertices, cleared} = await withDeadStonesRemoved(board)

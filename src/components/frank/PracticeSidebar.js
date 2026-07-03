@@ -50,6 +50,8 @@ export default class PracticeSidebar extends Component {
 
     this.handleStopTsumego = () => tsumegoSession.stopPractice()
 
+    this.handleNextNow = () => tsumegoSession.continueAfterSolve()
+
     this.handleToggleSparring = () =>
       tsumegoSession.setSparring(!this.props.frankTsumego.sparring)
 
@@ -239,29 +241,45 @@ export default class PracticeSidebar extends Component {
           {class: 'guide'},
           sparring
             ? t(
-                'Play your move — KataGo will answer. When it gives up the area, you get a verdict here.',
+                'Play your move — KataGo answers. Solve the position and it is graded automatically.',
               )
             : t(
                 'Play out your line on the board (both colors), then grade yourself:',
               ),
         ),
 
-      h(
-        'div',
-        {class: 'actions main'},
-        h(
-          'button',
-          {class: 'solved', onClick: this.handleSolved},
-          '✓ ',
-          t('Solved'),
-        ),
-        h(
-          'button',
-          {class: 'missed', onClick: this.handleMissed},
-          '✗ ',
-          t('Missed'),
-        ),
-      ),
+      // frank_go: with a sparring engine the grading is automatic — no
+      // manual buttons, just a "Next now" shortcut on success. Without an
+      // engine the player self-grades.
+      sparring
+        ? autoVerdict != null &&
+            autoVerdict.result === 'solved' &&
+            h(
+              'div',
+              {class: 'actions main'},
+              h(
+                'button',
+                {class: 'solved', onClick: this.handleNextNow},
+                t('Next problem'),
+                ' →',
+              ),
+            )
+        : h(
+            'div',
+            {class: 'actions main'},
+            h(
+              'button',
+              {class: 'solved', onClick: this.handleSolved},
+              '✓ ',
+              t('Solved'),
+            ),
+            h(
+              'button',
+              {class: 'missed', onClick: this.handleMissed},
+              '✗ ',
+              t('Missed'),
+            ),
+          ),
 
       h(
         'div',
