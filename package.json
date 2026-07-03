@@ -136,6 +136,9 @@
     "webpack-cli": "^6.0.1"
   },
   "scripts": {
+    "frank:data": "node scripts/frank/build-tsumego-index.mjs",
+    "frank:games": "node scripts/frank/fetch-games.mjs",
+    "frank:katago": "node scripts/frank/setup-katago.mjs",
     "test": "mocha --require tsx",
     "start": "electron ./",
     "bundle": "webpack --mode production",

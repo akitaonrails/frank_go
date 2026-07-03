@@ -6,11 +6,11 @@ every change follows these rules.
 
 ## Remotes
 
-| Remote | URL | Purpose |
-|---|---|---|
-| `origin` | git@github.com:akitaonrails/frank_go.git | our app |
-| `sabaki` | git@github.com:akitaonrails/Sabaki.git | the user's Sabaki fork |
-| `upstream` | https://github.com/SabakiHQ/Sabaki.git | Sabaki upstream |
+| Remote     | URL                                      | Purpose                |
+| ---------- | ---------------------------------------- | ---------------------- |
+| `origin`   | git@github.com:akitaonrails/frank_go.git | our app                |
+| `sabaki`   | git@github.com:akitaonrails/Sabaki.git   | the user's Sabaki fork |
+| `upstream` | https://github.com/SabakiHQ/Sabaki.git   | Sabaki upstream        |
 
 ## Rules for new code
 
@@ -19,26 +19,32 @@ every change follows these rules.
    cleanly.
 2. **Touch upstream files only at narrow integration points**, and mark every
    such edit with a `// frank_go:` comment so conflicts are self-explanatory
-   during rebase. Current touch points are listed below and MUST be kept
-   up to date.
-3. Prefer *additive* edits (new imports, new props, new menu entries appended to
+   during rebase. Current touch points are listed below and MUST be kept up to
+   date.
+3. Prefer _additive_ edits (new imports, new props, new menu entries appended to
    arrays) over restructuring upstream code.
 4. No reformatting of upstream files; match upstream Prettier config exactly.
-5. Tests for frank_go code live in `test/frank/` (upstream tests stay untouched).
+5. Tests for frank_go code live in `test/frank/` (upstream tests stay
+   untouched).
 
 ## Upstream integration points
 
 Keep this table current — it is the rebase conflict map.
 
-| File | What we changed | Why |
-|---|---|---|
-| `src/components/MainView.js` | compute `paintMap` from beginner overlay when enabled; pass tsumego props | influence overlay + tsumego mode rendering |
-| `src/components/App.js` | render frank drawers/bars | mount our UI |
-| `src/menu.js` | added "Beginner" menu section (overlay toggle, tsumego mode, KataGo play) | entry points |
-| `src/setting.js` | added `frank.*` setting defaults | persisted toggles/progress |
-| `src/modules/sabaki.js` | small hooks (mode registration, tsumego click interception) | mode wiring |
+| File                         | What we changed                                                                            | Why                        |
+| ---------------------------- | ------------------------------------------------------------------------------------------ | -------------------------- |
+| `src/components/MainView.js` | import + `paintMap` else-branch when overlay enabled                                       | beginner area painting     |
+| `src/components/App.js`      | import + mount `TsumegoPanel`; pass `frankShowBeginnerOverlay` to `MainMenu`               | mount our UI               |
+| `src/menu.js`                | guarded requires of frank modules; overlay checkbox in View; new top-level "Practice" menu | entry points               |
+| `src/setting.js`             | `frank.*` defaults block at end of defaults object                                         | persisted toggles/progress |
+| `src/modules/sabaki.js`      | `frankShowBeginnerOverlay`/`frankTsumego` state keys + one `updateSettingState` mapping    | state plumbing             |
+| `index.html`                 | `style/frank.css` stylesheet link                                                          | styles                     |
+| `package.json`               | `frank:*` npm scripts                                                                      | convenience                |
+| `README.md`                  | frank_go banner section above the Sabaki README                                            | product framing            |
 
-(Exact hooks are annotated inline with `// frank_go:`.)
+New files (`.mocharc.json`, `src/frank/**`, `src/components/frank/**`,
+`style/frank.css`, `test/frank/**`, `scripts/frank/**`, `data/**`) never
+conflict. Exact hooks are annotated inline with `// frank_go:`.
 
 ## Rebase procedure
 

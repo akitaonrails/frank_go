@@ -1,3 +1,33 @@
+<!-- frank_go -->
+
+# frank_go
+
+A beginner-focused, offline-first Go/Baduk trainer built on top of
+[Sabaki](https://github.com/SabakiHQ/Sabaki). On top of everything Sabaki does
+(below), frank_go adds:
+
+- **Tsumego practice** (`Practice > Start Tsumego Practice`, Ctrl/Cmd+Shift+K) —
+  4,341 bundled life & death problems from classic collections, served at your
+  level: solve 5 in a row to level up (1–10).
+- **Beginner area painting** (Ctrl/Cmd+Shift+B) — a toggleable overlay that
+  paints each player's influence as a soft gradient and settled territory in
+  solid color, so you learn to see what stones are aiming at.
+- **One-command local KataGo** — `node scripts/frank/setup-katago.mjs` downloads
+  the engine + a CPU-friendly network and registers beginner/full-strength
+  opponents; then `Practice > Play vs KataGo`.
+- **A local game database** — 13 annotated landmark games bundled (Ear-Reddening
+  1846 → AlphaGo–Ke Jie 2017); 90,000+ pro games via
+  `node scripts/frank/fetch-games.mjs`.
+
+Start here: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) ·
+[docs/UPSTREAM-REBASE.md](docs/UPSTREAM-REBASE.md) ·
+[data/SOURCES.md](data/SOURCES.md) · [docs/research/](docs/research/README.md)
+
+Run it:
+`npm install && node scripts/frank/build-tsumego-index.mjs && npm run bundle && npm start`
+
+---
+
 # ![Sabaki: An elegant Go/Baduk/Weiqi board and SGF editor for a more civilized age.](./banner.png)
 
 [![Download the latest release](https://img.shields.io/github/downloads/SabakiHQ/Sabaki/latest/total?label=download)](https://github.com/SabakiHQ/Sabaki/releases)
