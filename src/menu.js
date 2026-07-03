@@ -837,7 +837,16 @@ exports.get = function (props = {}) {
           label: i18n.t('menu.view', 'Show Advanced &Menus'),
           type: 'checkbox',
           checked: advancedMode,
-          click: () => toggleSetting('frank.advanced_mode'),
+          click: () => {
+            let next = !setting.get('frank.advanced_mode')
+            setting.set('frank.advanced_mode', next)
+
+            // Leaving advanced mode also puts the GTP console away.
+            if (!next) {
+              setting.set('view.show_leftsidebar', false)
+              sabaki.setState({showLeftSidebar: false})
+            }
+          },
         },
         {type: 'separator'},
         {

@@ -137,8 +137,10 @@ export async function startPractice() {
   sessionStats = {solved: 0, missed: 0}
   ensureSparringPartner()
 
-  // Beginners don't need the raw GTP console.
+  // Beginners don't need the raw GTP console (setting and UI state are
+  // separate in Sabaki — set both).
   setting.set('view.show_leftsidebar', false)
+  sabaki.setState({showLeftSidebar: false})
 
   currentProblem = problem
   await loadProblemIntoBoard(problem, {firstLoad: true})

@@ -79,8 +79,10 @@ export async function playAgainstKataGo(playerSign = 1) {
 
   game = {playerSign, engineName: engine.name, syncerId: syncer.id}
 
-  // Beginners don't need the raw GTP console.
+  // Beginners don't need the raw GTP console (setting and UI state are
+  // separate in Sabaki — set both).
   setting.set('view.show_leftsidebar', false)
+  sabaki.setState({showLeftSidebar: false})
 
   assignColors()
   publishState()

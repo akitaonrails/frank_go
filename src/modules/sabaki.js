@@ -95,7 +95,10 @@ class Sabaki extends EventEmitter {
       // Sidebar
 
       consoleLog: [],
-      showLeftSidebar: setting.get('view.show_leftsidebar'),
+      // frank_go: the GTP console is an advanced-mode feature
+      showLeftSidebar:
+        setting.get('view.show_leftsidebar') &&
+        !!setting.get('frank.advanced_mode'),
       leftSidebarWidth: setting.get('view.leftsidebar_width'),
       showWinrateGraph: setting.get('view.show_winrategraph'),
       showGameGraph: setting.get('view.show_graph'),
