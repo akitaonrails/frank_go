@@ -1,0 +1,123 @@
+{
+  "version": 1,
+  "source": "https://homepages.cwi.nl/~aeb/go/games/ (Andries Brouwer's database of go games)",
+  "games": [
+    {
+      "file": "famous/1835-blood-vomiting-game.sgf",
+      "title": "The Blood-Vomiting Game",
+      "black": "Akaboshi Intetsu",
+      "white": "Honinbo Jowa",
+      "date": "1835",
+      "result": "W+R",
+      "why": "Jowa's three legendary 'ghost moves'. Akaboshi collapsed coughing blood after the four-session game and died weeks later."
+    },
+    {
+      "file": "famous/1846-ear-reddening-game.sgf",
+      "title": "The Ear-Reddening Game",
+      "black": "Yasuda (Honinbo) Shusaku",
+      "white": "Inoue Gennan Inseki",
+      "date": "1846",
+      "result": "B+2",
+      "why": "Shusaku's famous move 127 made Gennan's ears flush red — a spectator doctor predicted the win from it. A cornerstone of classical study."
+    },
+    {
+      "file": "famous/1933-game-of-the-century.sgf",
+      "title": "The Game of the Century",
+      "black": "Go Seigen",
+      "white": "Honinbo Shusai",
+      "date": "1933-10-16 .. 1934-01-29",
+      "result": "W+2",
+      "why": "Young Go Seigen's shin-fuseki (3-3, star, tengen) against the last hereditary Honinbo; Shusai's camp allegedly found move 160 in group study."
+    },
+    {
+      "file": "famous/1938-shusai-retirement-game.sgf",
+      "title": "Honinbo Shusai's Retirement Game",
+      "black": "Kitani Minoru",
+      "white": "Honinbo Shusai",
+      "date": "1938-06-26 .. 12-04",
+      "result": "B+5",
+      "why": "The end of the old go world, immortalized in Kawabata's novel 'The Master of Go'. Kitani introduced sealed moves."
+    },
+    {
+      "file": "famous/1945-atomic-bomb-game.sgf",
+      "title": "The Atomic Bomb Game",
+      "black": "Iwamoto Kaoru",
+      "white": "Hashimoto Utaro",
+      "date": "1945-08-04..06",
+      "result": "W+5",
+      "why": "3rd Honinbo title, game 2, played in the outskirts of Hiroshima; the blast interrupted the game, which was resumed and finished the same day."
+    },
+    {
+      "file": "famous/2016-alphago-lee-sedol-game-1.sgf",
+      "title": "AlphaGo vs Lee Sedol, Game 1",
+      "black": "Lee Sedol",
+      "white": "AlphaGo",
+      "date": "2016-03-09",
+      "result": "W+R",
+      "why": "The first game of the match that changed go forever."
+    },
+    {
+      "file": "famous/2016-alphago-lee-sedol-game-2.sgf",
+      "title": "AlphaGo vs Lee Sedol, Game 2 (Move 37)",
+      "black": "AlphaGo",
+      "white": "Lee Sedol",
+      "date": "2016-03-10",
+      "result": "B+R",
+      "why": "AlphaGo's shoulder hit on move 37 — the most famous AI move in history."
+    },
+    {
+      "file": "famous/2016-alphago-lee-sedol-game-3.sgf",
+      "title": "AlphaGo vs Lee Sedol, Game 3",
+      "black": "Lee Sedol",
+      "white": "AlphaGo",
+      "date": "2016-03-12",
+      "result": "W+R",
+      "why": "AlphaGo clinched the match 3-0."
+    },
+    {
+      "file": "famous/2016-alphago-lee-sedol-game-4.sgf",
+      "title": "AlphaGo vs Lee Sedol, Game 4 (God's Touch)",
+      "black": "AlphaGo",
+      "white": "Lee Sedol",
+      "date": "2016-03-13",
+      "result": "W+R",
+      "why": "Lee Sedol's wedge on move 78 — humanity's only win, the 'divine move' of the match."
+    },
+    {
+      "file": "famous/2016-alphago-lee-sedol-game-5.sgf",
+      "title": "AlphaGo vs Lee Sedol, Game 5",
+      "black": "Lee Sedol",
+      "white": "AlphaGo",
+      "date": "2016-03-15",
+      "result": "W+R",
+      "why": "Final game of the historic match, 4-1 to AlphaGo."
+    },
+    {
+      "file": "famous/2017-alphago-ke-jie-game-1.sgf",
+      "title": "AlphaGo vs Ke Jie, Game 1",
+      "black": "Ke Jie",
+      "white": "AlphaGo",
+      "date": "2017-05-23",
+      "result": "W+0.5",
+      "why": "The world #1 against AlphaGo Master; the half-point margin was AlphaGo playing safely, not closely."
+    },
+    {
+      "file": "famous/2017-alphago-ke-jie-game-2.sgf",
+      "title": "AlphaGo vs Ke Jie, Game 2",
+      "black": "AlphaGo",
+      "white": "Ke Jie",
+      "date": "2017-05-25",
+      "result": "B+R",
+      "why": "Ke Jie played 'perfectly' for 50 moves by AlphaGo's own estimation."
+    },
+    {
+      "file": "famous/2017-alphago-ke-jie-game-3.sgf",
+      "title": "AlphaGo vs Ke Jie, Game 3",
+      "black": "AlphaGo",
+      "white": "Ke Jie",
+      "date": "2017-05-27",
+      "result": "B+R",
+      "why": "AlphaGo's final official game before retirement from competitive play."
+    }
+  ]
+}
