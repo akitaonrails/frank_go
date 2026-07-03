@@ -9,6 +9,8 @@ const {app} = isRenderer
 const i18n = require('./i18n')
 const sabaki = isRenderer ? require('./modules/sabaki').default : null
 const dialog = isRenderer ? require('./modules/dialog') : null
+// frank_go: practice features (renderer only)
+const frankTsumego = isRenderer ? require('./frank/tsumegoSession') : null
 const setting = isRenderer
   ? {
       get: (key) => window.sabaki.setting.get(key),
@@ -559,6 +561,29 @@ exports.get = function (props = {}) {
 
             sabaki.generateMove(syncerId, sabaki.state.treePosition)
           },
+        },
+      ],
+    },
+    // frank_go: practice menu
+    {
+      id: 'frank-practice',
+      label: i18n.t('menu.practice', '&Practice'),
+      submenu: [
+        {
+          label: i18n.t('menu.practice', 'Start &Tsumego Practice'),
+          accelerator: 'CmdOrCtrl+Shift+K',
+          click: () => frankTsumego.startPractice(),
+        },
+        {
+          label: i18n.t('menu.practice', 'Sto&p Practicing'),
+          click: () => frankTsumego.stopPractice(),
+        },
+        {type: 'separator'},
+        {
+          label: i18n.t('menu.practice', 'Show &Beginner Area Painting'),
+          type: 'checkbox',
+          checked: !!frankShowBeginnerOverlay,
+          click: () => toggleSetting('frank.show_beginner_overlay'),
         },
       ],
     },
