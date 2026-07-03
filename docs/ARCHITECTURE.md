@@ -57,14 +57,18 @@ rendering, theming and transformations come for free. Toggle lives in
 and pushes it through `sabaki.loadContent` — the problem is just a normal game
 on the board. If a KataGo engine is configured, it is attached as a **sparring
 partner** on the problem's opposing color, so the position answers back
-(toggleable in the sidebar; `frank.tsumego_sparring`). The `PracticeSidebar`
-(docked at the top of the right sidebar, which auto-opens) drives the loop:
-Solved/Missed call `applyResult` (5-streak → level up, 2 misses → level down)
-and persist via `frank.tsumego_*` settings; "Check position" shows a heuristic
-life & death verdict from `positionJudge.judgeRegion` (dead-stone Monte Carlo).
-Bundled problems have **no solution trees** (see `data/SOURCES.md`), so the
-final grade stays the player's call; engine-verified grading is the next
-milestone (below).
+(toggleable in the sidebar; `frank.tsumego_sparring`). When the engine plays far
+outside the problem region or passes, the local fight is over: the stray move is
+removed, engine replies stop, and the region is judged against the problem's
+inferred goal (kill vs live, guessed from the initial position) — success shows
+a "Solved!" banner and auto-advances; failure shows what still looks alive/dead
+and leaves the player to Reset or mark Missed. The `PracticeSidebar` (docked at
+the top of the right sidebar, which auto-opens) drives the loop: Solved/Missed
+call `applyResult` (5-streak → level up, 2 misses → level down) and persist via
+`frank.tsumego_*` settings; "Check position" shows a heuristic life & death
+verdict from `positionJudge.judgeRegion` (dead-stone Monte Carlo). Bundled
+problems have **no solution trees** (see `data/SOURCES.md`), so the final grade
+stays the player's call; engine-verified grading is the next milestone (below).
 
 ### Home panel
 

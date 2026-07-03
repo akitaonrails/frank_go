@@ -220,3 +220,25 @@ main.frank-cursor-white #goban {
       14 14,
     pointer;
 }
+
+/* Automatic verdict banner (tsumego auto-grading) */
+
+#frank-practice-sidebar .auto-verdict {
+  margin: 0 0 0.6em;
+  padding: 0.5em 0.7em;
+  border-radius: 4px;
+  font-weight: bold;
+  line-height: 1.35;
+}
+
+#frank-practice-sidebar .auto-verdict.solved {
+  background: #244a24;
+  border: 1px solid #3f7a3f;
+  color: #b8e8b8;
+}
+
+#frank-practice-sidebar .auto-verdict.failed {
+  background: #4a2424;
+  border: 1px solid #7a3f3f;
+  color: #e8b8b8;
+}

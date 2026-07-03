@@ -163,8 +163,15 @@ export default class PracticeSidebar extends Component {
   }
 
   renderTsumego(tsumego) {
-    let {problem, progress, streakTarget, sessionStats, sparring, lastEvent} =
-      tsumego
+    let {
+      problem,
+      progress,
+      streakTarget,
+      sessionStats,
+      sparring,
+      autoVerdict,
+      lastEvent,
+    } = tsumego
     let toPlayLabel =
       problem.toPlay === 'W' ? t('White to play') : t('Black to play')
 
@@ -217,17 +224,27 @@ export default class PracticeSidebar extends Component {
         h('span', {class: 'name'}, problem.title),
       ),
 
-      h(
-        'p',
-        {class: 'guide'},
-        sparring
-          ? t(
-              'Play your move — KataGo will answer. When the fight is settled, grade yourself:',
-            )
-          : t(
-              'Play out your line on the board (both colors), then grade yourself:',
-            ),
-      ),
+      // frank_go: automatic verdict banner (engine tenuki + region judge)
+      autoVerdict != null &&
+        h(
+          'p',
+          {class: classNames('auto-verdict', autoVerdict.result)},
+          autoVerdict.result === 'solved' ? '✓ ' : '✗ ',
+          t(autoVerdict.text),
+        ),
+
+      autoVerdict == null &&
+        h(
+          'p',
+          {class: 'guide'},
+          sparring
+            ? t(
+                'Play your move — KataGo will answer. When it gives up the area, you get a verdict here.',
+              )
+            : t(
+                'Play out your line on the board (both colors), then grade yourself:',
+              ),
+        ),
 
       h(
         'div',
