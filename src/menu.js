@@ -49,7 +49,16 @@ exports.get = function (props = {}) {
     engineGameOngoing,
     // frank_go: beginner assistance
     frankShowBeginnerOverlay,
+    frankAdvancedMode,
   } = props
+
+  // frank_go: beginner-first menus — advanced Sabaki menus are hidden until
+  // revealed via View > Show Advanced Menus. Falls back to the setting when
+  // called without props (listener registration in the renderer).
+  let advancedMode =
+    frankAdvancedMode != null
+      ? !!frankAdvancedMode
+      : !!setting.get('frank.advanced_mode')
 
   let data = [
     {
@@ -815,6 +824,13 @@ exports.get = function (props = {}) {
           accelerator: 'CmdOrCtrl+Shift+B',
           click: () => toggleSetting('frank.show_beginner_overlay'),
         },
+        {
+          // frank_go: reveal the full Sabaki menus for advanced users
+          label: i18n.t('menu.view', 'Show Advanced &Menus'),
+          type: 'checkbox',
+          checked: advancedMode,
+          click: () => toggleSetting('frank.advanced_mode'),
+        },
         {type: 'separator'},
         {
           label: i18n.t('menu.view', 'Show &Analysis Graph'),
@@ -1070,6 +1086,19 @@ exports.get = function (props = {}) {
 
     let viewMenu = findMenuItem('view')
     viewMenu.submenu.splice(0, 1)
+  }
+
+  // frank_go: beginner mode hides the advanced top-level menus. Items stay
+  // in the template (stable ids for the IPC click listeners) — they are
+  // only made invisible, and reappear via View > Show Advanced Menus.
+  if (!advancedMode) {
+    let advancedIds = ['edit', 'find', 'engines', 'tools', 'developer']
+
+    for (let item of data) {
+      if (advancedIds.includes(item.id)) {
+        item.visible = false
+      }
+    }
   }
 
   let processMenu = (menu, idPrefix = '') => {

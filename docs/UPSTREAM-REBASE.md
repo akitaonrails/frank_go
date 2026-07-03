@@ -36,7 +36,7 @@ Keep this table current — it is the rebase conflict map.
 | `src/components/MainView.js` | import + `paintMap` else-branch when overlay enabled                                       | beginner area painting     |
 | `src/components/App.js`      | pass `frankShowBeginnerOverlay` to `MainMenu`                                              | menu checkbox state        |
 | `src/components/Sidebar.js`  | import + `PracticeSidebar` docked above the split container, `frank-practice` class        | practice controls          |
-| `src/menu.js`                | guarded requires of frank modules; overlay checkbox in View; new top-level "Practice" menu | entry points               |
+| `src/menu.js`                | guarded requires of frank modules; overlay + advanced-menus checkboxes in View; "Practice" menu; beginner-mode visibility filter | entry points |
 | `src/setting.js`             | `frank.*` defaults block at end of defaults object                                         | persisted toggles/progress |
 | `src/modules/sabaki.js`      | `frank*` state keys, one `updateSettingState` mapping, `showSidebar` ORs practice state    | state plumbing             |
 | `index.html`                 | `style/frank.css` stylesheet link                                                          | styles                     |

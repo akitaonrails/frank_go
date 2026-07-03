@@ -87,6 +87,7 @@ class Sabaki extends EventEmitter {
 
       // frank_go: beginner assistance
       frankShowBeginnerOverlay: null,
+      frankAdvancedMode: null,
       frankTsumego: null,
       frankKatagoGame: null,
 
@@ -341,6 +342,7 @@ class Sabaki extends EventEmitter {
       'scoring.method': 'scoringMethod',
       // frank_go: beginner assistance
       'frank.show_beginner_overlay': 'frankShowBeginnerOverlay',
+      'frank.advanced_mode': 'frankAdvancedMode',
     }
 
     if (key == null) {

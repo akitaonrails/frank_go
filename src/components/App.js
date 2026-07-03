@@ -375,6 +375,7 @@ class App extends Component {
         engineGameOngoing: state.engineGameOngoing,
         // frank_go: beginner assistance
         frankShowBeginnerOverlay: state.frankShowBeginnerOverlay,
+        frankAdvancedMode: state.frankAdvancedMode,
       }),
 
       h(TripleSplitContainer, {
