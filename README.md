@@ -3,7 +3,9 @@
 **Learn and enjoy Go (Baduk/Weiqi) — a friendly, offline trainer for
 beginners.**
 
-![Tsumego practice in frank_go](docs/images/tsumego-practice.jpg)
+![Tsumego practice with the area painting overlay](docs/images/tsumego-practice.jpg)
+
+![Replaying a Hikaru no Go game in study mode](docs/images/hikaru-study.jpg)
 
 Go is a beautiful game, but the first steps are hard: you can't tell who is
 winning, you don't know what to study, and strong software is built for strong
