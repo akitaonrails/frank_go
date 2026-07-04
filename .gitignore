@@ -25,3 +25,4 @@ data/games/bulk/
 data/katago/
 data/games/hikaru/portraits/*
 !data/games/hikaru/portraits/README.md
+!data/games/hikaru/portraits/FILENAMES.txt

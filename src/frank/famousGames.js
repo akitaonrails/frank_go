@@ -115,8 +115,14 @@ function resolveCast(dir, cast) {
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-|-$/g, '')
 
+    // Try the full name, then the given name alone, so one hikaru.png
+    // covers both 'Hikaru Shindo' and 'Hikaru (Sai)'.
+    let firstName = slug.split('-')[0]
     let portrait = ['png', 'jpg', 'jpeg', 'webp']
-      .map((ext) => join(dir, 'portraits', `${slug}.${ext}`))
+      .flatMap((ext) => [
+        join(dir, 'portraits', `${slug}.${ext}`),
+        join(dir, 'portraits', `${firstName}.${ext}`),
+      ])
       .find(existsSync)
 
     let initials = member.name

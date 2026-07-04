@@ -1,0 +1,21 @@
+Character portrait filenames for frank_go (Hikaru no Go study mode)
+===================================================================
+
+Save your images in THIS folder with EXACTLY these names.
+Allowed extensions: .png .jpg .jpeg .webp (e.g. sai.png or sai.jpg)
+Square images look best - they are displayed as small circles.
+(Full names also work, e.g. hikaru-shindo.png; the given name alone
+is the easiest.)
+
+akira-toya.png              <- Akira Toya
+hikaru.png                  <- Hikaru Shindo
+ko-yongha.png               <- Ko Yongha
+kosuke-ochi.png             <- Kosuke Ochi
+kuwabara-honinbo.png        <- Kuwabara Honinbo
+sai.png                     <- Sai
+seiji-ogata.png             <- Seiji Ogata
+tatsuhiko-kadowaki.png      <- Tatsuhiko Kadowaki
+tetsuo-kaga.png             <- Tetsuo Kaga
+the-rival-tutor.png         <- The Rival Tutor
+toya-koyo.png               <- Toya Koyo
+yoshitaka-waya.png          <- Yoshitaka Waya
