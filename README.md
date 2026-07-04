@@ -50,8 +50,9 @@ play, and the controls follow along. Menus are trimmed down to the essentials
 yay -S frank-go
 ```
 
-(Optional, for the AI opponent: `pacman -S katago` or let `npm run frank:katago`
-set it up.)
+The KataGo engine comes along as a dependency (pick the `katago-cpu`,
+`katago-opencl` or `katago-cuda` backend when prompted); on first use the app
+fetches a small neural network with one click — no other setup.
 
 ### From source (any platform)
 

@@ -180,6 +180,35 @@ export default class PracticeSidebar extends Component {
       setting.set('frank.show_home_panel', false)
     }
 
+    this.setupProgress = ({step, fraction}) => {
+      this.setState({
+        statusText: `${t('Setting up KataGo')} — ${t(step)}: ${Math.round(
+          fraction * 100,
+        )}%`,
+      })
+    }
+
+    this.handleSetupKatago = async () => {
+      this.setState({busy: true})
+      let ok = await katagoPlay.setupKataGo({onProgress: this.setupProgress})
+      this.setState({
+        busy: false,
+        statusText: ok ? t('KataGo is ready — have fun!') : null,
+      })
+    }
+
+    this.handleSetupHumanRanks = async () => {
+      this.setState({busy: true})
+      let ok = await katagoPlay.setupKataGo({
+        human: true,
+        onProgress: this.setupProgress,
+      })
+      this.setState({
+        busy: false,
+        statusText: ok ? t('Ranked opponents installed!') : null,
+      })
+    }
+
     // Study mode: Space steps forward, Backspace rewinds.
     this.handleKeyDown = (evt) => {
       if (this.props.frankStudy == null) return
@@ -551,7 +580,16 @@ export default class PracticeSidebar extends Component {
 
       this.renderCast(study.cast),
 
-      h('p', {class: 'guide'}, study.description),
+      study.chapter != null && h('p', {class: 'chapterline'}, study.chapter),
+
+      h(
+        'p',
+        {class: 'gametitle'},
+        study.title,
+        h('span', {class: 'gamemeta'}, ` — ${study.meta}`),
+      ),
+
+      h('p', {class: 'trivia'}, study.text),
 
       h(
         'div',
@@ -649,9 +687,13 @@ export default class PracticeSidebar extends Component {
             ),
           )
         : h(
-            'p',
-            {class: 'session'},
-            t('To play against KataGo, run: npm run frank:katago'),
+            'div',
+            {class: 'actions start'},
+            h(
+              'button',
+              {disabled: this.state.busy, onClick: this.handleSetupKatago},
+              '⚡ ' + t('Set up KataGo (one small download)'),
+            ),
           ),
 
       h(
@@ -674,12 +716,14 @@ export default class PracticeSidebar extends Component {
 
     let footer = [
       hasKatago &&
-        engines.length <= 2 &&
+        !katagoPlay.hasHumanRanks() &&
         h(
-          'p',
-          {class: 'session'},
-          t(
-            'Tip: `npm run frank:katago -- --human` adds human-like ranked opponents (15k / 5k / 1d).',
+          'div',
+          {class: 'actions'},
+          h(
+            'button',
+            {disabled: this.state.busy, onClick: this.handleSetupHumanRanks},
+            '⬇ ' + t('Add human-like opponents (15k/5k/1d · ~250 MB)'),
           ),
         ),
       this.renderOverlayToggle(),

@@ -473,3 +473,29 @@ main.frank-cursor-white #goban {
   text-align: center;
   line-height: 1.25;
 }
+
+/* Study text structure */
+
+#frank-practice-sidebar .chapterline {
+  margin: 0 0 0.15em;
+  color: #f2c96b;
+  font-weight: bold;
+  line-height: 1.35;
+}
+
+#frank-practice-sidebar .gametitle {
+  margin: 0 0 0.7em;
+  color: #c9bda6;
+  font-size: 0.88em;
+  line-height: 1.4;
+}
+
+#frank-practice-sidebar .gametitle .gamemeta {
+  color: #a89878;
+}
+
+#frank-practice-sidebar .trivia {
+  margin: 0 0 0.8em;
+  color: #e6dcc8;
+  line-height: 1.55;
+}

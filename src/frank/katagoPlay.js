@@ -7,10 +7,12 @@
 // practice sidebar can offer beginner-friendly controls (score estimate,
 // undo, pass, restart, stop).
 
+import {join} from 'path'
 import sabaki from '../modules/sabaki.js'
 import * as gametree from '../modules/gametree.js'
 import i18n from '../i18n.js'
 import * as dialog from '../modules/dialog.js'
+import {mergeEngines, runSetup} from './katagoSetup.js'
 
 const t = i18n.context('frank.katago')
 
@@ -43,6 +45,31 @@ export function findKataGoEngine(engines = setting.get('engines.list') || []) {
 
 export function setPreferredEngine(name) {
   setting.set('frank.katago_engine', name)
+}
+
+export function hasHumanRanks(engines = setting.get('engines.list') || []) {
+  return engines.some((engine) => /katago.*human/i.test(engine.name))
+}
+
+// In-app one-click setup. Downloads into Electron's userData directory
+// (works for packaged/AUR installs); when the katago binary is already on
+// PATH — e.g. installed as an AUR dependency — only the small network is
+// fetched. Registers the engines in the live settings.
+export async function setupKataGo({human = false, onProgress = () => {}} = {}) {
+  let dir = join(window.sabaki.setting.userDataDirectory, 'frank-katago')
+
+  try {
+    let engines = await runSetup({dir, human, onProgress})
+    let {list} = mergeEngines(setting.get('engines.list'), engines)
+    setting.set('engines.list', list)
+    return true
+  } catch (err) {
+    await dialog.showMessageBox(
+      t('KataGo setup failed:') + '\n\n' + err.message,
+      'warning',
+    )
+    return false
+  }
 }
 
 function publishState() {

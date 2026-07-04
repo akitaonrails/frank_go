@@ -83,16 +83,13 @@ export async function studyRandomGame(pack = 'famous') {
     sabaki.setState({showCommentBox: true})
   }
 
-  let description =
-    pack === 'hikaru'
-      ? `${game.manga} · ${game.title} (${game.result}) — ${game.trivia}`
-      : `${game.title} (${game.date}, ${game.result}) — ${game.why}`
-
   sabaki.setState({
     frankStudy: {
       pack,
+      chapter: pack === 'hikaru' ? game.manga : null,
       title: game.title,
-      description,
+      meta: `${game.date} · ${game.result}`,
+      text: pack === 'hikaru' ? game.trivia : game.why,
       cast: resolveCast(index.dir, game.cast),
     },
   })
