@@ -11,6 +11,7 @@ import i18n from '../../i18n.js'
 import sabaki from '../../modules/sabaki.js'
 import * as gametree from '../../modules/gametree.js'
 import {isTextLikeElement} from '../../modules/helper.js'
+import * as sound from '../../modules/sound.js'
 import * as tsumegoSession from '../../frank/tsumegoSession.js'
 import {LEVEL_RANKS} from '../../frank/tsumegoSession.js'
 import * as katagoPlay from '../../frank/katagoPlay.js'
@@ -305,6 +306,37 @@ export default class PracticeSidebar extends Component {
     if (activity(this.props) !== activity(nextProps)) {
       this.setState({statusText: null})
       if (nextProps.frankStudy == null) this.stopAutoPlay()
+    }
+
+    // Stone sounds while replaying a study game. Sabaki only plays sounds
+    // for moves being *made*; stepping through a record is silent
+    // upstream, but hearing the stones makes auto-play feel alive.
+    if (
+      this.props.frankStudy != null &&
+      nextProps.frankStudy != null &&
+      nextProps.treePosition !== this.props.treePosition &&
+      setting.get('sound.enable')
+    ) {
+      let prevLevel = this.props.gameTree.getLevel(this.props.treePosition)
+      let nextLevel = nextProps.gameTree.getLevel(nextProps.treePosition)
+
+      // Single forward step only — jumps through the graph stay quiet
+      if (nextLevel === prevLevel + 1) {
+        let prevBoard = gametree.getBoard(
+          this.props.gameTree,
+          this.props.treePosition,
+        )
+        let nextBoard = gametree.getBoard(
+          nextProps.gameTree,
+          nextProps.treePosition,
+        )
+        let captured = [1, -1].some(
+          (sign) => nextBoard.getCaptures(sign) > prevBoard.getCaptures(sign),
+        )
+
+        sound.playPachi()
+        if (captured) sound.playCapture()
+      }
     }
   }
 
