@@ -2,7 +2,8 @@ name: CI
 
 on:
   push:
-    branches: [master]
+    # frank_go: our default branch is main
+    branches: [master, main]
   pull_request:
 
 jobs:
