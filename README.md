@@ -31,10 +31,11 @@ players. frank_go is built for the rest of us.
   professional game, and 15 of them are bundled with their chapter references
   and trivia: read a chapter, then replay the actual kifu here (Sai's internet
   game against Toya Meijin was a real half-point thriller). Character portraits
-  are user-supplied (pending — see
-  [data/games/hikaru/portraits/FILENAMES.txt](data/games/hikaru/portraits/FILENAMES.txt)
-  for the drop-in instructions; the app shows go-stone medallions until you add
-  images).
+  are pending —
+  [contributions welcome, see issue #6](https://github.com/akitaonrails/frank_go/issues/6);
+  meanwhile the app shows go-stone medallions, and you can drop in your own
+  images per
+  [data/games/hikaru/portraits/FILENAMES.txt](data/games/hikaru/portraits/FILENAMES.txt).
 - 🛜 **Fully offline** — no account, no server, your progress stays on your
   machine.
 
