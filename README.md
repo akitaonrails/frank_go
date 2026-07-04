@@ -91,9 +91,9 @@ npm run frank:games
 
 ## Built on Sabaki
 
-frank*go is a fork of [Sabaki](https://sabaki.yichuanshen.de/), the excellent
+`frank_go` is a fork of [Sabaki](https://sabaki.yichuanshen.de/), the excellent
 open source Go board and SGF editor by Yichuan Shen — all of Sabaki's editing,
-analysis and engine features are still here (enable \_Show Advanced Menus* to
+analysis and engine features are still here (enable _Show Advanced Menus_ to
 reach them). The original Sabaki README is preserved in
 [docs/SABAKI.md](docs/SABAKI.md).
 
