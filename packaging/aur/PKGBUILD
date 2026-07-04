@@ -53,7 +53,7 @@ EOF
     install -Dm0644 /dev/stdin \
         "$pkgdir/usr/share/applications/$pkgname.desktop" <<EOF
 [Desktop Entry]
-Name=frank_go
+Name=Frank GO
 Comment=Beginner-friendly Go/Baduk trainer
 Exec=$pkgname %U
 Icon=$pkgname
