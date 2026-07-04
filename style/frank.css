@@ -15,8 +15,8 @@
   background: linear-gradient(175deg, #322b22 0%, #262019 100%);
   border-bottom: 2px solid #4a3f2e;
   color: #efe6d5;
-  font-size: 0.92em;
-  line-height: 1.4;
+  font-size: 1.1em;
+  line-height: 1.45;
 }
 
 /* Header */
@@ -267,20 +267,48 @@
 }
 
 #frank-practice-sidebar .overlay-toggle {
-  display: block;
-  margin-top: 0.35em;
-  color: #c9bda6;
-  font-size: 0.88em;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  margin-top: 0.7em;
+  padding: 0.55em 0.7em;
+  border-top: 1px solid #4a3f2e;
+  color: #d8cdb8;
+  font-size: 0.95em;
   cursor: pointer;
   user-select: none;
+  border-radius: 0 0 8px 8px;
 }
 
 #frank-practice-sidebar .overlay-toggle:hover {
   color: #f2d99a;
+  background: rgba(255, 230, 170, 0.05);
 }
 
 #frank-practice-sidebar .overlay-toggle input {
+  width: 1.15em;
+  height: 1.15em;
   accent-color: #f2c96b;
+  cursor: pointer;
+}
+
+#frank-practice-sidebar .overlay-toggle .text {
+  flex: 1 1 auto;
+}
+
+#frank-practice-sidebar .overlay-toggle .shortcut {
+  color: #877a63;
+  font-size: 0.78em;
+}
+
+#frank-practice-sidebar .actions button.back {
+  background: linear-gradient(180deg, #33415c 0%, #283349 100%);
+  border-color: #4a5c7a;
+  font-weight: bold;
+}
+
+#frank-practice-sidebar .actions button.back:hover {
+  background: linear-gradient(180deg, #3d4d6b 0%, #303d57 100%);
 }
 
 /* Stone cursor over the board during practice: a translucent stone in the

@@ -136,6 +136,7 @@ export default class Sidebar extends Component {
     let practiceActive =
       this.props.frankTsumego != null ||
       this.props.frankKatagoGame != null ||
+      this.props.frankStudy != null ||
       this.props.frankShowHomePanel !== false
 
     return h(

@@ -83,5 +83,21 @@ export async function studyRandomGame(pack = 'famous') {
     sabaki.setState({showCommentBox: true})
   }
 
+  let description =
+    pack === 'hikaru'
+      ? `${game.manga} · ${game.title} (${game.result}) — ${game.trivia}`
+      : `${game.title} (${game.date}, ${game.result}) — ${game.why}`
+
+  sabaki.setState({
+    frankStudy: {pack, title: game.title, description},
+  })
+
   return game
+}
+
+// Leaves study mode: clears the board and puts the comment box away.
+export async function stopStudy() {
+  setting.set('view.show_comments', false)
+  sabaki.setState({frankStudy: null, showCommentBox: false})
+  await sabaki.newFile({suppressAskForSave: true})
 }

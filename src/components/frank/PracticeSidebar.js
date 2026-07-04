@@ -130,15 +130,11 @@ export default class PracticeSidebar extends Component {
 
     this.handleStudyGame = async () => {
       this.setState({busy: true})
-
       let game = await famousGames.studyRandomGame('famous')
-
       this.setState({
         busy: false,
         statusText:
-          game == null
-            ? t('Could not find the famous games pack.')
-            : `${game.title} (${game.date}, ${game.result}) — ${game.why}`,
+          game == null ? t('Could not find the famous games pack.') : null,
       })
     }
 
@@ -156,16 +152,22 @@ export default class PracticeSidebar extends Component {
       }
 
       this.setState({busy: true})
-
       let game = await famousGames.studyRandomGame('hikaru')
-
       this.setState({
         busy: false,
         statusText:
-          game == null
-            ? t('Could not find the Hikaru no Go pack.')
-            : `${game.manga} · ${game.title} (${game.result}) — ${game.trivia}`,
+          game == null ? t('Could not find the Hikaru no Go pack.') : null,
       })
+    }
+
+    this.handleStopStudy = () => famousGames.stopStudy()
+
+    this.handleAnotherStudyGame = async () => {
+      let pack =
+        this.props.frankStudy != null ? this.props.frankStudy.pack : 'famous'
+      this.setState({busy: true})
+      await famousGames.studyRandomGame(pack)
+      this.setState({busy: false})
     }
 
     this.handleHidePanel = () => {
@@ -182,7 +184,9 @@ export default class PracticeSidebar extends Component {
         ? `tsumego:${props.frankTsumego.problem.id}`
         : props.frankKatagoGame != null
           ? 'katago'
-          : 'home'
+          : props.frankStudy != null
+            ? 'study'
+            : 'home'
 
     if (activity(this.props) !== activity(nextProps)) {
       this.setState({statusText: null})
@@ -198,8 +202,16 @@ export default class PracticeSidebar extends Component {
         checked: !!this.props.frankShowBeginnerOverlay,
         onChange: this.handleToggleOverlay,
       }),
-      ' ',
-      t('Show area painting'),
+      h('span', {class: 'text'}, '🎨 ', t('Area painting')),
+      h('span', {class: 'shortcut'}, 'Ctrl+Shift+B'),
+    )
+  }
+
+  renderBackButton(onClick) {
+    return h(
+      'div',
+      {class: 'actions'},
+      h('button', {class: 'back', onClick}, '⬅ ', t('Back to menu')),
     )
   }
 
@@ -374,6 +386,8 @@ export default class PracticeSidebar extends Component {
         ` ${sessionStats.solved} ✓ · ${sessionStats.missed} ✗`,
       ),
 
+      this.renderBackButton(this.handleStopTsumego),
+
       h(
         'label',
         {class: 'overlay-toggle'},
@@ -433,6 +447,55 @@ export default class PracticeSidebar extends Component {
         {class: 'session'},
         t('Rewind with the arrow keys or the graph below.'),
       ),
+
+      this.renderBackButton(this.handleStopGame),
+
+      this.renderOverlayToggle(),
+    )
+  }
+
+  renderStudy(study) {
+    return h(
+      'div',
+      {class: 'activity study'},
+
+      h(
+        'div',
+        {class: 'header'},
+        h(
+          'span',
+          {class: 'title'},
+          study.pack === 'hikaru' ? '🎌 ' : '📖 ',
+          t('Studying'),
+        ),
+        h(
+          'a',
+          {href: '#', class: 'stop', onClick: this.handleStopStudy},
+          t('quit'),
+        ),
+      ),
+
+      h('p', {class: 'guide'}, study.description),
+
+      h(
+        'p',
+        {class: 'session'},
+        t(
+          'Step through the moves with ← → — commentary appears below when available.',
+        ),
+      ),
+
+      h(
+        'div',
+        {class: 'actions'},
+        h(
+          'button',
+          {disabled: this.state.busy, onClick: this.handleAnotherStudyGame},
+          t('Another game'),
+        ),
+      ),
+
+      this.renderBackButton(this.handleStopStudy),
 
       this.renderOverlayToggle(),
     )
@@ -542,15 +605,17 @@ export default class PracticeSidebar extends Component {
     )
   }
 
-  render({frankTsumego, frankKatagoGame, frankShowHomePanel}) {
+  render({frankTsumego, frankKatagoGame, frankStudy, frankShowHomePanel}) {
     let content =
       frankTsumego != null
         ? this.renderTsumego(frankTsumego)
         : frankKatagoGame != null
           ? this.renderKatagoGame(frankKatagoGame)
-          : frankShowHomePanel !== false
-            ? this.renderHome()
-            : null
+          : frankStudy != null
+            ? this.renderStudy(frankStudy)
+            : frankShowHomePanel !== false
+              ? this.renderHome()
+              : null
 
     if (content == null) return null
 
