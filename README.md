@@ -53,9 +53,10 @@ play, and the controls follow along. Menus are trimmed down to the essentials
 yay -S frank-go
 ```
 
-The KataGo engine comes along as a dependency (pick the `katago-cpu`,
-`katago-opencl` or `katago-cuda` backend when prompted); on first use the app
-fetches a small neural network with one click — no other setup.
+No other setup needed: on first use the app downloads a small CPU engine and
+neural network with one click. For a stronger GPU opponent, install any backend
+first (`yay -S katago-opencl`, or `katago-cuda` / `katago-cpu`) and the app will
+use it automatically.
 
 ### From source (any platform)
 
