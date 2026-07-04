@@ -432,12 +432,15 @@ async function main() {
 
   newWindow(openfile)
 
-  if (setting.get('app.startup_check_updates')) {
-    setTimeout(
-      () => checkForUpdates(),
-      setting.get('app.startup_check_updates_delay'),
-    )
-  }
+  // frank_go: no startup update check — it queries upstream Sabaki's
+  // releases, which don't match frank_go versions (we ship via AUR).
+  // Help > Check for Updates still works manually.
+  // if (setting.get('app.startup_check_updates')) {
+  //   setTimeout(
+  //     () => checkForUpdates(),
+  //     setting.get('app.startup_check_updates_delay'),
+  //   )
+  // }
 
   ipcMain.on('new-window', (evt, ...args) => newWindow(...args))
   ipcMain.on('build-menu', (evt, ...args) => buildMenu(...args))
