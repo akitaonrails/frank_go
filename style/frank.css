@@ -499,3 +499,10 @@ main.frank-cursor-white #goban {
   color: #e6dcc8;
   line-height: 1.55;
 }
+
+/* Study auto-play button while active */
+
+#frank-practice-sidebar .actions button.playing {
+  background: linear-gradient(180deg, #3d5a6b 0%, #2f4656 100%);
+  border-color: #4f7a8a;
+}

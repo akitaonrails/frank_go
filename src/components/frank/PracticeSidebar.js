@@ -25,11 +25,14 @@ import {setting} from '../../frank/env.js'
 
 const t = i18n.context('frank.practice')
 
+// Study auto-play: one move every couple of seconds
+const AUTO_PLAY_INTERVAL = 2000
+
 export default class PracticeSidebar extends Component {
   constructor(props) {
     super(props)
 
-    this.state = {busy: false, statusText: null}
+    this.state = {busy: false, statusText: null, autoPlaying: false}
 
     this.handleSolved = () => {
       this.setState({statusText: null})
@@ -208,16 +211,64 @@ export default class PracticeSidebar extends Component {
       })
     }
 
-    // Study mode: Space steps forward, Backspace rewinds.
+    // Study mode keys: Enter auto-plays the game (one move every couple
+    // of seconds), Space pauses auto-play (or steps forward when paused),
+    // Backspace pauses and rewinds.
+    this.autoPlayTimer = null
+
+    this.startAutoPlay = () => {
+      this.stopAutoPlay()
+      this.setState({autoPlaying: true})
+      sabaki.goStep(1)
+
+      this.autoPlayTimer = setInterval(() => {
+        let {frankStudy, gameTree, treePosition} = this.props
+        let atEnd = gameTree.getLevel(treePosition) >= gameTree.getHeight() - 1
+
+        if (frankStudy == null || atEnd) {
+          this.stopAutoPlay()
+          return
+        }
+
+        sabaki.goStep(1)
+      }, AUTO_PLAY_INTERVAL)
+    }
+
+    this.stopAutoPlay = () => {
+      if (this.autoPlayTimer != null) {
+        clearInterval(this.autoPlayTimer)
+        this.autoPlayTimer = null
+      }
+
+      if (this.state.autoPlaying) this.setState({autoPlaying: false})
+    }
+
+    this.handleToggleAutoPlay = () => {
+      if (this.state.autoPlaying) {
+        this.stopAutoPlay()
+      } else {
+        this.startAutoPlay()
+      }
+    }
+
     this.handleKeyDown = (evt) => {
       if (this.props.frankStudy == null) return
       if (isTextLikeElement(document.activeElement)) return
 
-      if (evt.key === ' ') {
+      if (evt.key === 'Enter') {
         evt.preventDefault()
-        sabaki.goStep(1)
+        this.startAutoPlay()
+      } else if (evt.key === ' ') {
+        evt.preventDefault()
+
+        if (this.state.autoPlaying) {
+          this.stopAutoPlay()
+        } else {
+          sabaki.goStep(1)
+        }
       } else if (evt.key === 'Backspace') {
         evt.preventDefault()
+        this.stopAutoPlay()
         sabaki.goStep(-1)
       }
     }
@@ -236,6 +287,7 @@ export default class PracticeSidebar extends Component {
 
   componentWillUnmount() {
     document.removeEventListener('keydown', this.handleKeyDown)
+    this.stopAutoPlay()
   }
 
   componentWillReceiveProps(nextProps) {
@@ -252,6 +304,7 @@ export default class PracticeSidebar extends Component {
 
     if (activity(this.props) !== activity(nextProps)) {
       this.setState({statusText: null})
+      if (nextProps.frankStudy == null) this.stopAutoPlay()
     }
   }
 
@@ -617,6 +670,14 @@ export default class PracticeSidebar extends Component {
         {class: 'actions'},
         h(
           'button',
+          {
+            class: classNames({playing: this.state.autoPlaying}),
+            onClick: this.handleToggleAutoPlay,
+          },
+          this.state.autoPlaying ? '⏸ ' + t('Pause') : '▶ ' + t('Auto-play'),
+        ),
+        h(
+          'button',
           {disabled: this.state.busy, onClick: this.handleAnotherStudyGame},
           t('Another game'),
         ),
@@ -629,7 +690,11 @@ export default class PracticeSidebar extends Component {
       h(
         'p',
         {class: 'session'},
-        t('Space / ← → step through the moves, Backspace rewinds.'),
+        this.state.autoPlaying
+          ? t('Auto-playing — Space pauses so you can browse yourself.')
+          : t(
+              'Enter auto-plays the game. Space / ← → step, Backspace rewinds.',
+            ),
       ),
       this.renderOverlayToggle(),
       this.renderMenuBarToggle(),
