@@ -23,6 +23,11 @@ scripts/frank/
   setup-katago.mjs            ← one-command local KataGo install
 
 src/frank/                    ← all frank_go renderer logic
+  env.js                      ← settings bridge + shared renderer helpers
+  paths.js                    ← bundled-data locator (pure, testable)
+  castUtils.js                ← Hikaru cast slugs/initials/portraits (pure)
+  katagoSetup.js              ← KataGo install core (env-agnostic; used by
+                                the in-app one-click setup and the dev CLI)
   data/problemStore.js        ← queryable problem DB (level/category/…)
   tsumegoProgress.js          ← pure progression rules (streaks, levels)
   tsumegoSession.js           ← practice orchestration + KataGo sparring
@@ -94,10 +99,13 @@ Restart and Quit, and both practice flows auto-hide the raw GTP console
 ## Testing
 
 `npm test` runs upstream's mocha suite plus `test/frank/**/*Tests.js` (see
-`.mocharc.json`). Pure logic (problem store, progression, overlay math) is
-unit-tested; UI and session glue are exercised manually via `npm start`. Always
-run `npx prettier --write` on touched files (upstream config: no semicolons,
-single quotes).
+`.mocharc.json`). Everything pure is unit-tested (problem store, progression,
+overlay math, judge text, cast utils, KataGo setup pieces), and the bundled data
+packs have integrity tests (indexes ↔ files ↔ SGF parseability ↔ portrait
+filenames). Renderer-coupled orchestration (tsumegoSession, katagoPlay,
+PracticeSidebar) is exercised manually via `npm start`. Always run
+`npx prettier --write` on touched files (upstream config: no semicolons, single
+quotes).
 
 ## Design rules
 

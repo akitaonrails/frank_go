@@ -1,9 +1,9 @@
 name: Create Release
 
+# frank_go: upstream's electron-builder release is not used for frank_go
+# releases (we ship via AUR — see aur-release.yml); keep it manual-only.
 on:
-  push:
-    tags:
-      - v*
+  workflow_dispatch:
 
 permissions:
   contents: read

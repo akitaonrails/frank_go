@@ -21,13 +21,9 @@ import {
   estimateScore,
   judgeRegion,
 } from '../../frank/positionJudge.js'
+import {setting} from '../../frank/env.js'
 
 const t = i18n.context('frank.practice')
-
-const setting = {
-  get: (key) => window.sabaki.setting.get(key),
-  set: (key, value) => window.sabaki.setting.set(key, value),
-}
 
 export default class PracticeSidebar extends Component {
   constructor(props) {

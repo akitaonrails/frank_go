@@ -4,8 +4,9 @@
 // scripts/frank/build-tsumego-index.mjs from the bundled SGF collections
 // (see data/SOURCES.md). Problems carry a `level` from 1 (easiest) to 10.
 
-import {existsSync, readFileSync} from 'fs'
-import {dirname, join} from 'path'
+import {readFileSync} from 'fs'
+import {join} from 'path'
+import {locateData} from '../paths.js'
 
 // Deterministic RNG (mulberry32) so shuffling is testable and practice
 // sessions can be replayed from a seed.
@@ -21,18 +22,7 @@ export function createRng(seed = Date.now()) {
 }
 
 export function defaultIndexPath() {
-  // Walk up from this module (works from src/, from the webpack bundle at
-  // the app root, and from mocha) until we find the data directory.
-  let candidates = []
-  let dir = typeof __dirname !== 'undefined' ? __dirname : process.cwd()
-
-  for (let i = 0; i < 5; i++) {
-    candidates.push(join(dir, 'data', 'tsumego', 'index.json'))
-    dir = dirname(dir)
-  }
-
-  candidates.push(join(process.cwd(), 'data', 'tsumego', 'index.json'))
-  return candidates.find(existsSync)
+  return locateData(join('tsumego', 'index.json'))
 }
 
 export class ProblemStore {

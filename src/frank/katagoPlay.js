@@ -13,13 +13,13 @@ import * as gametree from '../modules/gametree.js'
 import i18n from '../i18n.js'
 import * as dialog from '../modules/dialog.js'
 import {mergeEngines, runSetup} from './katagoSetup.js'
+import {
+  setting,
+  currentBoard as envCurrentBoard,
+  hideGtpConsole,
+} from './env.js'
 
 const t = i18n.context('frank.katago')
-
-const setting = {
-  get: (key) => window.sabaki.setting.get(key),
-  set: (key, value) => window.sabaki.setting.set(key, value),
-}
 
 let game = null // {playerSign, engineName, syncerId}
 
@@ -119,10 +119,7 @@ export async function playAgainstKataGo(playerSign = 1) {
 
   game = {playerSign, engineName: engine.name, syncerId: syncer.id}
 
-  // Beginners don't need the raw GTP console (setting and UI state are
-  // separate in Sabaki — set both).
-  setting.set('view.show_leftsidebar', false)
-  sabaki.setState({showLeftSidebar: false})
+  hideGtpConsole(sabaki)
 
   assignColors()
   publishState()
@@ -169,8 +166,7 @@ export function passMove() {
 }
 
 export function currentBoard() {
-  let {gameTrees, gameIndex, treePosition} = sabaki.state
-  return gametree.getBoard(gameTrees[gameIndex], treePosition)
+  return envCurrentBoard(sabaki)
 }
 
 export function gameScoringInfo() {

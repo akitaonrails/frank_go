@@ -29,13 +29,13 @@ import {
 } from './tsumegoProgress.js'
 import {findKataGoEngine} from './katagoPlay.js'
 import {judgeRegion, guessDeadSet} from './positionJudge.js'
+import {
+  setting,
+  currentBoard as envCurrentBoard,
+  hideGtpConsole,
+} from './env.js'
 
 const t = i18n.context('frank.tsumego')
-
-const setting = {
-  get: (key) => window.sabaki.setting.get(key),
-  set: (key, value) => window.sabaki.setting.set(key, value),
-}
 
 const MAX_SOLVED_REMEMBERED = 20000
 
@@ -110,8 +110,7 @@ function saveProgress(progress) {
 }
 
 function currentBoard() {
-  let {gameTrees, gameIndex, treePosition} = sabaki.state
-  return gametree.getBoard(gameTrees[gameIndex], treePosition)
+  return envCurrentBoard(sabaki)
 }
 
 function cancelAutoAdvance() {
@@ -424,10 +423,7 @@ export async function startPractice() {
   ensureSparringPartner()
   attachMoveListener()
 
-  // Beginners don't need the raw GTP console (setting and UI state are
-  // separate in Sabaki — set both).
-  setting.set('view.show_leftsidebar', false)
-  sabaki.setState({showLeftSidebar: false})
+  hideGtpConsole(sabaki)
 
   currentProblem = problem
   await loadProblemIntoBoard(problem, {firstLoad: true})

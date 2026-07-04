@@ -12,26 +12,17 @@ import {existsSync, readFileSync} from 'fs'
 import {dirname, join} from 'path'
 import sabaki from '../modules/sabaki.js'
 import {createRng} from './data/problemStore.js'
-
-const setting = {
-  get: (key) => window.sabaki.setting.get(key),
-  set: (key, value) => window.sabaki.setting.set(key, value),
-}
+import {setting} from './env.js'
+import {locateData} from './paths.js'
+import {castInitials, findPortrait} from './castUtils.js'
 
 let rng = createRng()
 let cachedIndexes = {}
 let lastFile = {}
 
 function gamesDir() {
-  let dir = typeof __dirname !== 'undefined' ? __dirname : process.cwd()
-
-  for (let i = 0; i < 5; i++) {
-    let candidate = join(dir, 'data', 'games')
-    if (existsSync(join(candidate, 'index.json'))) return candidate
-    dir = dirname(dir)
-  }
-
-  return null
+  let indexPath = locateData(join('games', 'index.json'))
+  return indexPath == null ? null : dirname(indexPath)
 }
 
 export function loadIndex(pack = 'famous') {
@@ -104,35 +95,11 @@ export async function studyRandomGame(pack = 'famous') {
 function resolveCast(dir, cast) {
   if (cast == null || cast.length === 0) return []
 
-  return cast.map((member) => {
-    let slug = member.name
-      .toLowerCase()
-      .replace(/\(.*?\)/g, '')
-      .trim()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '')
-
-    // Try the full name, then the given name alone, so one hikaru.png
-    // covers both 'Hikaru Shindo' and 'Hikaru (Sai)'.
-    let firstName = slug.split('-')[0]
-    let portrait = ['png', 'jpg', 'jpeg', 'webp']
-      .flatMap((ext) => [
-        join(dir, 'portraits', `${slug}.${ext}`),
-        join(dir, 'portraits', `${firstName}.${ext}`),
-      ])
-      .find(existsSync)
-
-    let initials = member.name
-      .replace(/\(.*?\)/g, '')
-      .trim()
-      .split(/\s+/)
-      .map((word) => word[0])
-      .slice(0, 2)
-      .join('')
-      .toUpperCase()
-
-    return {...member, portrait: portrait || null, initials}
-  })
+  return cast.map((member) => ({
+    ...member,
+    portrait: findPortrait(join(dir, 'portraits'), member.name),
+    initials: castInitials(member.name),
+  }))
 }
 
 // Leaves study mode: clears the board and puts the comment box away.
