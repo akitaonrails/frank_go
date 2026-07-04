@@ -53,6 +53,7 @@ Exec=$pkgname %U
 Icon=$pkgname
 Type=Application
 Categories=Game;BoardGame;
+MimeType=application/x-go-sgf;
 StartupWMClass=Sabaki
 EOF
 
