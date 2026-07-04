@@ -1,11 +1,16 @@
-// frank_go: beginner-friendly control panel, docked at the top of the
-// right sidebar whenever a practice activity (tsumego or a KataGo game)
-// is running. Replaces the old floating panel.
+// frank_go: beginner-friendly control panel, docked in the right sidebar.
+// Shows the start menu when idle and the controls of the running activity
+// (tsumego / KataGo game / study) otherwise. The panel is a flex column:
+// main controls on top, toggles and the Back button pinned to the bottom
+// of the sidebar (the sidebar fills the full height when the graph and
+// comment areas are hidden).
 
 import {h, Component} from 'preact'
 import classNames from 'classnames'
 import i18n from '../../i18n.js'
+import sabaki from '../../modules/sabaki.js'
 import * as gametree from '../../modules/gametree.js'
+import {isTextLikeElement} from '../../modules/helper.js'
 import * as tsumegoSession from '../../frank/tsumegoSession.js'
 import {LEVEL_RANKS} from '../../frank/tsumegoSession.js'
 import * as katagoPlay from '../../frank/katagoPlay.js'
@@ -174,6 +179,28 @@ export default class PracticeSidebar extends Component {
       this.setState({statusText: null})
       setting.set('frank.show_home_panel', false)
     }
+
+    // Study mode: Space steps forward, Backspace rewinds.
+    this.handleKeyDown = (evt) => {
+      if (this.props.frankStudy == null) return
+      if (isTextLikeElement(document.activeElement)) return
+
+      if (evt.key === ' ') {
+        evt.preventDefault()
+        sabaki.goStep(1)
+      } else if (evt.key === 'Backspace') {
+        evt.preventDefault()
+        sabaki.goStep(-1)
+      }
+    }
+  }
+
+  componentDidMount() {
+    document.addEventListener('keydown', this.handleKeyDown)
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this.handleKeyDown)
   }
 
   componentWillReceiveProps(nextProps) {
@@ -204,6 +231,19 @@ export default class PracticeSidebar extends Component {
       }),
       h('span', {class: 'text'}, '🎨 ', t('Area painting')),
       h('span', {class: 'shortcut'}, 'Ctrl+Shift+B'),
+    )
+  }
+
+  renderSparringToggle(sparring) {
+    return h(
+      'label',
+      {class: 'overlay-toggle'},
+      h('input', {
+        type: 'checkbox',
+        checked: sparring,
+        onChange: this.handleToggleSparring,
+      }),
+      h('span', {class: 'text'}, '🤖 ', t('KataGo answers my moves')),
     )
   }
 
@@ -240,7 +280,7 @@ export default class PracticeSidebar extends Component {
       }),
     )
 
-    return h(
+    let main = h(
       'div',
       {class: 'activity tsumego'},
 
@@ -259,42 +299,52 @@ export default class PracticeSidebar extends Component {
         'div',
         {class: 'levelrow'},
         h(
-          'button',
-          {
-            class: 'levelstep',
-            title: t('Easier problems'),
-            disabled: progress.level <= 1,
-            onClick: this.handleLevelDown,
-          },
-          '−',
-        ),
-        h(
           'span',
-          {class: 'level', title: t('Choose your difficulty')},
-          t('Level'),
-          ' ',
-          progress.level,
-          ` (${LEVEL_RANKS[progress.level]})`,
-        ),
-        h(
-          'button',
-          {
-            class: 'levelstep',
-            title: t('Harder problems'),
-            disabled: progress.level >= 10,
-            onClick: this.handleLevelUp,
-          },
-          '+',
+          {class: 'stepper'},
+          h(
+            'button',
+            {
+              class: 'levelstep',
+              title: t('Easier problems'),
+              disabled: progress.level <= 1,
+              onClick: this.handleLevelDown,
+            },
+            '−',
+          ),
+          h(
+            'span',
+            {class: 'level', title: t('Choose your difficulty')},
+            t('Level'),
+            ' ',
+            progress.level,
+          ),
+          h(
+            'button',
+            {
+              class: 'levelstep',
+              title: t('Harder problems'),
+              disabled: progress.level >= 10,
+              onClick: this.handleLevelUp,
+            },
+            '+',
+          ),
         ),
         h(
           'span',
           {class: 'dots', title: t('Solve 5 in a row to level up')},
           streakDots,
         ),
+      ),
+
+      h(
+        'p',
+        {class: 'ranknote'},
+        `${LEVEL_RANKS[progress.level]} · ${t('solve 5 in a row to level up')}`,
         lastEvent != null &&
           h(
             'span',
             {class: classNames('event', lastEvent)},
+            ' ',
             lastEvent === 'level-up' ? t('Level up!') : t('Level down'),
           ),
       ),
@@ -332,9 +382,9 @@ export default class PracticeSidebar extends Component {
               ),
         ),
 
-      // frank_go: with a sparring engine the grading is automatic — no
-      // manual buttons, just a "Next now" shortcut on success. Without an
-      // engine the player self-grades.
+      // With a sparring engine the grading is automatic — no manual
+      // buttons, just a "Next now" shortcut on success. Without an engine
+      // the player self-grades.
       sparring
         ? autoVerdict != null &&
             autoVerdict.result === 'solved' &&
@@ -378,30 +428,21 @@ export default class PracticeSidebar extends Component {
       ),
 
       this.renderStatus(),
+    )
 
+    let footer = [
       h(
         'p',
         {class: 'session'},
         t('This session:'),
         ` ${sessionStats.solved} ✓ · ${sessionStats.missed} ✗`,
       ),
-
-      this.renderBackButton(this.handleStopTsumego),
-
-      h(
-        'label',
-        {class: 'overlay-toggle'},
-        h('input', {
-          type: 'checkbox',
-          checked: sparring,
-          onChange: this.handleToggleSparring,
-        }),
-        ' ',
-        t('KataGo answers my moves'),
-      ),
-
+      this.renderSparringToggle(sparring),
       this.renderOverlayToggle(),
-    )
+      this.renderBackButton(this.handleStopTsumego),
+    ]
+
+    return {main, footer}
   }
 
   renderKatagoGame(game) {
@@ -410,7 +451,7 @@ export default class PracticeSidebar extends Component {
         ? t('You play Black') + ' ⚫'
         : t('You play White') + ' ⚪'
 
-    return h(
+    let main = h(
       'div',
       {class: 'activity katago'},
 
@@ -441,17 +482,19 @@ export default class PracticeSidebar extends Component {
       ),
 
       this.renderStatus(),
+    )
 
+    let footer = [
       h(
         'p',
         {class: 'session'},
         t('Rewind with the arrow keys or the graph below.'),
       ),
-
-      this.renderBackButton(this.handleStopGame),
-
       this.renderOverlayToggle(),
-    )
+      this.renderBackButton(this.handleStopGame),
+    ]
+
+    return {main, footer}
   }
 
   renderCastMember(member) {
@@ -486,7 +529,7 @@ export default class PracticeSidebar extends Component {
   }
 
   renderStudy(study) {
-    return h(
+    let main = h(
       'div',
       {class: 'activity study'},
 
@@ -511,14 +554,6 @@ export default class PracticeSidebar extends Component {
       h('p', {class: 'guide'}, study.description),
 
       h(
-        'p',
-        {class: 'session'},
-        t(
-          'Step through the moves with ← → — commentary appears below when available.',
-        ),
-      ),
-
-      h(
         'div',
         {class: 'actions'},
         h(
@@ -528,10 +563,20 @@ export default class PracticeSidebar extends Component {
         ),
       ),
 
-      this.renderBackButton(this.handleStopStudy),
-
-      this.renderOverlayToggle(),
+      this.renderStatus(),
     )
+
+    let footer = [
+      h(
+        'p',
+        {class: 'session'},
+        t('Space / ← → step through the moves, Backspace rewinds.'),
+      ),
+      this.renderOverlayToggle(),
+      this.renderBackButton(this.handleStopStudy),
+    ]
+
+    return {main, footer}
   }
 
   renderHome() {
@@ -540,7 +585,7 @@ export default class PracticeSidebar extends Component {
     let hasKatago = engines.length > 0
     let chosenEngine = katagoPlay.findKataGoEngine()
 
-    return h(
+    let main = h(
       'div',
       {class: 'activity home'},
 
@@ -602,14 +647,6 @@ export default class PracticeSidebar extends Component {
                 `⚪ ${t('Play KataGo')} — ${t('you take White')}`,
               ),
             ),
-            engines.length <= 2 &&
-              h(
-                'p',
-                {class: 'session'},
-                t(
-                  'Tip: `npm run frank:katago -- --human` adds human-like ranked opponents (15k / 5k / 1d).',
-                ),
-              ),
           )
         : h(
             'p',
@@ -633,13 +670,26 @@ export default class PracticeSidebar extends Component {
       ),
 
       this.renderStatus(),
-
-      this.renderOverlayToggle(),
     )
+
+    let footer = [
+      hasKatago &&
+        engines.length <= 2 &&
+        h(
+          'p',
+          {class: 'session'},
+          t(
+            'Tip: `npm run frank:katago -- --human` adds human-like ranked opponents (15k / 5k / 1d).',
+          ),
+        ),
+      this.renderOverlayToggle(),
+    ]
+
+    return {main, footer}
   }
 
   render({frankTsumego, frankKatagoGame, frankStudy, frankShowHomePanel}) {
-    let content =
+    let view =
       frankTsumego != null
         ? this.renderTsumego(frankTsumego)
         : frankKatagoGame != null
@@ -650,8 +700,13 @@ export default class PracticeSidebar extends Component {
               ? this.renderHome()
               : null
 
-    if (content == null) return null
+    if (view == null) return null
 
-    return h('section', {id: 'frank-practice-sidebar'}, content)
+    return h(
+      'section',
+      {id: 'frank-practice-sidebar'},
+      h('div', {class: 'panel-main'}, view.main),
+      h('div', {class: 'panel-footer'}, ...view.footer),
+    )
   }
 }

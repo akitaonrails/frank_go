@@ -9,6 +9,8 @@
 }
 
 #frank-practice-sidebar {
+  display: flex;
+  flex-direction: column;
   overflow-y: auto;
   max-height: 60vh;
   padding: 1em 1.1em 1.1em;
@@ -17,6 +19,30 @@
   color: #efe6d5;
   font-size: 1.1em;
   line-height: 1.45;
+}
+
+/* With the graph/comment area hidden, the panel takes the whole sidebar
+   and the footer sticks to the bottom. */
+#sidebar.frank-practice.frank-fill {
+  grid-template: minmax(0, 1fr) 0 / 100%;
+}
+
+#sidebar.frank-practice.frank-fill > :not(#frank-practice-sidebar) {
+  display: none;
+}
+
+#sidebar.frank-practice.frank-fill #frank-practice-sidebar {
+  max-height: none;
+  border-bottom: none;
+}
+
+#frank-practice-sidebar .panel-main {
+  flex: 0 1 auto;
+}
+
+#frank-practice-sidebar .panel-footer {
+  margin-top: auto;
+  padding-top: 0.6em;
 }
 
 /* Header */
@@ -52,16 +78,32 @@
 #frank-practice-sidebar .levelrow {
   display: flex;
   align-items: center;
-  gap: 0.8em;
-  margin-bottom: 0.6em;
+  justify-content: space-between;
+  gap: 0.6em;
+  margin-bottom: 0.25em;
   padding: 0.45em 0.7em;
   background: rgba(0, 0, 0, 0.22);
   border-radius: 999px;
 }
 
+#frank-practice-sidebar .levelrow .stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  white-space: nowrap;
+}
+
 #frank-practice-sidebar .levelrow .level {
   font-weight: bold;
   color: #f2c96b;
+  white-space: nowrap;
+}
+
+#frank-practice-sidebar .ranknote {
+  margin: 0 0 0.6em;
+  padding: 0 0.3em;
+  color: #a89878;
+  font-size: 0.82em;
 }
 
 #frank-practice-sidebar .dots {

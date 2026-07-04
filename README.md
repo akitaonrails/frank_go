@@ -25,7 +25,16 @@ players. frank_go is built for the rest of us.
   opponent (and a full-strength one). Score estimate, undo, pass and restart are
   one click away in the sidebar.
 - 📖 **Study famous games** — from the Ear-Reddening Game (1846) to AlphaGo vs
-  Lee Sedol, with the story behind each game.
+  Lee Sedol, with the story behind each game (the AlphaGo games include
+  move-by-move commentary).
+- 🎌 **Hikaru no Go mode** — nearly every game in the manga is a _real_
+  professional game, and 15 of them are bundled with their chapter references
+  and trivia: read a chapter, then replay the actual kifu here (Sai's internet
+  game against Toya Meijin was a real half-point thriller). Character portraits
+  are user-supplied (pending — see
+  [data/games/hikaru/portraits/FILENAMES.txt](data/games/hikaru/portraits/FILENAMES.txt)
+  for the drop-in instructions; the app shows go-stone medallions until you add
+  images).
 - 🛜 **Fully offline** — no account, no server, your progress stays on your
   machine.
 
@@ -78,9 +87,9 @@ npm run frank:games
 
 ## Built on Sabaki
 
-frank_go is a fork of [Sabaki](https://sabaki.yichuanshen.de/), the excellent
+frank*go is a fork of [Sabaki](https://sabaki.yichuanshen.de/), the excellent
 open source Go board and SGF editor by Yichuan Shen — all of Sabaki's editing,
-analysis and engine features are still here (enable _Show Advanced Menus_ to
+analysis and engine features are still here (enable \_Show Advanced Menus* to
 reach them). The original Sabaki README is preserved in
 [docs/SABAKI.md](docs/SABAKI.md).
 

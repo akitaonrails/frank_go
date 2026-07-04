@@ -1,4 +1,5 @@
 import {h, Component} from 'preact'
+import classNames from 'classnames'
 import sabaki from '../modules/sabaki.js'
 
 import SplitContainer from './helpers/SplitContainer.js'
@@ -139,12 +140,20 @@ export default class Sidebar extends Component {
       this.props.frankStudy != null ||
       this.props.frankShowHomePanel !== false
 
+    // frank_go: when the graph/comment area is hidden, let the practice
+    // panel fill the sidebar so its footer pins to the bottom
+    let practiceFill =
+      practiceActive && !showGameGraph && !showCommentBox && !showWinrateGraph
+
     return h(
       'section',
       {
         ref: (el) => (this.element = el),
         id: 'sidebar',
-        class: practiceActive ? 'frank-practice' : '',
+        class: classNames({
+          'frank-practice': practiceActive,
+          'frank-fill': practiceFill,
+        }),
       },
 
       practiceActive && h(PracticeSidebar, this.props),
