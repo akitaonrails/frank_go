@@ -1,16 +1,15 @@
 # Keeping frank_go rebaseable on Sabaki upstream
 
-frank_go is built **on top of Sabaki** (fork base: `akitaonrails/Sabaki`,
-upstream: `SabakiHQ/Sabaki`). We want to keep pulling upstream improvements, so
-every change follows these rules.
+frank_go is built **on top of Sabaki** (upstream: `SabakiHQ/Sabaki`; the full
+Sabaki history lives in this repo). We want to keep pulling upstream
+improvements, so every change follows these rules.
 
 ## Remotes
 
-| Remote     | URL                                      | Purpose                |
-| ---------- | ---------------------------------------- | ---------------------- |
-| `origin`   | git@github.com:akitaonrails/frank_go.git | our app                |
-| `sabaki`   | git@github.com:akitaonrails/Sabaki.git   | the user's Sabaki fork |
-| `upstream` | https://github.com/SabakiHQ/Sabaki.git   | Sabaki upstream        |
+| Remote     | URL                                      | Purpose         |
+| ---------- | ---------------------------------------- | --------------- |
+| `origin`   | git@github.com:akitaonrails/frank_go.git | our app         |
+| `upstream` | https://github.com/SabakiHQ/Sabaki.git   | Sabaki upstream |
 
 ## Rules for new code
 
@@ -59,8 +58,8 @@ npm ci && npm test && npm start   # verify
 git push origin main --force-with-lease
 ```
 
-Optionally keep the user's Sabaki fork in sync first
-(`git push sabaki upstream/master:master`).
+(To contribute a fix back to Sabaki itself, create a fresh fork of
+SabakiHQ/Sabaki at that time — frank_go does not depend on one.)
 
 ## Branding
 
