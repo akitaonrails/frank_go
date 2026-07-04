@@ -89,10 +89,47 @@ export async function studyRandomGame(pack = 'famous') {
       : `${game.title} (${game.date}, ${game.result}) — ${game.why}`
 
   sabaki.setState({
-    frankStudy: {pack, title: game.title, description},
+    frankStudy: {
+      pack,
+      title: game.title,
+      description,
+      cast: resolveCast(index.dir, game.cast),
+    },
   })
 
   return game
+}
+
+// Characters of the manga scene. If the user has dropped a portrait image
+// into data/games/hikaru/portraits/ (named after the character, e.g.
+// sai.png, hikaru-shindo.jpg), it is used; otherwise the UI draws a
+// uniform go-stone medallion with the character's initials.
+function resolveCast(dir, cast) {
+  if (cast == null || cast.length === 0) return []
+
+  return cast.map((member) => {
+    let slug = member.name
+      .toLowerCase()
+      .replace(/\(.*?\)/g, '')
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '')
+
+    let portrait = ['png', 'jpg', 'jpeg', 'webp']
+      .map((ext) => join(dir, 'portraits', `${slug}.${ext}`))
+      .find(existsSync)
+
+    let initials = member.name
+      .replace(/\(.*?\)/g, '')
+      .trim()
+      .split(/\s+/)
+      .map((word) => word[0])
+      .slice(0, 2)
+      .join('')
+      .toUpperCase()
+
+    return {...member, portrait: portrait || null, initials}
+  })
 }
 
 // Leaves study mode: clears the board and puts the comment box away.

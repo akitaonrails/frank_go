@@ -12,7 +12,17 @@
       "white": "Honinbo Dosaku",
       "date": "1669",
       "result": "W+4",
-      "trivia": "The game where Sai's rival cheats is actually by Dosaku — considered one of the two greatest players ever, and a fitting stand-in for a go instructor to the emperor."
+      "trivia": "The game where Sai's rival cheats is actually by Dosaku — considered one of the two greatest players ever, and a fitting stand-in for a go instructor to the emperor.",
+      "cast": [
+        {
+          "name": "Sai",
+          "color": "W"
+        },
+        {
+          "name": "The Rival Tutor",
+          "color": "B"
+        }
+      ]
     },
     {
       "file": "ch02-tv-toya-meijin.sgf",
@@ -22,7 +32,13 @@
       "white": "Takemiya Masaki",
       "date": "1993-02-08",
       "result": "B+2.5",
-      "trivia": "The game Hikaru glimpses on TV at go class. Takemiya is famous for his 'cosmic style' aiming at grand center territory — try the area painting overlay on this one."
+      "trivia": "The game Hikaru glimpses on TV at go class. Takemiya is famous for his 'cosmic style' aiming at grand center territory — try the area painting overlay on this one.",
+      "cast": [
+        {
+          "name": "Toya Koyo",
+          "color": "B"
+        }
+      ]
     },
     {
       "file": "ch02-hikaru-meets-akira.sgf",
@@ -32,7 +48,17 @@
       "white": "Honinbo Shuwa",
       "date": "1851-11-15",
       "result": "B+4",
-      "trivia": "The game that starts the great rivalry is real Shusaku — Sai plays his own historical game. It also appears as game 8 in the classic book 'Appreciating Famous Games'."
+      "trivia": "The game that starts the great rivalry is real Shusaku — Sai plays his own historical game. It also appears as game 8 in the classic book 'Appreciating Famous Games'.",
+      "cast": [
+        {
+          "name": "Hikaru (Sai)",
+          "color": "B"
+        },
+        {
+          "name": "Akira Toya",
+          "color": "W"
+        }
+      ]
     },
     {
       "file": "ch08-kaga-festival.sgf",
@@ -42,7 +68,17 @@
       "white": "Honinbo Shusai",
       "date": "1926-09-27 .. 10-18",
       "result": "W+T",
-      "trivia": "The famous Nihon Ki-in vs Kiseisha showdown: a brutal killing race that Karigane lost on time (W+T) — one of very few top games ever decided by the clock."
+      "trivia": "The famous Nihon Ki-in vs Kiseisha showdown: a brutal killing race that Karigane lost on time (W+T) — one of very few top games ever decided by the clock.",
+      "cast": [
+        {
+          "name": "Hikaru (Sai)",
+          "color": "B"
+        },
+        {
+          "name": "Tetsuo Kaga",
+          "color": "W"
+        }
+      ]
     },
     {
       "file": "ch51x-triple-ko.sgf",
@@ -52,7 +88,8 @@
       "white": "Inoue Shunseki",
       "date": "1724-04-27",
       "result": "Void (no result)",
-      "trivia": "The first confirmed triple ko in Japanese go history — the game was declared void, exactly as retold in the manga. Triple ko is traditionally considered an ill omen."
+      "trivia": "The first confirmed triple ko in Japanese go history — the game was declared void, exactly as retold in the manga. Triple ko is traditionally considered an ill omen.",
+      "cast": []
     },
     {
       "file": "ch62-sai-vs-kadowaki.sgf",
@@ -62,7 +99,17 @@
       "white": "Nakagawa Junsetsu",
       "date": "1850-06-04",
       "result": "B+15",
-      "trivia": "When Sai gets to play seriously, the manga reaches for a game where Shusaku crushes his opponent by 15 points — no komi, all skill."
+      "trivia": "When Sai gets to play seriously, the manga reaches for a game where Shusaku crushes his opponent by 15 points — no komi, all skill.",
+      "cast": [
+        {
+          "name": "Sai",
+          "color": "B"
+        },
+        {
+          "name": "Tatsuhiko Kadowaki",
+          "color": "W"
+        }
+      ]
     },
     {
       "file": "ch63-ogata-vs-kuwabara.sgf",
@@ -72,7 +119,17 @@
       "white": "Ishida Yoshio",
       "date": "1973-08-28",
       "result": "W+0 (jigo)",
-      "trivia": "A rarity: this real game ended in jigo — a perfect draw, W+0. Ishida 'Computer' Yoshio was renowned for exactly this kind of counting precision."
+      "trivia": "A rarity: this real game ended in jigo — a perfect draw, W+0. Ishida 'Computer' Yoshio was renowned for exactly this kind of counting precision.",
+      "cast": [
+        {
+          "name": "Seiji Ogata",
+          "color": "B"
+        },
+        {
+          "name": "Kuwabara Honinbo",
+          "color": "W"
+        }
+      ]
     },
     {
       "file": "ch89-what-would-sai-play.sgf",
@@ -82,7 +139,17 @@
       "white": "Honinbo Shuwa",
       "date": "1847-09-11",
       "result": "B+7",
-      "trivia": "The moment Hikaru starts finding moves by channeling Sai is scored with young Shusaku beating his own future teacher Shuwa."
+      "trivia": "The moment Hikaru starts finding moves by channeling Sai is scored with young Shusaku beating his own future teacher Shuwa.",
+      "cast": [
+        {
+          "name": "Hikaru Shindo",
+          "color": "B"
+        },
+        {
+          "name": "Sai",
+          "color": "W"
+        }
+      ]
     },
     {
       "file": "ch90-hikaru-vs-waya.sgf",
@@ -92,7 +159,17 @@
       "white": "Otake Hideo",
       "date": "1980-09-17",
       "result": "B+R",
-      "trivia": "From the legendary 1980 Meijin match that made 24-year-old Cho Chikun the youngest Meijin ever at the time. Cho also authored the tsumego collection bundled in this app."
+      "trivia": "From the legendary 1980 Meijin match that made 24-year-old Cho Chikun the youngest Meijin ever at the time. Cho also authored the tsumego collection bundled in this app.",
+      "cast": [
+        {
+          "name": "Hikaru Shindo",
+          "color": "B"
+        },
+        {
+          "name": "Yoshitaka Waya",
+          "color": "W"
+        }
+      ]
     },
     {
       "file": "ch94-hikaru-vs-ochi.sgf",
@@ -102,7 +179,17 @@
       "white": "Honinbo Shusaku",
       "date": "1859-10-26",
       "result": "W+7",
-      "trivia": "Hikaru's make-or-break exam game is Shusaku playing White — and the same record returns in chapter 127 for the taxi-driver Kawai's big game."
+      "trivia": "Hikaru's make-or-break exam game is Shusaku playing White — and the same record returns in chapter 127 for the taxi-driver Kawai's big game.",
+      "cast": [
+        {
+          "name": "Hikaru Shindo",
+          "color": "W"
+        },
+        {
+          "name": "Kosuke Ochi",
+          "color": "B"
+        }
+      ]
     },
     {
       "file": "ch100-sai-vs-toya-meijin-teaching.sgf",
@@ -112,7 +199,17 @@
       "white": "Otake Hideo",
       "date": "1996-06-14",
       "result": "W+R",
-      "trivia": "The same two rivals as chapters 90–91, sixteen years later — the manga quietly reused go history's longest-running rivalry twice."
+      "trivia": "The same two rivals as chapters 90–91, sixteen years later — the manga quietly reused go history's longest-running rivalry twice.",
+      "cast": [
+        {
+          "name": "Sai",
+          "color": "B"
+        },
+        {
+          "name": "Toya Koyo",
+          "color": "W"
+        }
+      ]
     },
     {
       "file": "ch112-sai-vs-toya-meijin.sgf",
@@ -122,7 +219,17 @@
       "white": "Yoda Norimoto",
       "date": "1997-05-01",
       "result": "W+0.5",
-      "trivia": "The climactic Sai vs Toya Meijin game — decided by half a point in real life too. Hikaru's flash of insight about a move that could have turned the game is the heart of chapter 116."
+      "trivia": "The climactic Sai vs Toya Meijin game — decided by half a point in real life too. Hikaru's flash of insight about a move that could have turned the game is the heart of chapter 116.",
+      "cast": [
+        {
+          "name": "Sai",
+          "color": "B"
+        },
+        {
+          "name": "Toya Koyo",
+          "color": "W"
+        }
+      ]
     },
     {
       "file": "ch124-sai-farewell.sgf",
@@ -132,7 +239,17 @@
       "white": "Cho Chikun",
       "date": "1998-02-14",
       "result": "W+R",
-      "trivia": "The board shown just before Sai disappears. In reality it was played on Valentine's Day 1998 — the manga turned it into one of the saddest scenes in go fiction."
+      "trivia": "The board shown just before Sai disappears. In reality it was played on Valentine's Day 1998 — the manga turned it into one of the saddest scenes in go fiction.",
+      "cast": [
+        {
+          "name": "Sai",
+          "color": "W"
+        },
+        {
+          "name": "Hikaru Shindo",
+          "color": "B"
+        }
+      ]
     },
     {
       "file": "ch145-hikaru-vs-akira.sgf",
@@ -142,7 +259,17 @@
       "white": "Nakano Hironari",
       "date": "1999",
       "result": "W+R",
-      "trivia": "The rivals' first official pro clash — the moment Akira finally sees Sai inside Hikaru's go."
+      "trivia": "The rivals' first official pro clash — the moment Akira finally sees Sai inside Hikaru's go.",
+      "cast": [
+        {
+          "name": "Hikaru Shindo",
+          "color": "B"
+        },
+        {
+          "name": "Akira Toya",
+          "color": "W"
+        }
+      ]
     },
     {
       "file": "ch184-hokuto-cup-finale.sgf",
@@ -152,7 +279,17 @@
       "white": "Lee Sedol",
       "date": "2002-08-03",
       "result": "W+0.5",
-      "trivia": "The manga's finale runs on a half-point Fujitsu Cup final won by a young Lee Sedol — the same Lee Sedol who would face AlphaGo fourteen years later (that match is in the Famous Games pack)."
+      "trivia": "The manga's finale runs on a half-point Fujitsu Cup final won by a young Lee Sedol — the same Lee Sedol who would face AlphaGo fourteen years later (that match is in the Famous Games pack).",
+      "cast": [
+        {
+          "name": "Hikaru Shindo",
+          "color": "B"
+        },
+        {
+          "name": "Ko Yongha",
+          "color": "W"
+        }
+      ]
     }
   ]
 }

@@ -368,3 +368,66 @@ main.frank-cursor-white #goban {
   background: #3a3225;
   color: #efe6d5;
 }
+
+/* Study cast: character medallions (uniform go-stone badges, replaced by
+   user-supplied portraits from data/games/hikaru/portraits/ when present) */
+
+#frank-practice-sidebar .cast {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9em;
+  margin-bottom: 0.7em;
+}
+
+#frank-practice-sidebar .cast .vs {
+  color: #a89878;
+  font-size: 0.85em;
+  font-style: italic;
+}
+
+#frank-practice-sidebar .castmember {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3em;
+  max-width: 7.5em;
+}
+
+#frank-practice-sidebar .castmember .medallion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.9em;
+  height: 2.9em;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #4a4a4a, #0a0a0a);
+  border: 2px solid #666;
+  color: #f2d99a;
+  font-weight: bold;
+  font-size: 1.05em;
+  letter-spacing: 0.03em;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+#frank-practice-sidebar .castmember .medallion.white {
+  background: radial-gradient(circle at 35% 30%, #ffffff, #cfcfcf);
+  border-color: #aaa;
+  color: #6b5c3a;
+}
+
+#frank-practice-sidebar .castmember .portrait {
+  width: 3.2em;
+  height: 3.2em;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #6b5c3a;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+#frank-practice-sidebar .castmember .castname {
+  color: #d8cdb8;
+  font-size: 0.82em;
+  text-align: center;
+  line-height: 1.25;
+}

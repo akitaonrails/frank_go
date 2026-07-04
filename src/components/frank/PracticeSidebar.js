@@ -454,6 +454,37 @@ export default class PracticeSidebar extends Component {
     )
   }
 
+  renderCastMember(member) {
+    return h(
+      'div',
+      {class: 'castmember'},
+      member.portrait != null
+        ? h('img', {class: 'portrait', src: member.portrait, alt: member.name})
+        : h(
+            'span',
+            {
+              class: classNames('medallion', {
+                white: member.color === 'W',
+              }),
+            },
+            member.initials,
+          ),
+      h('span', {class: 'castname'}, member.name),
+    )
+  }
+
+  renderCast(cast) {
+    if (cast == null || cast.length === 0) return null
+
+    return h(
+      'div',
+      {class: 'cast'},
+      this.renderCastMember(cast[0]),
+      cast.length > 1 && h('span', {class: 'vs'}, t('vs')),
+      cast.length > 1 && this.renderCastMember(cast[1]),
+    )
+  }
+
   renderStudy(study) {
     return h(
       'div',
@@ -474,6 +505,8 @@ export default class PracticeSidebar extends Component {
           t('quit'),
         ),
       ),
+
+      this.renderCast(study.cast),
 
       h('p', {class: 'guide'}, study.description),
 

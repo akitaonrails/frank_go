@@ -23,3 +23,5 @@ gtp_logs/
 # frank_go: bulk game data is fetched locally, never committed
 data/games/bulk/
 data/katago/
+data/games/hikaru/portraits/*
+!data/games/hikaru/portraits/README.md
