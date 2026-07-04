@@ -123,6 +123,9 @@ export default class PracticeSidebar extends Component {
         !setting.get('frank.show_beginner_overlay'),
       )
 
+    this.handleToggleMenuBar = () =>
+      setting.set('view.show_menubar', !setting.get('view.show_menubar'))
+
     this.handleStartTsumego = () => tsumegoSession.startPractice()
 
     this.handlePlayBlack = () => katagoPlay.playAgainstKataGo(1)
@@ -222,6 +225,13 @@ export default class PracticeSidebar extends Component {
 
   componentDidMount() {
     document.addEventListener('keydown', this.handleKeyDown)
+
+    // Apply the persisted menu-bar visibility at startup — Sabaki only
+    // reacts to changes, and the BrowserWindow autoHideMenuBar option
+    // alone doesn't reliably hide it on every platform.
+    if (!setting.get('view.show_menubar')) {
+      window.sabaki.window.setMenuBarVisibility(false)
+    }
   }
 
   componentWillUnmount() {
@@ -269,6 +279,19 @@ export default class PracticeSidebar extends Component {
         onChange: this.handleToggleSparring,
       }),
       h('span', {class: 'text'}, '🤖 ', t('KataGo answers my moves')),
+    )
+  }
+
+  renderMenuBarToggle() {
+    return h(
+      'label',
+      {class: 'overlay-toggle'},
+      h('input', {
+        type: 'checkbox',
+        checked: !!this.props.showMenuBar,
+        onChange: this.handleToggleMenuBar,
+      }),
+      h('span', {class: 'text'}, '☰ ', t('Menu bar')),
     )
   }
 
@@ -464,6 +487,7 @@ export default class PracticeSidebar extends Component {
       ),
       this.renderSparringToggle(sparring),
       this.renderOverlayToggle(),
+      this.renderMenuBarToggle(),
       this.renderBackButton(this.handleStopTsumego),
     ]
 
@@ -516,6 +540,7 @@ export default class PracticeSidebar extends Component {
         t('Rewind with the arrow keys or the graph below.'),
       ),
       this.renderOverlayToggle(),
+      this.renderMenuBarToggle(),
       this.renderBackButton(this.handleStopGame),
     ]
 
@@ -607,6 +632,7 @@ export default class PracticeSidebar extends Component {
         t('Space / ← → step through the moves, Backspace rewinds.'),
       ),
       this.renderOverlayToggle(),
+      this.renderMenuBarToggle(),
       this.renderBackButton(this.handleStopStudy),
     ]
 
@@ -723,6 +749,7 @@ export default class PracticeSidebar extends Component {
           ),
         ),
       this.renderOverlayToggle(),
+      this.renderMenuBarToggle(),
     ]
 
     return {main, footer}

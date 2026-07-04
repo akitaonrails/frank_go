@@ -195,7 +195,8 @@ let defaults = {
   'view.peerlist_minheight': 58,
   'view.properties_height': 50,
   'view.properties_minheight': 20,
-  'view.show_menubar': true,
+  // frank_go: hidden by default — toggle lives in the practice sidebar
+  'view.show_menubar': false,
   'view.show_leftsidebar': false,
   'view.show_comments': false,
   'view.show_coordinates': false,
