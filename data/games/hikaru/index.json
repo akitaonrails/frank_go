@@ -1,7 +1,7 @@
 {
   "version": 1,
   "series": "Hikaru no Go",
-  "about": "Nearly every game position in Hikaru no Go is a real professional game — the manga's go content was supervised by professional player Yukari Umezawa (5-dan), and fans spent years hunting down the original kifu. Sai's games are mostly by Honinbo Shusaku, the historical master whose ghost Sai is. This pack maps landmark manga moments to the actual game records, identified by the go community (see data/SOURCES.md).",
+  "about": "Almost every game shown in Hikaru no Go is real. The author had professional player Yukari Umezawa supervise the go scenes, and she used actual professional games. Fans then spent years figuring out which ones.\n\nAnd since Sai is the ghost of Honinbo Shusaku, most of Sai's games really are Shusaku's own, played over 150 years ago.\n\nEach game here tells you which chapter it appears in and a bit of its story. Read the manga, then come replay the real thing.",
   "source": "Mapping: Sensei's Library (HikaruNoGo/Games). Game records: Andries Brouwer's database (CWI).",
   "games": [
     {
