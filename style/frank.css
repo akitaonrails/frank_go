@@ -569,3 +569,12 @@ main.frank-cursor-white #goban {
   white-space: nowrap;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
 }
+
+#frank-practice-sidebar .repairlink {
+  color: #d0a860;
+  text-decoration: none;
+  border-bottom: 1px dotted #d0a860;
+}
+#frank-practice-sidebar .repairlink:hover {
+  color: #f2d99a;
+}

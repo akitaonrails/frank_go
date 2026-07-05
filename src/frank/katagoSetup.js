@@ -80,16 +80,35 @@ export function download(url, destination, onProgress = () => {}) {
   })
 }
 
+// A katago binary is only useful if it actually inits its backend. GPU
+// builds (katago-opencl / katago-cuda) with no working driver install
+// fine and even answer `version`, but crash the moment `gtp` loads the
+// network (e.g. CL_PLATFORM_NOT_FOUND_KHR). So we verify with a real GTP
+// session that loads the model — the only check that catches this.
+export function katagoBootsGtp(binary, config, model) {
+  try {
+    let result = spawnSync(
+      binary,
+      ['gtp', '-config', config, '-model', model],
+      {
+        input: 'name\nquit\n',
+        timeout: 60000,
+        encoding: 'utf8',
+      },
+    )
+    return result.status === 0
+  } catch (err) {
+    return false
+  }
+}
+
 export function findKatagoOnPath() {
   let result = spawnSync(process.platform === 'win32' ? 'where' : 'which', [
     'katago',
   ])
 
-  if (result.status === 0) {
-    return result.stdout.toString().split('\n')[0].trim()
-  }
-
-  return null
+  if (result.status !== 0) return null
+  return result.stdout.toString().split('\n')[0].trim()
 }
 
 function extractZip(zipPath, destination) {
@@ -108,10 +127,13 @@ function extractZip(zipPath, destination) {
 export async function ensureKatagoBinary({
   dir,
   backend = 'eigenavx2',
+  forceDownload = false,
   onProgress = () => {},
 }) {
-  let onPath = findKatagoOnPath()
-  if (onPath != null) return onPath
+  if (!forceDownload) {
+    let onPath = findKatagoOnPath()
+    if (onPath != null) return onPath
+  }
 
   let binDir = join(dir, 'bin')
   let localBinary = join(
@@ -338,6 +360,21 @@ export async function runSetup({
   }
 
   writeConfigs({dir, human})
+
+  // Verify the chosen binary actually boots GTP with the model. A PATH
+  // katago can be a GPU build with no working driver (installs fine, then
+  // crashes on launch); if so, fall back to the portable CPU build.
+  let beginnerConfig = join(dir, 'gtp-beginner.cfg')
+  if (!katagoBootsGtp(binary, beginnerConfig, fastNet)) {
+    onProgress({step: 'downloading a working CPU engine', fraction: 0})
+    binary = await ensureKatagoBinary({
+      dir,
+      backend,
+      forceDownload: true,
+      onProgress: (fraction) =>
+        onProgress({step: 'downloading a working CPU engine', fraction}),
+    })
+  }
 
   return buildEngineEntries({dir, binary, fastNet, strongNet, humanNet})
 }

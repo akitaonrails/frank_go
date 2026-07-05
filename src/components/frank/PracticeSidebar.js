@@ -249,7 +249,7 @@ export default class PracticeSidebar extends Component {
         reviewing: true,
         reviewText: guessReview.isEngineWarm()
           ? t('Asking KataGo…')
-          : t('Starting KataGo (first time takes a few seconds)…'),
+          : t('Starting KataGo — the first time can take up to a minute…'),
       })
       let text = await guessReview.reviewGuess(vertex)
       this.setState({reviewing: false, reviewText: text})
@@ -1491,6 +1491,19 @@ export default class PracticeSidebar extends Component {
               '⚡ ' + t('Set up KataGo (one small download)'),
             ),
           ),
+
+      // Repair path: a configured engine can still be broken (e.g. a GPU
+      // build with no driver). Always offer to (re)install a CPU engine.
+      hasKatago &&
+        h(
+          'p',
+          {class: 'session'},
+          h(
+            'a',
+            {href: '#', class: 'repairlink', onClick: this.handleSetupKatago},
+            t('KataGo not working? Reinstall a CPU engine'),
+          ),
+        ),
 
       h('p', {class: 'sectionlabel'}, t('Study')),
       h(

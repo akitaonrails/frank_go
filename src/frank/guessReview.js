@@ -24,43 +24,50 @@ function attachedSyncer() {
   )
 }
 
-// Waits until the engine answers a trivial GTP command (booted and
-// responsive), or the timeout elapses. KataGo takes a second or two to
-// start, and syncing before it's ready is what caused "couldn't reach".
-async function waitUntilReady(syncer, timeoutMs = 12000) {
-  let ping = syncer
-    .queueCommand({name: 'name'})
-    .then(() => true)
-    .catch(() => false)
+// KataGo can take many seconds to come up the first time (loading the
+// network, initializing the backend). We treat a successful `sync` — the
+// thing we actually need — as the readiness signal, retrying it over a
+// generous budget rather than pinging a separate command.
+const SYNC_RETRY_MS = 2000
+const SYNC_BUDGET_MS = 40000
 
-  return Promise.race([
-    ping,
-    new Promise((resolve) => setTimeout(() => resolve(false), timeoutMs)),
-  ])
-}
+// Lazily attaches a KataGo engine and syncs it to the position, retrying
+// while it boots. Returns {syncer, status}: 'ready' (synced), 'starting'
+// (attached but not responsive within the budget), 'none' (no engine).
+async function ensureSynced(tree, treePosition) {
+  let syncer = attachedSyncer()
 
-// Lazily attach a KataGo engine for analysis; reuse it afterwards. Returns
-// {syncer, status}: status is 'ready', 'starting' (attached but not
-// responsive yet), or 'none' (no engine configured / attach failed).
-async function ensureEngine() {
-  let existing = attachedSyncer()
-  if (existing != null) return {syncer: existing, status: 'ready'}
+  if (syncer == null) {
+    let engine = findKataGoEngine()
+    if (engine == null) return {syncer: null, status: 'none'}
 
-  let engine = findKataGoEngine()
-  if (engine == null) return {syncer: null, status: 'none'}
+    try {
+      ;[syncer] = sabaki.attachEngines([engine])
+    } catch (err) {
+      return {syncer: null, status: 'none'}
+    }
 
-  let syncer
-  try {
-    ;[syncer] = sabaki.attachEngines([engine])
-  } catch (err) {
-    return {syncer: null, status: 'none'}
+    if (syncer == null) return {syncer: null, status: 'none'}
+    analysisSyncerId = syncer.id
   }
 
-  if (syncer == null) return {syncer: null, status: 'none'}
-  analysisSyncerId = syncer.id
+  let deadline = Date.now() + SYNC_BUDGET_MS
 
-  let ready = await waitUntilReady(syncer)
-  return {syncer, status: ready ? 'ready' : 'starting'}
+  while (Date.now() < deadline) {
+    let ok = await syncer.sync(tree, treePosition).then(
+      () => true,
+      () => false,
+    )
+    if (ok) return {syncer, status: 'ready'}
+
+    // The engine process died (e.g. a GPU-backend KataGo with no working
+    // driver) — fail fast and clearly instead of waiting out the budget.
+    if (syncer.suspended) return {syncer, status: 'failed'}
+
+    await new Promise((resolve) => setTimeout(resolve, SYNC_RETRY_MS))
+  }
+
+  return {syncer, status: 'starting'}
 }
 
 export function hasEngine() {
@@ -164,20 +171,15 @@ export async function reviewGuess(guessVertex) {
 
     let guessCoord = board.stringifyVertex(guessVertex)
 
-    let {syncer, status} = await ensureEngine()
+    let {syncer, status} = await ensureSynced(tree, treePosition)
     if (status === 'none') {
       return `KataGo isn’t set up yet, so I can’t analyze — but the pro played ${pro.coord}.`
     }
-    if (status === 'starting') {
-      return `KataGo is still starting up — give it a few seconds and try again. The pro played ${pro.coord}.`
+    if (status === 'failed') {
+      return `Your KataGo failed to start — a GPU build (katago-opencl / katago-cuda) with no working driver? Install katago-cpu, or re-run the in-app KataGo setup for a CPU engine. The pro played ${pro.coord}.`
     }
-
-    let synced = await syncer.sync(tree, treePosition).then(
-      () => true,
-      () => false,
-    )
-    if (!synced) {
-      return `Couldn’t reach KataGo just now — the pro played ${pro.coord}. Try again in a moment.`
+    if (status === 'starting') {
+      return `KataGo is taking a while to start on this machine — the pro played ${pro.coord}. Try again in a moment.`
     }
 
     let scores = await analyzeCurrent(syncer, color)
