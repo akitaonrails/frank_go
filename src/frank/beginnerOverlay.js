@@ -20,6 +20,17 @@ import deadstones from '@sabaki/deadstones'
 const GRADIENT_SCALE = 0.55
 const DECAY_RANGE = 2.5
 
+// Gradient paint below this magnitude renders at < ~0.1 opacity — on a
+// dense board that faint wash covers everything and its scattered
+// opposite-sign cells make Shudan draw muddy corner triangles at sign
+// boundaries. Clamp it to nothing so only meaningful influence and
+// settled territory show. Settled ±1 territory is never clamped.
+const MIN_VISIBLE = 0.25
+
+function declutter(value) {
+  return Math.abs(value) < MIN_VISIBLE ? 0 : value
+}
+
 // Caches are keyed on a signature of the position's stones, NOT the board
 // object: gametree.getBoard() returns a FRESH board object every call for
 // the current position, so a WeakMap keyed on it would miss on every
@@ -107,7 +118,9 @@ export function computeBeginnerPaintMap(signMap) {
     let sign = hasBlack ? 1 : -1
     let dist = hasBlack ? distBlack : distWhite
 
-    return dist.map((row) => row.map((d) => sign * decay(d) * GRADIENT_SCALE))
+    return dist.map((row) =>
+      row.map((d) => declutter(sign * decay(d) * GRADIENT_SCALE)),
+    )
   }
 
   let fuzzy = influence.map(signMap)
@@ -121,7 +134,7 @@ export function computeBeginnerPaintMap(signMap) {
       if (value === 0) return 0
 
       let dist = value > 0 ? distBlack[y][x] : distWhite[y][x]
-      return value * decay(dist) * GRADIENT_SCALE
+      return declutter(value * decay(dist) * GRADIENT_SCALE)
     }),
   )
 }
