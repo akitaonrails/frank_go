@@ -506,3 +506,22 @@ main.frank-cursor-white #goban {
   background: linear-gradient(180deg, #3d5a6b 0%, #2f4656 100%);
   border-color: #4f7a8a;
 }
+
+/* Live score during KataGo games */
+
+#frank-practice-sidebar .livescore {
+  margin: 0 0 0.6em;
+  padding: 0.4em 0.7em;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.22);
+  color: #e6dcc8;
+}
+
+#frank-practice-sidebar .livescore strong {
+  color: #f2c96b;
+}
+
+#frank-practice-sidebar .livescore .komi-note {
+  color: #a89878;
+  font-size: 0.8em;
+}

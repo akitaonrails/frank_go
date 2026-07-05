@@ -23,6 +23,7 @@ import {
   judgeRegion,
 } from '../../frank/positionJudge.js'
 import {setting} from '../../frank/env.js'
+import {advise, formatLead} from '../../frank/endgameAdvisor.js'
 
 const t = i18n.context('frank.practice')
 
@@ -33,7 +34,15 @@ export default class PracticeSidebar extends Component {
   constructor(props) {
     super(props)
 
-    this.state = {busy: false, statusText: null, autoPlaying: false}
+    this.state = {
+      busy: false,
+      statusText: null,
+      autoPlaying: false,
+      liveScore: null,
+    }
+
+    this.scoreHistory = []
+    this.liveScoreTimer = null
 
     this.handleSolved = () => {
       this.setState({statusText: null})
@@ -94,17 +103,46 @@ export default class PracticeSidebar extends Component {
       })
     }
 
-    this.handleEstimateScore = async () => {
-      this.setState({busy: true, statusText: t('Estimating…')})
+    this.updateLiveScore = async () => {
+      let game = this.props.frankKatagoGame
+      if (game == null) return
 
+      let {gameTree, treePosition} = this.props
+      let moveNumber = gameTree.getLevel(treePosition)
       let board = katagoPlay.currentBoard()
       let {komi, handicap} = katagoPlay.gameScoringInfo()
-      let {scoreText} = await estimateScore(board, {komi, handicap})
+      let {territoryScore} = await estimateScore(board, {komi, handicap})
+
+      if (this.props.frankKatagoGame == null) return
+
+      // Undo/restart rewinds the game — drop stale history
+      let last = this.scoreHistory[this.scoreHistory.length - 1]
+      if (last != null && moveNumber <= last.moveNumber) {
+        this.scoreHistory = this.scoreHistory.filter(
+          (entry) => entry.moveNumber < moveNumber,
+        )
+      }
+
+      this.scoreHistory.push({lead: territoryScore, moveNumber})
 
       this.setState({
-        busy: false,
-        statusText: `${t('Estimated score:')} ${scoreText}`,
+        liveScore: {
+          lead: territoryScore,
+          advice: advise(this.scoreHistory, {playerSign: game.playerSign}),
+        },
       })
+    }
+
+    this.scheduleLiveScore = () => {
+      clearTimeout(this.liveScoreTimer)
+      this.liveScoreTimer = setTimeout(() => {
+        this.updateLiveScore().catch(() => {})
+      }, 400)
+    }
+
+    this.handleResignGame = () => {
+      sabaki.makeResign()
+      katagoPlay.stopGame()
     }
 
     this.handleUndo = () => {
@@ -289,6 +327,7 @@ export default class PracticeSidebar extends Component {
   componentWillUnmount() {
     document.removeEventListener('keydown', this.handleKeyDown)
     this.stopAutoPlay()
+    clearTimeout(this.liveScoreTimer)
   }
 
   componentWillReceiveProps(nextProps) {
@@ -306,6 +345,20 @@ export default class PracticeSidebar extends Component {
     if (activity(this.props) !== activity(nextProps)) {
       this.setState({statusText: null})
       if (nextProps.frankStudy == null) this.stopAutoPlay()
+
+      if (activity(nextProps) === 'katago') {
+        this.scoreHistory = []
+        this.setState({liveScore: null})
+        this.scheduleLiveScore()
+      } else {
+        clearTimeout(this.liveScoreTimer)
+        this.setState({liveScore: null})
+      }
+    } else if (
+      nextProps.frankKatagoGame != null &&
+      nextProps.treePosition !== this.props.treePosition
+    ) {
+      this.scheduleLiveScore()
     }
 
     // Stone sounds while replaying a study game. Sabaki only plays sounds
@@ -602,14 +655,53 @@ export default class PracticeSidebar extends Component {
 
       h('p', {class: 'guide'}, `${youLabel} · ${game.engineName}`),
 
+      this.state.liveScore != null &&
+        h(
+          'p',
+          {class: 'livescore'},
+          t('Live estimate:'),
+          ' ',
+          h('strong', null, formatLead(this.state.liveScore.lead)),
+          h('span', {class: 'komi-note'}, ` (${t('komi included')})`),
+        ),
+
+      this.state.liveScore != null &&
+        this.state.liveScore.advice.type === 'resign-hint' &&
+        h(
+          'div',
+          null,
+          h(
+            'p',
+            {class: 'auto-verdict failed'},
+            t(
+              'You are far behind and it is not changing — more stones will not turn this around. Resigning is the polite move; playing on to practice is fine too.',
+            ),
+          ),
+          h(
+            'div',
+            {class: 'actions'},
+            h(
+              'button',
+              {class: 'missed', onClick: this.handleResignGame},
+              '🏳 ',
+              t('Resign'),
+            ),
+          ),
+        ),
+
+      this.state.liveScore != null &&
+        this.state.liveScore.advice.type === 'settled' &&
+        h(
+          'p',
+          {class: 'auto-verdict solved'},
+          t(
+            'The borders look settled — no points left to gain. Pass twice and the game will be counted.',
+          ),
+        ),
+
       h(
         'div',
         {class: 'actions'},
-        h(
-          'button',
-          {disabled: this.state.busy, onClick: this.handleEstimateScore},
-          t('Estimate score'),
-        ),
         h('button', {onClick: this.handleUndo}, t('Undo')),
         h('button', {onClick: this.handlePass}, t('Pass')),
         h('button', {onClick: this.handleRestart}, t('Restart')),
