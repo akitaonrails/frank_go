@@ -102,8 +102,34 @@ function resolveCast(dir, cast) {
   }))
 }
 
+// Opens Kogo's Joseki Dictionary as a browsable study tree.
+export async function studyJoseki() {
+  let path = locateData(join('joseki', 'kogos-joseki-dictionary.sgf'))
+  if (path == null) return null
+
+  await sabaki.loadContent(readFileSync(path, 'utf8'), 'sgf', {
+    suppressAskForSave: true,
+  })
+
+  setting.set('view.show_comments', true)
+  sabaki.setState({
+    showCommentBox: true,
+    frankStudy: {
+      pack: 'joseki',
+      chapter: null,
+      title: "Kogo's Joseki Dictionary",
+      meta: 'Gary Odom, 1998–2014 · curated by Alexandre Dinerchtein · waterfire.us',
+      text: 'Corner openings with commentary. Click the marked moves on the board to walk into a variation, arrows step back and forth. Tip for beginners: joseki are for understanding shapes, not memorizing — read the comments.',
+      cast: [],
+    },
+  })
+
+  return true
+}
+
 // Leaves study mode: clears the board and puts the comment box away.
 export async function stopStudy() {
+  if (sabaki.state.mode === 'guess') sabaki.setMode('play')
   setting.set('view.show_comments', false)
   sabaki.setState({frankStudy: null, showCommentBox: false})
   await sabaki.newFile({suppressAskForSave: true})

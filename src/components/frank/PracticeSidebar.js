@@ -212,6 +212,20 @@ export default class PracticeSidebar extends Component {
 
     this.handleStopStudy = () => famousGames.stopStudy()
 
+    this.handleStudyJoseki = async () => {
+      this.setState({busy: true})
+      let ok = await famousGames.studyJoseki()
+      this.setState({
+        busy: false,
+        statusText:
+          ok == null ? t('Could not find the joseki dictionary.') : null,
+      })
+    }
+
+    this.handleToggleGuess = () => {
+      sabaki.setMode(this.props.mode === 'guess' ? 'play' : 'guess')
+    }
+
     this.handleAnotherStudyGame = async () => {
       let pack =
         this.props.frankStudy != null ? this.props.frankStudy.pack : 'famous'
@@ -296,6 +310,7 @@ export default class PracticeSidebar extends Component {
 
     this.handleKeyDown = (evt) => {
       if (this.props.frankStudy == null) return
+      if (this.props.mode === 'guess') return
       if (isTextLikeElement(document.activeElement)) return
 
       if (evt.key === 'Enter') {
@@ -815,23 +830,35 @@ export default class PracticeSidebar extends Component {
 
       h('p', {class: 'trivia'}, study.text),
 
-      h(
-        'div',
-        {class: 'actions'},
+      study.pack !== 'joseki' &&
         h(
-          'button',
-          {
-            class: classNames({playing: this.state.autoPlaying}),
-            onClick: this.handleToggleAutoPlay,
-          },
-          this.state.autoPlaying ? '⏸ ' + t('Pause') : '▶ ' + t('Auto-play'),
+          'div',
+          {class: 'actions'},
+          h(
+            'button',
+            {
+              class: classNames({playing: this.state.autoPlaying}),
+              onClick: this.handleToggleAutoPlay,
+              disabled: this.props.mode === 'guess',
+            },
+            this.state.autoPlaying ? '⏸ ' + t('Pause') : '▶ ' + t('Auto-play'),
+          ),
+          h(
+            'button',
+            {
+              class: classNames({playing: this.props.mode === 'guess'}),
+              onClick: this.handleToggleGuess,
+            },
+            this.props.mode === 'guess'
+              ? '🎯 ' + t('Stop guessing')
+              : '🎯 ' + t('Guess the moves'),
+          ),
+          h(
+            'button',
+            {disabled: this.state.busy, onClick: this.handleAnotherStudyGame},
+            t('Another game'),
+          ),
         ),
-        h(
-          'button',
-          {disabled: this.state.busy, onClick: this.handleAnotherStudyGame},
-          t('Another game'),
-        ),
-      ),
 
       this.renderStatus(),
     )
@@ -840,11 +867,13 @@ export default class PracticeSidebar extends Component {
       h(
         'p',
         {class: 'session'},
-        this.state.autoPlaying
-          ? t('Auto-playing — Space pauses so you can browse yourself.')
-          : t(
-              'Enter auto-plays the game. Space / ← → step, Backspace rewinds.',
-            ),
+        this.props.mode === 'guess'
+          ? t('Guess mode: click where the next move was actually played!')
+          : this.state.autoPlaying
+            ? t('Auto-playing — Space pauses so you can browse yourself.')
+            : t(
+                'Enter auto-plays the game. Space / ← → step, Backspace rewinds.',
+              ),
       ),
       this.renderOverlayToggle(),
       this.renderMenuBarToggle(),
@@ -945,6 +974,11 @@ export default class PracticeSidebar extends Component {
           'button',
           {disabled: this.state.busy, onClick: this.handleStudyHikaru},
           '🎌 ' + t('Hikaru no Go game'),
+        ),
+        h(
+          'button',
+          {disabled: this.state.busy, onClick: this.handleStudyJoseki},
+          '📚 ' + t('Joseki dictionary'),
         ),
       ),
 

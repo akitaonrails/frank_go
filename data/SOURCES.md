@@ -63,6 +63,16 @@ heuristic metadata).
 - `bulk/` — **not in git.** `node scripts/frank/fetch-games.mjs` downloads the
   full 90,000+ game archive from the same source for local study features.
 
+## Joseki (`data/joseki/`)
+
+- `kogos-joseki-dictionary.sgf` — **Kogo's Joseki Dictionary** (1.3 MB SGF tree
+  with English commentary), copyright 1998–2014 Gary Odom, curated by Alexandre
+  Dinerchtein, with contributions by Andre Ay and Stefan Verstraeten. Downloaded
+  2026-07-04 from <https://waterfire.us/joseki.htm>. The file's own notice
+  forbids _commercial_ distribution without permission and asks for a link to
+  the KJD page — frank_go is free/non-commercial, links the page here and in the
+  app, and preserves the copyright header inside the SGF untouched.
+
 ## Explicitly NOT bundled
 
 - **GoGoD / Go4Go** — commercial, per-user licenses.
