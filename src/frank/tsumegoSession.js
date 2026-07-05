@@ -27,8 +27,10 @@ import {
   initialProgress,
   pickProblem,
 } from './tsumegoProgress.js'
+import {FOCUS_CATEGORIES} from './tsumegoProgress.js'
 import {findKataGoEngine} from './katagoPlay.js'
 import {judgeRegion, guessDeadSet} from './positionJudge.js'
+import {createChecker} from './solutionChecker.js'
 import {
   setting,
   currentBoard as envCurrentBoard,
@@ -58,6 +60,7 @@ let autoVerdict = null // {result: 'solved'|'failed', text}
 let autoAdvanceTimer = null
 let moveListener = null
 let attemptMoves = [] // vertices the player has placed this attempt
+let checker = null // solution-tree checker when the problem has one
 
 function loadSolvedIds() {
   try {
@@ -91,10 +94,35 @@ function publishState(progress, lastEvent = null) {
             streakTarget: STREAK_TO_LEVEL_UP,
             sessionStats: {...sessionStats},
             sparring: sparringSyncerId != null,
+            focus: currentFocus(),
+            grading:
+              checker != null
+                ? 'exact'
+                : sparringSyncerId != null
+                  ? 'engine'
+                  : 'manual',
+            credit:
+              getSharedStore().collections[currentProblem.collection] != null
+                ? getSharedStore().collections[currentProblem.collection].credit
+                : null,
             autoVerdict,
             lastEvent,
           },
   })
+}
+
+function currentFocus() {
+  let focus = setting.get('frank.tsumego_focus')
+  return FOCUS_CATEGORIES[focus] !== undefined ? focus : 'all'
+}
+
+// Switches the study focus and moves to a matching problem (no grading).
+export async function setFocus(focus) {
+  setting.set('frank.tsumego_focus', focus)
+  if (currentProblem == null) return
+
+  cancelAutoAdvance()
+  await advanceToNextProblem()
 }
 
 function loadProgress() {
@@ -248,6 +276,7 @@ async function advanceToNextProblem() {
   let progress = loadProgress()
   let problem = pickProblem(getSharedStore(), {
     level: progress.level,
+    focus: currentFocus(),
     solvedIds: new Set([
       ...loadSolvedIds(),
       ...(currentProblem ? [currentProblem.id] : []),
@@ -312,19 +341,77 @@ async function checkAttemptStonesDead() {
   return allGone
 }
 
+// Applies the player's move to the solution tree: answers with the
+// tree's reply, celebrates Correct lines, fails refuted ones.
+async function handleTreeMove(node) {
+  let myColor = currentProblem.toPlay
+  if (node.data[myColor] == null || node.data[myColor][0] === '') return
+
+  let outcome = checker.tryMove(node.data[myColor][0])
+
+  if (outcome.result === 'correct') {
+    settled = true
+    if (outcome.comment != null) {
+      sabaki.setComment(sabaki.state.treePosition, {comment: outcome.comment})
+    }
+    scheduleAutoSolve()
+    return
+  }
+
+  if (outcome.result === 'wrong') {
+    settled = true
+    await failAndPrompt(
+      outcome.comment != null
+        ? outcome.comment
+        : t('That is not the right move here.'),
+    )
+    return
+  }
+
+  // continue / refuted: play the tree's reply on the board
+  if (outcome.reply != null) {
+    judging = true
+    try {
+      let oppSign = myColor === 'B' ? -1 : 1
+      let vertex = sgf.parseVertex(outcome.reply)
+      sabaki.makeMove(vertex, {player: oppSign})
+
+      if (outcome.replyComment != null) {
+        sabaki.setComment(sabaki.state.treePosition, {
+          comment: outcome.replyComment,
+        })
+      }
+    } finally {
+      judging = false
+    }
+  }
+
+  if (outcome.result === 'refuted') {
+    settled = true
+    await failAndPrompt(
+      outcome.replyComment != null
+        ? outcome.replyComment
+        : t('That line does not work.'),
+    )
+  }
+}
+
 // Called on every move/navigation; drives the automatic grading.
 async function handleMoveMake() {
-  if (
-    currentProblem == null ||
-    settled ||
-    judging ||
-    sparringSyncerId == null
-  ) {
+  if (currentProblem == null || settled || judging) {
     return
   }
 
   let {gameTrees, gameIndex, treePosition} = sabaki.state
   let node = gameTrees[gameIndex].get(treePosition)
+
+  if (checker != null) {
+    await handleTreeMove(node)
+    return
+  }
+
+  if (sparringSyncerId == null) return
+
   let myColor = currentProblem.toPlay
   let engineColor = myColor === 'B' ? 'W' : 'B'
 
@@ -397,12 +484,27 @@ async function loadProblemIntoBoard(problem, {firstLoad = false} = {}) {
   autoVerdict = null
   attemptMoves = []
 
+  // Problems with a solution tree are graded exactly against it — the
+  // tree plays the opponent, so no engine sparring is needed. The board
+  // itself only gets the setup position (never the solution).
+  checker =
+    problem.hasSolutions && problem.sgf != null
+      ? createChecker(problem.sgf, problem.toPlay)
+      : null
+
   await sabaki.loadContent(problemToSgf(problem), 'sgf', {
     suppressAskForSave: !firstLoad,
   })
 
-  assignSparringColors()
-  await inferGoal()
+  if (checker != null) {
+    unassignSparringColors()
+    // Commented problems teach — show the commentary as it appears
+    setting.set('view.show_comments', true)
+    sabaki.setState({showCommentBox: true})
+  } else {
+    assignSparringColors()
+    await inferGoal()
+  }
 }
 
 export function isActive() {
@@ -413,6 +515,7 @@ export async function startPractice() {
   let progress = loadProgress()
   let problem = pickProblem(getSharedStore(), {
     level: progress.level,
+    focus: currentFocus(),
     solvedIds: loadSolvedIds(),
     rng,
   })
@@ -450,6 +553,7 @@ export async function answer(correct) {
 
   let problem = pickProblem(getSharedStore(), {
     level: next.level,
+    focus: currentFocus(),
     solvedIds: loadSolvedIds(),
     rng,
   })

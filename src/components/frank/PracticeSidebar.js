@@ -14,6 +14,7 @@ import {isTextLikeElement} from '../../modules/helper.js'
 import * as sound from '../../modules/sound.js'
 import * as tsumegoSession from '../../frank/tsumegoSession.js'
 import {LEVEL_RANKS} from '../../frank/tsumegoSession.js'
+import {FOCUS_LABELS} from '../../frank/tsumegoProgress.js'
 import * as katagoPlay from '../../frank/katagoPlay.js'
 import * as famousGames from '../../frank/famousGames.js'
 import * as sabakiDialog from '../../modules/dialog.js'
@@ -84,6 +85,9 @@ export default class PracticeSidebar extends Component {
       katagoPlay.setPreferredEngine(evt.currentTarget.value)
       this.forceUpdate()
     }
+
+    this.handleFocusChoice = (evt) =>
+      tsumegoSession.setFocus(evt.currentTarget.value)
 
     this.handleToggleSparring = () =>
       tsumegoSession.setSparring(!this.props.frankTsumego.sparring)
@@ -454,6 +458,9 @@ export default class PracticeSidebar extends Component {
       streakTarget,
       sessionStats,
       sparring,
+      grading,
+      credit,
+      focus,
       autoVerdict,
       lastEvent,
     } = tsumego
@@ -536,6 +543,20 @@ export default class PracticeSidebar extends Component {
       ),
 
       h(
+        'label',
+        {class: 'strength focusrow'},
+        t('Focus:'),
+        ' ',
+        h(
+          'select',
+          {value: focus, onChange: this.handleFocusChoice},
+          Object.entries(FOCUS_LABELS).map(([value, label]) =>
+            h('option', {value}, t(label)),
+          ),
+        ),
+      ),
+
+      h(
         'div',
         {class: 'problem'},
         h(
@@ -559,19 +580,23 @@ export default class PracticeSidebar extends Component {
         h(
           'p',
           {class: 'guide'},
-          sparring
+          grading === 'exact'
             ? t(
-                'Play your move — KataGo answers. Solve the position and it is graded automatically.',
+                'This problem knows its answer: play your move and it responds. Wrong moves are corrected with an explanation.',
               )
-            : t(
-                'Play out your line on the board (both colors), then grade yourself:',
-              ),
+            : sparring
+              ? t(
+                  'Play your move — KataGo answers. Solve the position and it is graded automatically.',
+                )
+              : t(
+                  'Play out your line on the board (both colors), then grade yourself:',
+                ),
         ),
 
       // With a sparring engine the grading is automatic — no manual
       // buttons, just a "Next now" shortcut on success. Without an engine
       // the player self-grades.
-      sparring
+      grading !== 'manual'
         ? autoVerdict != null &&
             autoVerdict.result === 'solved' &&
             h(
@@ -623,7 +648,8 @@ export default class PracticeSidebar extends Component {
         t('This session:'),
         ` ${sessionStats.solved} ✓ · ${sessionStats.missed} ✗`,
       ),
-      this.renderSparringToggle(sparring),
+      credit != null && h('p', {class: 'session credit'}, credit),
+      grading !== 'exact' && this.renderSparringToggle(sparring),
       this.renderOverlayToggle(),
       this.renderMenuBarToggle(),
       this.renderBackButton(this.handleStopTsumego),

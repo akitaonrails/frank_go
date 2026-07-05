@@ -64,6 +64,7 @@ export class ProblemStore {
     maxLevel = 10,
     collection = null,
     category = null,
+    categories = null,
     toPlay = null,
     limit = Infinity,
     shuffleSeed = null,
@@ -79,6 +80,7 @@ export class ProblemStore {
         problem.level <= maxLevel &&
         (collection == null || problem.collection === collection) &&
         (category == null || problem.category === category) &&
+        (categories == null || categories.includes(problem.category)) &&
         (toPlay == null || problem.toPlay === toPlay),
     )
 

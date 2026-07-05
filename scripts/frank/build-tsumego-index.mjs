@@ -11,7 +11,7 @@
 // ramp linearly through it, matching the books' own easy-to-hard ordering.
 // See data/SOURCES.md for provenance and licensing notes.
 
-import {existsSync, readFileSync, writeFileSync} from 'fs'
+import {existsSync, readFileSync, readdirSync, writeFileSync} from 'fs'
 import {dirname, join} from 'path'
 import {fileURLToPath} from 'url'
 import sgf from '@sabaki/sgf'
@@ -85,6 +85,114 @@ const COLLECTIONS = [
   },
 ]
 
+// GoGameGuru weekly problems: commented, with full solution trees.
+// Credit: An Younggil (8p) & David Ormerod, CC BY-NC-SA 4.0.
+const GGG_TIERS = [
+  {
+    id: 'ggg-easy',
+    dir: 'easy',
+    title: 'Go Game Guru — Weekly Problems (Easy)',
+    levelRange: [2, 4],
+  },
+  {
+    id: 'ggg-intermediate',
+    dir: 'intermediate',
+    title: 'Go Game Guru — Weekly Problems (Intermediate)',
+    levelRange: [4, 7],
+  },
+  {
+    id: 'ggg-hard',
+    dir: 'hard',
+    title: 'Go Game Guru — Weekly Problems (Hard)',
+    levelRange: [7, 9],
+  },
+]
+
+const GGG_CREDIT =
+  'Problems by An Younggil 8p & David Ormerod, Go Game Guru · CC BY-NC-SA 4.0'
+
+const TASUKI_CREDIT = 'Transcribed by Vít Brunner (tsumego.tasuki.org)'
+
+// Coarse theme from the solution commentary, most specific first
+const THEME_PATTERNS = [
+  ['tesuji', /tesuji/i],
+  ['endgame', /endgame|yose/i],
+  ['capturing-race', /semeai|capturing race|liberty race/i],
+  ['life-and-death', /\blive\b|\blife\b|\bkill|\bdead\b|death|\beye\b|eyes\b/i],
+  ['ko', /\bko\b/i],
+]
+
+function classifyTheme(sgfText) {
+  // Only look at comment text — raw SGF is full of two-letter coordinates
+  // like [ko] that would fool word matches
+  // …and prefer comments on the solution line ("Correct") — refutation
+  // comments often name what the WRONG move leads to (e.g. "it's a ko")
+  let all = [...sgfText.matchAll(/C\[((?:\\.|[^\]])*)\]/g)].map(
+    (match) => match[1],
+  )
+  let solutionComments = all.filter((text) => /correct/i.test(text))
+  let comments = (solutionComments.length > 0 ? solutionComments : all).join(
+    '\n',
+  )
+
+  for (let [theme, pattern] of THEME_PATTERNS) {
+    if (pattern.test(comments)) return theme
+  }
+
+  return 'mixed'
+}
+
+function buildGggTier(config) {
+  let dir = join(rootDir, 'data', 'tsumego', 'ggg', config.dir)
+  let files = readdirSync(dir)
+    .filter((name) => name.endsWith('.sgf'))
+    .sort()
+  let [lo, hi] = config.levelRange
+
+  let problems = files.map((file, i) => {
+    let text = readFileSync(join(dir, file), 'utf8')
+    let [root] = sgf.parse(text)
+    let size = +(root.data.SZ ? root.data.SZ[0] : 19)
+    let black = root.data.AB || []
+    let white = root.data.AW || []
+    let rootComment = root.data.C ? root.data.C[0] : ''
+    let toPlay = /white to play/i.test(rootComment) ? 'W' : 'B'
+    let level =
+      files.length > 1
+        ? Math.round(lo + ((hi - lo) * i) / (files.length - 1))
+        : lo
+
+    return {
+      id: `${config.id}/${i + 1}`,
+      collection: config.id,
+      n: i + 1,
+      title: `${config.title.replace('Go Game Guru — Weekly Problems', 'Weekly problem')} #${i + 1}`,
+      level,
+      category: classifyTheme(text),
+      toPlay,
+      size,
+      AB: black,
+      AW: white,
+      region: boundingBox([...black, ...white].map(parseVertex)),
+      hasSolutions: true,
+      sgf: text,
+    }
+  })
+
+  return {
+    meta: {
+      id: config.id,
+      title: config.title,
+      file: `ggg/${config.dir}`,
+      count: problems.length,
+      levelRange: config.levelRange,
+      credit: GGG_CREDIT,
+      hasSolutions: true,
+    },
+    problems,
+  }
+}
+
 function boundingBox(vertices) {
   let xs = vertices.map(([x]) => x)
   let ys = vertices.map(([, y]) => y)
@@ -146,9 +254,19 @@ let problems = []
 
 for (let config of COLLECTIONS) {
   let built = buildCollection(config)
+  built.meta.credit = TASUKI_CREDIT
   collections[config.id] = built.meta
   problems.push(...built.problems)
   console.log(`${config.id}: ${built.problems.length} problems`)
+}
+
+for (let config of GGG_TIERS) {
+  let built = buildGggTier(config)
+  collections[config.id] = built.meta
+  problems.push(...built.problems)
+  console.log(
+    `${config.id}: ${built.problems.length} problems (with solutions)`,
+  )
 }
 
 let index = {

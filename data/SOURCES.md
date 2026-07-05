@@ -28,6 +28,16 @@ only, without solutions_. If this app is ever distributed commercially, obtain
 permission for the Cho Chikun and Lee Chang-ho sets or drop them (the three
 classical books alone provide 1,050 public-domain problems).
 
+### GoGameGuru weekly problems (`data/tsumego/ggg/`)
+
+420 commented problems **with full solution trees** (140 easy / 140 intermediate
+/ 140 hard) from
+[gogameguru/go-problems](https://github.com/gogameguru/go-problems), by **An
+Younggil (8p) and David Ormerod**, Go Game Guru. License: **CC BY-NC-SA 4.0**
+(LICENSE bundled alongside). frank_go is free and non-commercial; credit is
+shown in-app in the practice panel. Downloaded 2026-07-04. The solution trees
+power the exact move-checking in practice.
+
 `data/tsumego/index.json` is generated from these files by
 `scripts/frank/build-tsumego-index.mjs` (difficulty levels 1–10 are our own
 heuristic metadata).
