@@ -33,8 +33,18 @@ src/frank/                    ← all frank_go renderer logic
   tsumegoSession.js           ← practice orchestration + KataGo sparring
   beginnerOverlay.js          ← influence "area painting" paint maps
   positionJudge.js            ← dead-stone heuristics: score estimate, L&D verdict
+  solutionChecker.js          ← exact grading against an SGF solution tree (pure)
+  endgameAdvisor.js           ← resign/settled advice from a score history (pure)
+  ladderDrill.js              ← ladder generator + search verifier (pure)
+  moveNames.js                ← names moves via @sabaki/boardmatcher (pure)
   katagoPlay.js               ← play-vs-KataGo game lifecycle (restart/undo/…)
-  famousGames.js              ← loads the famous-games pack for study
+  katagoSetup.js              ← KataGo install core (already noted above)
+  guessReview.js              ← on-demand KataGo review of a wrong guess
+  scoreDrill.js               ← 'who is winning?' drill orchestration
+  ladderSession.js            ← ladder drill orchestration over ladderDrill
+  rankTest.js                 ← 10-problem tree-graded rank estimate
+  bulkGames.js                ← optional 90k-game archive fetch/locate
+  famousGames.js              ← loads the study packs (famous / hikaru / joseki)
 
 src/components/frank/
   PracticeSidebar.js          ← practice controls docked in the right sidebar
@@ -124,7 +134,5 @@ quotes).
 - **HumanSL ranked ladder**: `setup-katago.mjs --human` already installs the
   human-imitation network; expose rank profiles (20k→1d) as a progression ladder
   for play.
-- **Famous-games study mode**: guess-the-next-move (Sabaki's guess mode) over
-  `data/games/famous` with the stories from `index.json`.
 - **OGS integration** (online, later): REST/realtime API, puzzles API — see
   `docs/research/01-open-source-go-apps.md`.
