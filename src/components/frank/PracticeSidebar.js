@@ -47,6 +47,9 @@ export default class PracticeSidebar extends Component {
       statusText: null,
       autoPlaying: false,
       liveScore: null,
+      guessStats: {hits: 0, misses: 0},
+      reviewText: null,
+      reviewing: false,
     }
 
     this.scoreHistory = []
@@ -479,20 +482,24 @@ export default class PracticeSidebar extends Component {
       nextProps.frankStudy != null &&
       nextProps.mode === 'guess'
     ) {
-      let prevBlocked = (this.props.blockedGuesses || []).length
-      let nextBlocked = (nextProps.blockedGuesses || []).length
+      // A new wrong guess = frankLastWrongGuess changed to a non-null point.
+      // (blockedGuesses is mutated in place by Sabaki, so its length can't be
+      // compared across props.) A correct guess advances the move number.
+      let newWrongGuess =
+        nextProps.frankLastWrongGuess != null &&
+        nextProps.frankLastWrongGuess !== this.props.frankLastWrongGuess
       let prevLevel = this.props.gameTree.getLevel(this.props.treePosition)
       let nextLevel = nextProps.gameTree.getLevel(nextProps.treePosition)
 
-      if (nextBlocked > prevBlocked) {
-        this.setState(({guessStats}) => ({
+      if (newWrongGuess) {
+        this.setState(({guessStats = {hits: 0, misses: 0}}) => ({
           statusText:
             '✗ ' + t('Not there — the pro chose another point. Try again!'),
           reviewText: null,
           guessStats: {...guessStats, misses: guessStats.misses + 1},
         }))
       } else if (nextLevel === prevLevel + 1) {
-        this.setState(({guessStats}) => ({
+        this.setState(({guessStats = {hits: 0, misses: 0}}) => ({
           statusText: '✓ ' + t('Spot on — exactly where the pro played!'),
           reviewText: null,
           guessStats: {...guessStats, hits: guessStats.hits + 1},
@@ -1063,7 +1070,7 @@ export default class PracticeSidebar extends Component {
         h(
           'p',
           {class: 'session'},
-          `${t('Guessing:')} ${this.state.guessStats.hits} ✓ · ${this.state.guessStats.misses} ✗`,
+          `${t('Guessing:')} ${(this.state.guessStats || {}).hits || 0} ✓ · ${(this.state.guessStats || {}).misses || 0} ✗`,
         ),
       h(
         'p',

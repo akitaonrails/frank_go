@@ -9,6 +9,11 @@ module.exports = defineConfig({
   projects: [
     {name: 'smoke', testMatch: /smoke\.spec\.js/},
     {
+      name: 'frank-guess',
+      testMatch: /frank-guess\.spec\.js/,
+      dependencies: ['smoke'],
+    },
+    {
       name: 'renderer',
       testMatch: /renderer\.spec\.js/,
       dependencies: ['smoke'],
