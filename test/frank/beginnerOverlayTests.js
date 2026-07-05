@@ -43,8 +43,9 @@ describe('computeBeginnerPaintMap', () => {
 
     // The corner point behind the wall is decisively white.
     assert.equal(paint[0][8], -1)
-    // Points on the open side are gradient only.
-    assert.ok(paint[0][4] < 0 && paint[0][4] > -1)
+    // Points on the open side are gradient only (never settled ±1), and
+    // may be decluttered to 0 when the influence there is faint.
+    assert.ok(paint[0][4] > -1 && paint[0][4] <= 0)
   })
 
   it('keeps black and white influence on their own sides', () => {
