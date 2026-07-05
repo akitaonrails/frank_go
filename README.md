@@ -13,22 +13,34 @@ players. frank_go is built for the rest of us.
 
 ## What you can do
 
-- 🧩 **Practice tsumego (life & death puzzles)** — 4,341 problems from the
-  classic collections (Cho Chikun's Encyclopedia, Gokyo Shumyo, Xuanxuan Qijing,
-  and more), served at _your_ level. Solve 5 in a row to level up, from level 1
-  (beginner) to 10 (expert).
+- 🧩 **Practice tsumego (life & death puzzles)** — 4,700+ problems from the
+  classic collections (Cho Chikun's Encyclopedia, Gokyo Shumyo, Xuanxuan Qijing)
+  plus 420 commented Go Game Guru problems, served at _your_ level. Solve 5 in a
+  row to level up, from level 1 (beginner) to 10 (expert). A **focus** picker
+  narrows practice to life & death, tesuji, ko or capturing races.
 - 🤖 **The puzzles fight back** — if KataGo is installed, it answers your moves
   inside the puzzle. When it gives up the area, frank_go judges the result and
-  marks the puzzle **solved automatically**.
+  marks the puzzle **solved automatically**. The commented problems know their
+  own answers, so those are graded **exactly**, with the pro's explanation.
+- 🎓 **Find your rank** — a ten-problem test estimates your level and drops you
+  straight into practice there.
 - 🎨 **Area painting** — a toggleable overlay that paints each player's
   influence as a soft gradient and settled territory in solid color, so you can
   _see_ what the stones are doing.
 - ⚫ **Play against KataGo** — a one-command setup gives you a beginner-friendly
-  opponent (and a full-strength one). Score estimate, undo, pass and restart are
-  one click away in the sidebar.
+  opponent (and a full-strength one). A **live score** tells you who's ahead
+  (komi included), warns when you're hopelessly behind or the game is settled,
+  and move names ("Hane", "One-Point Jump") appear as you hover the board.
 - 📖 **Study famous games** — from the Ear-Reddening Game (1846) to AlphaGo vs
   Lee Sedol, with the story behind each game (the AlphaGo games include
-  move-by-move commentary).
+  move-by-move commentary). Auto-play through them, or switch on **Guess the
+  moves** and try to find the pro's next play — with an optional KataGo
+  explanation of why your guess fell short.
+- 📚 **Browse joseki** — Kogo's Joseki Dictionary, the classic corner-opening
+  reference, opens as a commented tree you can walk move by move.
+- 🎯 **Quick drills** — _Who is winning?_ (guess the leader of a real position),
+  and a **ladder** trainer that generates endless, verified capture-or-escape
+  problems.
 - 🎌 **Hikaru no Go mode** — nearly every game in the manga is a _real_
   professional game, and 15 of them are bundled with their chapter references
   and trivia: read a chapter, then replay the actual kifu here (Sai's internet
