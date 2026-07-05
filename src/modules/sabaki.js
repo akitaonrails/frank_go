@@ -88,7 +88,6 @@ class Sabaki extends EventEmitter {
       // frank_go: beginner assistance
       frankShowBeginnerOverlay: null,
       frankAdvancedMode: null,
-      frankShowHomePanel: null,
       frankTsumego: null,
       frankKatagoGame: null,
       frankStudy: null,
@@ -277,19 +276,8 @@ class Sabaki extends EventEmitter {
         return state.gameTrees[state.gameIndex]
       },
       get showSidebar() {
-        // frank_go: the practice home panel keeps the sidebar open by
-        // default; activities always need their controls
-        return (
-          state.showGameGraph ||
-          state.showCommentBox ||
-          state.frankShowHomePanel !== false ||
-          state.frankTsumego != null ||
-          state.frankKatagoGame != null ||
-          state.frankStudy != null ||
-          state.frankScoreDrill != null ||
-          state.frankLadderDrill != null ||
-          state.frankRankTest != null
-        )
+        // frank_go: the practice panel is always on
+        return true
       },
       get gameInfo() {
         return self.getGameInfo()
@@ -358,7 +346,6 @@ class Sabaki extends EventEmitter {
       // frank_go: beginner assistance
       'frank.show_beginner_overlay': 'frankShowBeginnerOverlay',
       'frank.advanced_mode': 'frankAdvancedMode',
-      'frank.show_home_panel': 'frankShowHomePanel',
     }
 
     if (key == null) {

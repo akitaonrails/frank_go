@@ -77,13 +77,12 @@ stays the player's call; engine-verified grading is the next milestone (below).
 
 ### Home panel
 
-When nothing is running, the sidebar (open by default, `frank.show_home_panel`)
-shows a start panel: continue tsumego at the saved level, play KataGo as
-Black/White (or a setup hint when no engine is configured), and "Study a famous
-game", which loads a random game from `data/games/famous` and shows its story.
-In beginner mode (default) the advanced Sabaki menus (Edit, Find, Engines,
-Tools, Developer) are removed from the menu bar; View > Show Advanced Menus
-restores them (`frank.advanced_mode`).
+When nothing is running, the sidebar (always on) shows a start panel: continue
+tsumego at the saved level, play KataGo as Black/White (or a setup hint when no
+engine is configured), and "Study a famous game", which loads a random game from
+`data/games/famous` and shows its story. In beginner mode (default) the advanced
+Sabaki menus (Edit, Find, Engines, Tools, Developer) are removed from the menu
+bar; View > Show Advanced Menus restores them (`frank.advanced_mode`).
 
 ### Play vs KataGo (Practice menu)
 

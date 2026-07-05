@@ -230,7 +230,6 @@ let defaults = {
   'frank.tsumego_solved': '{}',
   'frank.tsumego_sparring': true,
   'frank.advanced_mode': false,
-  'frank.show_home_panel': true,
   'frank.katago_engine': null,
   'frank.tsumego_focus': 'all',
   'frank.last_rank_test': null,

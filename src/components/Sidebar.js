@@ -134,14 +134,8 @@ export default class Sidebar extends Component {
 
     // frank_go: practice controls (or the start panel) dock at the top of
     // the sidebar
-    let practiceActive =
-      this.props.frankTsumego != null ||
-      this.props.frankKatagoGame != null ||
-      this.props.frankStudy != null ||
-      this.props.frankScoreDrill != null ||
-      this.props.frankLadderDrill != null ||
-      this.props.frankRankTest != null ||
-      this.props.frankShowHomePanel !== false
+    // frank_go: the practice panel is always on
+    let practiceActive = true
 
     // frank_go: when the graph/comment area is hidden, let the practice
     // panel fill the sidebar so its footer pins to the bottom

@@ -305,11 +305,6 @@ export default class PracticeSidebar extends Component {
 
     this.handleStopRankTest = () => rankTest.stopTest()
 
-    this.handleHidePanel = () => {
-      this.setState({statusText: null})
-      setting.set('frank.show_home_panel', false)
-    }
-
     this.setupProgress = ({step, fraction}) => {
       this.setState({
         statusText: `${t('Setting up KataGo')} — ${t(step)}: ${Math.round(
@@ -1354,11 +1349,6 @@ export default class PracticeSidebar extends Component {
         'div',
         {class: 'header'},
         h('span', {class: 'title'}, '⚫⚪ ', t('Practice')),
-        h(
-          'a',
-          {href: '#', class: 'stop', onClick: this.handleHidePanel},
-          t('hide'),
-        ),
       ),
 
       h('p', {class: 'guide'}, t('Welcome! What shall we play today?')),
@@ -1505,7 +1495,6 @@ export default class PracticeSidebar extends Component {
     frankScoreDrill,
     frankLadderDrill,
     frankRankTest,
-    frankShowHomePanel,
   }) {
     let view =
       frankTsumego != null
@@ -1520,9 +1509,7 @@ export default class PracticeSidebar extends Component {
                 ? this.renderLadderDrill(frankLadderDrill)
                 : frankRankTest != null
                   ? this.renderRankTest(frankRankTest)
-                  : frankShowHomePanel !== false
-                    ? this.renderHome()
-                    : null
+                  : this.renderHome()
 
     if (view == null) return null
 

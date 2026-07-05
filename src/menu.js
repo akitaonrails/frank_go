@@ -50,7 +50,6 @@ exports.get = function (props = {}) {
     // frank_go: beginner assistance
     frankShowBeginnerOverlay,
     frankAdvancedMode,
-    frankShowHomePanel,
   } = props
 
   // frank_go: beginner-first menus — advanced Sabaki menus are hidden until
@@ -588,13 +587,6 @@ exports.get = function (props = {}) {
         {
           label: i18n.t('menu.practice', 'Sto&p Practicing'),
           click: () => frankTsumego.stopPractice(),
-        },
-        {type: 'separator'},
-        {
-          label: i18n.t('menu.practice', 'Show Practice Pa&nel'),
-          type: 'checkbox',
-          checked: frankShowHomePanel !== false,
-          click: () => toggleSetting('frank.show_home_panel'),
         },
         {type: 'separator'},
         {

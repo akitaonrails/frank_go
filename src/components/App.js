@@ -376,7 +376,6 @@ class App extends Component {
         // frank_go: beginner assistance
         frankShowBeginnerOverlay: state.frankShowBeginnerOverlay,
         frankAdvancedMode: state.frankAdvancedMode,
-        frankShowHomePanel: state.frankShowHomePanel,
       }),
 
       h(TripleSplitContainer, {
