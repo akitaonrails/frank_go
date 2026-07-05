@@ -20,6 +20,7 @@ import * as famousGames from '../../frank/famousGames.js'
 import * as scoreDrill from '../../frank/scoreDrill.js'
 import * as ladderSession from '../../frank/ladderSession.js'
 import * as rankTest from '../../frank/rankTest.js'
+import * as bulkGames from '../../frank/bulkGames.js'
 import * as sabakiDialog from '../../modules/dialog.js'
 import {
   describeVerdict,
@@ -253,6 +254,21 @@ export default class PracticeSidebar extends Component {
 
     this.handleStopScoreDrill = () => scoreDrill.stopDrill()
 
+    this.handleFetchBulk = async () => {
+      this.setState({busy: true})
+      try {
+        await bulkGames.fetchBulkGames(({step, fraction}) => {
+          this.setState({
+            statusText: `${t(step)}: ${Math.round(fraction * 100)}%`,
+          })
+        })
+        this.setState({statusText: t('Done — endless variety unlocked!')})
+      } catch (err) {
+        this.setState({statusText: t('Download failed:') + ' ' + err.message})
+      }
+      this.setState({busy: false})
+    }
+
     this.handleStartLadderDrill = async () => {
       this.setState({busy: true})
       await ladderSession.startDrill()
@@ -435,6 +451,33 @@ export default class PracticeSidebar extends Component {
       nextProps.treePosition !== this.props.treePosition
     ) {
       this.scheduleLiveScore()
+    }
+
+    // Friendly right/wrong feedback while guessing the pro's moves
+    if (
+      this.props.frankStudy != null &&
+      nextProps.frankStudy != null &&
+      nextProps.mode === 'guess'
+    ) {
+      let prevBlocked = (this.props.blockedGuesses || []).length
+      let nextBlocked = (nextProps.blockedGuesses || []).length
+      let prevLevel = this.props.gameTree.getLevel(this.props.treePosition)
+      let nextLevel = nextProps.gameTree.getLevel(nextProps.treePosition)
+
+      if (nextBlocked > prevBlocked) {
+        this.setState(({guessStats}) => ({
+          statusText:
+            '✗ ' + t('Not there — the pro chose another point. Try again!'),
+          guessStats: {...guessStats, misses: guessStats.misses + 1},
+        }))
+      } else if (nextLevel === prevLevel + 1) {
+        this.setState(({guessStats}) => ({
+          statusText: '✓ ' + t('Spot on — exactly where the pro played!'),
+          guessStats: {...guessStats, hits: guessStats.hits + 1},
+        }))
+      }
+    } else if (this.props.mode === 'guess' && nextProps.mode !== 'guess') {
+      this.setState({statusText: null, guessStats: {hits: 0, misses: 0}})
     }
 
     // Stone sounds while replaying a study game. Sabaki only plays sounds
@@ -921,6 +964,12 @@ export default class PracticeSidebar extends Component {
     )
 
     let footer = [
+      this.props.mode === 'guess' &&
+        h(
+          'p',
+          {class: 'session'},
+          `${t('Guessing:')} ${this.state.guessStats.hits} ✓ · ${this.state.guessStats.misses} ✗`,
+        ),
       h(
         'p',
         {class: 'session'},
@@ -1040,6 +1089,16 @@ export default class PracticeSidebar extends Component {
         {class: 'session'},
         `${t('This session:')} ${drill.stats.correct} ✓ · ${drill.stats.wrong} ✗ · ${t('streak')} ${drill.stats.streak}`,
       ),
+      !drill.hasBulk &&
+        h(
+          'div',
+          {class: 'actions'},
+          h(
+            'button',
+            {disabled: this.state.busy, onClick: this.handleFetchBulk},
+            '⬇ ' + t('More variety: 90,000 pro games (~46 MB)'),
+          ),
+        ),
       this.renderOverlayToggle(),
       this.renderMenuBarToggle(),
       this.renderBackButton(this.handleStopScoreDrill),
@@ -1230,6 +1289,7 @@ export default class PracticeSidebar extends Component {
 
   renderHome() {
     let level = setting.get('frank.tsumego_level') || 1
+    let neverTested = !setting.get('frank.last_rank_test')
     let engines = katagoPlay.listKataGoEngines()
     let hasKatago = engines.length > 0
     let chosenEngine = katagoPlay.findKataGoEngine()
@@ -1251,16 +1311,27 @@ export default class PracticeSidebar extends Component {
 
       h('p', {class: 'guide'}, t('Welcome! What shall we play today?')),
 
+      neverTested &&
+        h(
+          'p',
+          {class: 'status-text'},
+          t(
+            'New here? Take the 🎓 Rank test first — ten quick problems and we find your level.',
+          ),
+        ),
+
+      h('p', {class: 'sectionlabel'}, t('Practice')),
       h(
         'div',
         {class: 'actions start'},
         h(
           'button',
           {class: 'primary', onClick: this.handleStartTsumego},
-          `🧩 ${t('Tsumego practice')} · ${t('Level')} ${level}`,
+          `🧩 ${t('Tsumego practice')} · ${t('Level')} ${level} (${LEVEL_RANKS[level]})`,
         ),
       ),
 
+      h('p', {class: 'sectionlabel'}, t('Play')),
       hasKatago
         ? h(
             'div',
@@ -1307,6 +1378,7 @@ export default class PracticeSidebar extends Component {
             ),
           ),
 
+      h('p', {class: 'sectionlabel'}, t('Study')),
       h(
         'div',
         {class: 'actions start'},
@@ -1327,6 +1399,7 @@ export default class PracticeSidebar extends Component {
         ),
       ),
 
+      h('p', {class: 'sectionlabel'}, t('Drills')),
       h(
         'div',
         {class: 'actions start'},
@@ -1342,7 +1415,11 @@ export default class PracticeSidebar extends Component {
         ),
         h(
           'button',
-          {disabled: this.state.busy, onClick: this.handleStartRankTest},
+          {
+            class: classNames({primary: neverTested}),
+            disabled: this.state.busy,
+            onClick: this.handleStartRankTest,
+          },
           '🎓 ' + t('Rank test'),
         ),
       ),

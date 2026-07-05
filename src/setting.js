@@ -223,7 +223,8 @@ let defaults = {
   'window.maximized': false,
 
   // frank_go: beginner-assistance settings
-  'frank.show_beginner_overlay': false,
+  // frank_go: on by default — beginners should SEE the areas
+  'frank.show_beginner_overlay': true,
   'frank.tsumego_level': 1,
   'frank.tsumego_streak': 0,
   'frank.tsumego_solved': '{}',
@@ -232,6 +233,7 @@ let defaults = {
   'frank.show_home_panel': true,
   'frank.katago_engine': null,
   'frank.tsumego_focus': 'all',
+  'frank.last_rank_test': null,
 }
 
 let eventEmitters = {}

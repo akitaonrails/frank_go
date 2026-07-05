@@ -9,13 +9,13 @@
 // "Close" answers are treated kindly: within ±CLOSE_MARGIN points either
 // color answer counts as correct, and "too close" is correct too.
 
-import {existsSync, readFileSync, readdirSync, statSync} from 'fs'
+import {readFileSync, readdirSync, statSync} from 'fs'
 import {join} from 'path'
 import sabaki from '../modules/sabaki.js'
 import * as gametree from '../modules/gametree.js'
 import {createRng} from './data/problemStore.js'
-import {locateData} from './paths.js'
 import {loadIndex} from './famousGames.js'
+import {bulkGamesRoot} from './bulkGames.js'
 import {estimateScore} from './positionJudge.js'
 import {formatLead} from './endgameAdvisor.js'
 
@@ -43,7 +43,7 @@ function bundledGames() {
 // Random SGF from the optional 90k bulk archive: a few random descents
 // into the directory tree.
 function randomBulkGame() {
-  let bulkRoot = locateData(join('games', 'bulk', 'games'))
+  let bulkRoot = bulkGamesRoot()
   if (bulkRoot == null) return null
 
   for (let attempt = 0; attempt < 10; attempt++) {
@@ -91,6 +91,7 @@ function publish(extra = {}) {
             komi: drill.komi,
             phase: drill.phase,
             reveal: drill.reveal || null,
+            hasBulk: bulkGamesRoot() != null,
             stats: {...stats},
             ...extra,
           },

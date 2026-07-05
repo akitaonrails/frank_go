@@ -62,10 +62,10 @@
 }
 
 #frank-practice-sidebar .header .stop {
-  color: #a89878;
+  color: #b5a488;
   text-decoration: none;
   font-size: 0.85em;
-  border-bottom: 1px dotted #a89878;
+  border-bottom: 1px dotted #b5a488;
 }
 
 #frank-practice-sidebar .header .stop:hover {
@@ -102,7 +102,7 @@
 #frank-practice-sidebar .ranknote {
   margin: 0 0 0.6em;
   padding: 0 0.3em;
-  color: #a89878;
+  color: #b5a488;
   font-size: 0.82em;
 }
 
@@ -304,7 +304,7 @@
 
 #frank-practice-sidebar .session {
   margin: 0.5em 0 0.3em;
-  color: #a89878;
+  color: #b5a488;
   font-size: 0.85em;
 }
 
@@ -339,7 +339,7 @@
 }
 
 #frank-practice-sidebar .overlay-toggle .shortcut {
-  color: #877a63;
+  color: #9a8c72;
   font-size: 0.78em;
 }
 
@@ -423,7 +423,7 @@ main.frank-cursor-white #goban {
 }
 
 #frank-practice-sidebar .cast .vs {
-  color: #a89878;
+  color: #b5a488;
   font-size: 0.85em;
   font-style: italic;
 }
@@ -491,7 +491,7 @@ main.frank-cursor-white #goban {
 }
 
 #frank-practice-sidebar .gametitle .gamemeta {
-  color: #a89878;
+  color: #b5a488;
 }
 
 #frank-practice-sidebar .trivia {
@@ -522,6 +522,17 @@ main.frank-cursor-white #goban {
 }
 
 #frank-practice-sidebar .livescore .komi-note {
-  color: #a89878;
+  color: #b5a488;
   font-size: 0.8em;
+}
+
+/* Home section labels */
+
+#frank-practice-sidebar .sectionlabel {
+  margin: 0.7em 0 0.25em;
+  color: #9a8c72;
+  font-size: 0.78em;
+  font-weight: bold;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }

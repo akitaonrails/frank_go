@@ -12,7 +12,7 @@ import sabaki from '../modules/sabaki.js'
 import * as gametree from '../modules/gametree.js'
 
 // frank_go: beginner assistance
-import {getBeginnerPaintMap} from '../frank/beginnerOverlay.js'
+import {getBeginnerOverlay} from '../frank/beginnerOverlay.js'
 
 export default class MainView extends Component {
   constructor(props) {
@@ -117,6 +117,7 @@ export default class MainView extends Component {
     let komi = +gametree.getRootProperty(gameTree, 'KM', 0)
     let handicap = +gametree.getRootProperty(gameTree, 'HA', 0)
     let paintMap
+    let frankDeadStones = []
 
     if (['scoring', 'estimator'].includes(mode)) {
       paintMap = areaMap
@@ -127,8 +128,11 @@ export default class MainView extends Component {
         paintMap[y][x] = 1
       }
     } else if (this.props.frankShowBeginnerOverlay) {
-      // frank_go: beginner influence overlay ("area painting")
-      paintMap = getBeginnerPaintMap(board)
+      // frank_go: beginner influence overlay ("area painting") with
+      // likely-dead stones dimmed once the async guess resolves
+      let overlay = getBeginnerOverlay(board, () => sabaki.setState({}))
+      paintMap = overlay.paintMap
+      frankDeadStones = overlay.deadStones
     }
 
     // frank_go: during practice, the cursor over the board becomes a
@@ -166,7 +170,7 @@ export default class MainView extends Component {
           paintMap,
           dimmedStones: ['scoring', 'estimator'].includes(mode)
             ? deadStones
-            : [],
+            : frankDeadStones,
 
           crosshair: gobanCrosshair,
           showCoordinates,

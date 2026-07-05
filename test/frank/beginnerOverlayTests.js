@@ -58,3 +58,24 @@ describe('computeBeginnerPaintMap', () => {
     assert.ok(paint[6][7] < 0)
   })
 })
+
+describe('computeBeginnerPaintMapWithDead', () => {
+  it('paints dead stones as decisive opponent territory', async () => {
+    let {computeBeginnerPaintMapWithDead} =
+      await import('../../src/frank/beginnerOverlay.js')
+
+    let signMap = Array.from({length: 9}, () => Array(9).fill(0))
+    // White wall sealing the corner; a dead black stone inside; black
+    // presence elsewhere so the board is contested
+    signMap[0][7] = -1
+    signMap[1][7] = -1
+    signMap[1][8] = -1
+    signMap[0][8] = 1
+    signMap[8][0] = 1
+
+    let paint = computeBeginnerPaintMapWithDead(signMap, [[8, 0]])
+
+    // The dead stone's cell now reads as white territory
+    assert.ok(paint[0][8] < 0)
+  })
+})

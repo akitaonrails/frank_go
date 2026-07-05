@@ -15,11 +15,13 @@
 // the owning player's color, so ±1 is "settled" and fractions are gradient.
 
 import influence from '@sabaki/influence'
+import deadstones from '@sabaki/deadstones'
 
 const GRADIENT_SCALE = 0.55
 const DECAY_RANGE = 2.5
 
 let cache = new WeakMap()
+let deadCache = new WeakMap() // board → {dead, paint} once the guess lands
 
 // Chebyshev-style BFS distance (8 neighbors) to the nearest stone of `sign`.
 // Returns Infinity everywhere when that color has no stones.
@@ -104,6 +106,19 @@ export function computeBeginnerPaintMap(signMap) {
   )
 }
 
+// Same computation, but with likely-dead stones treated as captured:
+// their cells clear before the influence pass, so the surrounding
+// opponent territory swallows them decisively — beginners see that the
+// area is settled and playing inside it is pointless.
+export function computeBeginnerPaintMapWithDead(signMap, deadVertices) {
+  if (deadVertices.length === 0) return computeBeginnerPaintMap(signMap)
+
+  let cleared = signMap.map((row) => row.slice())
+  for (let [x, y] of deadVertices) cleared[y][x] = 0
+
+  return computeBeginnerPaintMap(cleared)
+}
+
 // Memoized per board object — Sabaki caches boards per tree position, so
 // navigating back and forth doesn't recompute.
 export function getBeginnerPaintMap(board) {
@@ -112,4 +127,32 @@ export function getBeginnerPaintMap(board) {
   }
 
   return cache.get(board)
+}
+
+// Full overlay: instant gradient paint plus, once the Monte-Carlo guess
+// finishes (a few ms, async wasm), likely-dead stones — dimmed on the
+// board with their area repainted as the opponent's. `notify` is called
+// when the refined result is ready so the caller can re-render.
+export function getBeginnerOverlay(board, notify = () => {}) {
+  let refined = deadCache.get(board)
+  if (refined != null && refined.paint != null) {
+    return {paintMap: refined.paint, deadStones: refined.dead}
+  }
+
+  if (refined == null) {
+    deadCache.set(board, {dead: null, paint: null})
+
+    deadstones
+      .guess(board.signMap, {finished: false, iterations: 300})
+      .then((dead) => {
+        deadCache.set(board, {
+          dead,
+          paint: computeBeginnerPaintMapWithDead(board.signMap, dead),
+        })
+        notify()
+      })
+      .catch(() => {})
+  }
+
+  return {paintMap: getBeginnerPaintMap(board), deadStones: []}
 }

@@ -250,6 +250,7 @@ async function failAndPrompt(text) {
   let progress = loadProgress()
   let next = applyResult(progress, false)
   saveProgress(next)
+  flashLevelEvent(next)
   sessionStats.missed++
 
   autoVerdict = {result: 'failed', text}
@@ -544,6 +545,19 @@ export async function startPractice() {
 
 // Manual grading — used by the auto-solve timer, the "Next" button on a
 // success banner, and the self-grade buttons when no engine is attached.
+// Big moments deserve more than a badge
+function flashLevelEvent(next) {
+  if (next.event === 'level-up') {
+    sabaki.flashInfoOverlay(
+      `🎉 ${t('Level up!')} ${t('Now level')} ${next.level} (${LEVEL_RANKS[next.level]})`,
+    )
+  } else if (next.event === 'level-down') {
+    sabaki.flashInfoOverlay(
+      `${t('Back to level')} ${next.level} (${LEVEL_RANKS[next.level]}) — ${t('no worries, it happens!')}`,
+    )
+  }
+}
+
 export async function answer(correct) {
   if (currentProblem == null) return
 
@@ -552,6 +566,7 @@ export async function answer(correct) {
   let progress = loadProgress()
   let next = applyResult(progress, correct)
   saveProgress(next)
+  flashLevelEvent(next)
   sessionStats[correct ? 'solved' : 'missed']++
 
   if (correct) {
