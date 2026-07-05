@@ -95,6 +95,7 @@ class Sabaki extends EventEmitter {
       frankLadderDrill: null,
       frankRankTest: null,
       frankHoverMove: null,
+      frankLastWrongGuess: null,
 
       // Sidebar
 
@@ -1171,6 +1172,8 @@ class Sabaki extends EventEmitter {
       }
 
       if (helper.vertexEquals(vertex, nextVertex)) {
+        // frank_go: correct guess clears any pending wrong-guess review
+        this.setState({frankLastWrongGuess: null})
         this.makeMove(vertex, {player: nextNode.data.B != null ? 1 : -1})
       } else {
         if (
@@ -1178,6 +1181,9 @@ class Sabaki extends EventEmitter {
           this.state.blockedGuesses.some((v) => helper.vertexEquals(v, vertex))
         )
           return
+
+        // frank_go: remember the exact wrong point for on-demand review
+        this.setState({frankLastWrongGuess: vertex})
 
         let blocked = []
         let [, i] = vertex
@@ -1570,6 +1576,7 @@ class Sabaki extends EventEmitter {
     this.setState({
       playVariation: null,
       blockedGuesses: navigated ? [] : blockedGuesses,
+      frankLastWrongGuess: navigated ? null : this.state.frankLastWrongGuess,
       gameTrees: gameTrees.map((t, i) => (i !== gameIndex ? t : tree)),
       gameIndex,
       treePosition,

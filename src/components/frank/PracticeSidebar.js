@@ -31,6 +31,7 @@ import {setting} from '../../frank/env.js'
 import {advise, formatLead} from '../../frank/endgameAdvisor.js'
 import sgfLib from '@sabaki/sgf'
 import {nameForMove} from '../../frank/moveNames.js'
+import * as guessReview from '../../frank/guessReview.js'
 
 const t = i18n.context('frank.practice')
 
@@ -229,7 +230,27 @@ export default class PracticeSidebar extends Component {
     }
 
     this.handleToggleGuess = () => {
-      sabaki.setMode(this.props.mode === 'guess' ? 'play' : 'guess')
+      let leaving = this.props.mode === 'guess'
+      if (leaving) guessReview.releaseEngine()
+      this.setState({reviewText: null})
+      sabaki.setMode(leaving ? 'play' : 'guess')
+    }
+
+    this.handleWhyWrong = async () => {
+      let vertex = this.props.frankLastWrongGuess
+      if (vertex == null || this.state.reviewing) return
+
+      this.setState({reviewing: true, reviewText: t('Asking KataGo…')})
+      let text = await guessReview.reviewGuess(vertex)
+      this.setState({reviewing: false, reviewText: text})
+    }
+
+    this.handleRevealMove = () => {
+      this.setState({reviewText: null})
+      // Step forward to the pro's actual move, then back to play so the
+      // user can resume auto-play or keep browsing freely.
+      sabaki.setMode('play')
+      sabaki.goStep(1)
     }
 
     this.handleAnotherStudyGame = async () => {
@@ -467,16 +488,23 @@ export default class PracticeSidebar extends Component {
         this.setState(({guessStats}) => ({
           statusText:
             '✗ ' + t('Not there — the pro chose another point. Try again!'),
+          reviewText: null,
           guessStats: {...guessStats, misses: guessStats.misses + 1},
         }))
       } else if (nextLevel === prevLevel + 1) {
         this.setState(({guessStats}) => ({
           statusText: '✓ ' + t('Spot on — exactly where the pro played!'),
+          reviewText: null,
           guessStats: {...guessStats, hits: guessStats.hits + 1},
         }))
       }
     } else if (this.props.mode === 'guess' && nextProps.mode !== 'guess') {
-      this.setState({statusText: null, guessStats: {hits: 0, misses: 0}})
+      guessReview.releaseEngine()
+      this.setState({
+        statusText: null,
+        reviewText: null,
+        guessStats: {hits: 0, misses: 0},
+      })
     }
 
     // Stone sounds while replaying a study game. Sabaki only plays sounds
@@ -998,6 +1026,36 @@ export default class PracticeSidebar extends Component {
         ),
 
       this.renderStatus(),
+
+      // frank_go: on a wrong guess, offer KataGo review + reveal — never
+      // blocking; the user can ignore both and keep guessing
+      this.props.mode === 'guess' &&
+        this.props.frankLastWrongGuess != null &&
+        h(
+          'div',
+          null,
+          this.state.reviewText != null &&
+            h('p', {class: 'status-text'}, this.state.reviewText),
+          h(
+            'div',
+            {class: 'actions'},
+            guessReview.hasEngine() &&
+              h(
+                'button',
+                {
+                  disabled: this.state.reviewing,
+                  onClick: this.handleWhyWrong,
+                },
+                '🤖 ' + t('Why? (ask KataGo)'),
+              ),
+            h(
+              'button',
+              {class: 'solved', onClick: this.handleRevealMove},
+              t('Reveal move'),
+              ' →',
+            ),
+          ),
+        ),
     )
 
     let footer = [
