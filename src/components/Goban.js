@@ -158,6 +158,11 @@ export default class Goban extends Component {
   }
 
   handleVertexMouseEnter(evt, vertex) {
+    // frank_go: hover move-name preview
+    if (this.props.onFrankVertexEnter != null) {
+      this.props.onFrankVertexEnter(vertex)
+    }
+
     if (this.props.analysis == null) return
 
     let {sign, variations} = this.props.analysis
@@ -170,6 +175,11 @@ export default class Goban extends Component {
   }
 
   handleVertexMouseLeave(evt, vertex) {
+    // frank_go: hover move-name preview
+    if (this.props.onFrankVertexLeave != null) {
+      this.props.onFrankVertexLeave(vertex)
+    }
+
     this.stopPlayingVariation()
   }
 

@@ -29,6 +29,8 @@ import {
 } from '../../frank/positionJudge.js'
 import {setting} from '../../frank/env.js'
 import {advise, formatLead} from '../../frank/endgameAdvisor.js'
+import sgfLib from '@sabaki/sgf'
+import {nameForMove} from '../../frank/moveNames.js'
 
 const t = i18n.context('frank.practice')
 
@@ -512,6 +514,30 @@ export default class PracticeSidebar extends Component {
     }
   }
 
+  // "Hane", "Attachment", "One-Point Jump"… via Sabaki's bundled
+  // boardmatcher (the same engine behind the comment box's move
+  // interpretation); falls back to the a-b point name in the opening.
+  moveName(gameTree, treePosition) {
+    let node = gameTree.get(treePosition)
+    if (node == null || node.parentId == null) return null
+
+    let sign, vertex
+    if (node.data.B != null && node.data.B[0] !== '') {
+      sign = 1
+      vertex = sgfLib.parseVertex(node.data.B[0])
+    } else if (node.data.W != null && node.data.W[0] !== '') {
+      sign = -1
+      vertex = sgfLib.parseVertex(node.data.W[0])
+    } else {
+      return null
+    }
+
+    let prevBoard = gametree.getBoard(gameTree, node.parentId)
+    let name = nameForMove(prevBoard, sign, vertex)
+
+    return name == null ? null : {name, sign}
+  }
+
   renderOverlayToggle() {
     return h(
       'label',
@@ -795,6 +821,33 @@ export default class PracticeSidebar extends Component {
       ),
 
       h('p', {class: 'guide'}, `${youLabel} · ${game.engineName}`),
+
+      (() => {
+        // While hovering, preview what YOUR move there would be called;
+        // otherwise show the last move played
+        let hover = this.props.frankHoverMove
+
+        if (hover != null) {
+          return h(
+            'p',
+            {class: 'movename hover'},
+            `${t('This would be:')} `,
+            h('strong', null, t(hover.name)),
+          )
+        }
+
+        let move = this.moveName(this.props.gameTree, this.props.treePosition)
+        if (move == null) return null
+
+        let who = move.sign === game.playerSign ? t('you') : t('KataGo')
+        return h(
+          'p',
+          {class: 'movename'},
+          `${t('Last move:')} `,
+          h('strong', null, t(move.name)),
+          ` (${who})`,
+        )
+      })(),
 
       this.state.liveScore != null &&
         h(

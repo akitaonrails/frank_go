@@ -95,6 +95,7 @@ class Sabaki extends EventEmitter {
       frankScoreDrill: null,
       frankLadderDrill: null,
       frankRankTest: null,
+      frankHoverMove: null,
 
       // Sidebar
 

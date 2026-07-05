@@ -536,3 +536,19 @@ main.frank-cursor-white #goban {
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
+
+/* Last-move name during KataGo games */
+
+#frank-practice-sidebar .movename {
+  margin: 0 0 0.5em;
+  color: #d8cdb8;
+  font-size: 0.9em;
+}
+
+#frank-practice-sidebar .movename strong {
+  color: #f2d99a;
+}
+
+#frank-practice-sidebar .movename.hover strong {
+  color: #a4d0e0;
+}

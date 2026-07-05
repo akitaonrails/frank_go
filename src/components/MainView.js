@@ -13,6 +13,7 @@ import * as gametree from '../modules/gametree.js'
 
 // frank_go: beginner assistance
 import {getBeginnerOverlay} from '../frank/beginnerOverlay.js'
+import {nameForMove} from '../frank/moveNames.js'
 
 export default class MainView extends Component {
   constructor(props) {
@@ -35,6 +36,25 @@ export default class MainView extends Component {
 
     this.handleGobanVertexClick = this.handleGobanVertexClick.bind(this)
     this.handleGobanLineDraw = this.handleGobanLineDraw.bind(this)
+
+    // frank_go: hover move-name preview during KataGo games
+    this.handleFrankVertexEnter = (vertex) => {
+      let {mode, gameTree, treePosition, currentPlayer} = this.props
+      if (this.props.frankKatagoGame == null || mode !== 'play') return
+
+      let board = gametree.getBoard(gameTree, treePosition)
+      let name = nameForMove(board, currentPlayer, vertex)
+
+      sabaki.setState({
+        frankHoverMove: name == null ? null : {name, sign: currentPlayer},
+      })
+    }
+
+    this.handleFrankVertexLeave = () => {
+      if (sabaki.state.frankHoverMove != null) {
+        sabaki.setState({frankHoverMove: null})
+      }
+    }
   }
 
   componentDidMount() {
@@ -191,6 +211,10 @@ export default class MainView extends Component {
 
           onVertexClick: this.handleGobanVertexClick,
           onLineDraw: this.handleGobanLineDraw,
+
+          // frank_go: hover move-name preview
+          onFrankVertexEnter: this.handleFrankVertexEnter,
+          onFrankVertexLeave: this.handleFrankVertexLeave,
         }),
       ),
 
