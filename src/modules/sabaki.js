@@ -92,6 +92,9 @@ class Sabaki extends EventEmitter {
       frankTsumego: null,
       frankKatagoGame: null,
       frankStudy: null,
+      frankScoreDrill: null,
+      frankLadderDrill: null,
+      frankRankTest: null,
 
       // Sidebar
 
@@ -281,7 +284,10 @@ class Sabaki extends EventEmitter {
           state.frankShowHomePanel !== false ||
           state.frankTsumego != null ||
           state.frankKatagoGame != null ||
-          state.frankStudy != null
+          state.frankStudy != null ||
+          state.frankScoreDrill != null ||
+          state.frankLadderDrill != null ||
+          state.frankRankTest != null
         )
       },
       get gameInfo() {

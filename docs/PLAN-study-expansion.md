@@ -1,4 +1,4 @@
-# Plan: Study Material Expansion
+# Plan: Study Material Expansion — ✅ implemented 2026-07-04 (all three phases)
 
 Approved direction (2026-07-04): frank_go is MIT, free, no charges — freely
 distributed materials get **bundled**, always with provenance in

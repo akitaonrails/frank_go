@@ -102,8 +102,8 @@ export async function playAgainstKataGo(playerSign = 1) {
         [
           'No KataGo engine is configured yet.',
           '',
-          'Run `npm run frank:katago` in the app folder,',
-          'or add your own engine under Engines > Manage Engines.',
+          'Use the "Set up KataGo" button in the practice panel first —',
+          'one click, one small download.',
         ].join('\n'),
       ),
       'info',
@@ -111,6 +111,11 @@ export async function playAgainstKataGo(playerSign = 1) {
 
     return
   }
+
+  // Cancel any running frank activity first
+  let rank = await import('./rankTest.js')
+  rank.stopTest()
+  sabaki.setState({frankScoreDrill: null, frankLadderDrill: null})
 
   await sabaki.newFile({playSound: false, showInfo: false})
 

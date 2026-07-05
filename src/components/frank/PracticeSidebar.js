@@ -17,6 +17,9 @@ import {LEVEL_RANKS} from '../../frank/tsumegoSession.js'
 import {FOCUS_LABELS} from '../../frank/tsumegoProgress.js'
 import * as katagoPlay from '../../frank/katagoPlay.js'
 import * as famousGames from '../../frank/famousGames.js'
+import * as scoreDrill from '../../frank/scoreDrill.js'
+import * as ladderSession from '../../frank/ladderSession.js'
+import * as rankTest from '../../frank/rankTest.js'
 import * as sabakiDialog from '../../modules/dialog.js'
 import {
   describeVerdict,
@@ -234,6 +237,54 @@ export default class PracticeSidebar extends Component {
       this.setState({busy: false})
     }
 
+    this.handleStartScoreDrill = async () => {
+      this.setState({busy: true})
+      await scoreDrill.startDrill()
+      this.setState({busy: false})
+    }
+
+    this.handleScoreAnswer = (choice) => () => scoreDrill.answer(choice)
+
+    this.handleScoreNext = async () => {
+      this.setState({busy: true})
+      await scoreDrill.nextPosition()
+      this.setState({busy: false})
+    }
+
+    this.handleStopScoreDrill = () => scoreDrill.stopDrill()
+
+    this.handleStartLadderDrill = async () => {
+      this.setState({busy: true})
+      await ladderSession.startDrill()
+      this.setState({busy: false})
+    }
+
+    this.handleLadderAnswer = (guess) => () => ladderSession.answer(guess)
+
+    this.handleLadderWatch = async () => {
+      this.setState({busy: true})
+      await ladderSession.watchItRun()
+      this.setState({busy: false})
+    }
+
+    this.handleLadderNext = async () => {
+      this.setState({busy: true})
+      await ladderSession.nextLadder()
+      this.setState({busy: false})
+    }
+
+    this.handleStopLadderDrill = () => ladderSession.stopDrill()
+
+    this.handleStartRankTest = async () => {
+      this.setState({busy: true})
+      await rankTest.startTest()
+      this.setState({busy: false})
+    }
+
+    this.handleRankPractice = () => rankTest.practiceAtResult()
+
+    this.handleStopRankTest = () => rankTest.stopTest()
+
     this.handleHidePanel = () => {
       this.setState({statusText: null})
       setting.set('frank.show_home_panel', false)
@@ -359,7 +410,13 @@ export default class PracticeSidebar extends Component {
           ? 'katago'
           : props.frankStudy != null
             ? 'study'
-            : 'home'
+            : props.frankScoreDrill != null
+              ? 'scoredrill'
+              : props.frankLadderDrill != null
+                ? 'ladderdrill'
+                : props.frankRankTest != null
+                  ? 'ranktest'
+                  : 'home'
 
     if (activity(this.props) !== activity(nextProps)) {
       this.setState({statusText: null})
@@ -883,6 +940,294 @@ export default class PracticeSidebar extends Component {
     return {main, footer}
   }
 
+  renderScoreDrill(drill) {
+    let main = h(
+      'div',
+      {class: 'activity scoredrill'},
+
+      h(
+        'div',
+        {class: 'header'},
+        h('span', {class: 'title'}, '🔢 ', t('Who is winning?')),
+        h(
+          'a',
+          {href: '#', class: 'stop', onClick: this.handleStopScoreDrill},
+          t('quit'),
+        ),
+      ),
+
+      h(
+        'p',
+        {class: 'guide'},
+        `${drill.title} — ${t('after move')} ${drill.moveNumber} (${t('komi')} ${drill.komi}).`,
+      ),
+
+      drill.phase === 'guess'
+        ? h(
+            'div',
+            null,
+            h(
+              'p',
+              {class: 'guide'},
+              t('Look at the whole board: who is ahead right now?'),
+            ),
+            h(
+              'div',
+              {class: 'actions main'},
+              h(
+                'button',
+                {
+                  disabled: this.state.busy,
+                  onClick: this.handleScoreAnswer('B'),
+                },
+                '⚫ ',
+                t('Black'),
+              ),
+              h(
+                'button',
+                {
+                  disabled: this.state.busy,
+                  onClick: this.handleScoreAnswer('W'),
+                },
+                '⚪ ',
+                t('White'),
+              ),
+              h(
+                'button',
+                {
+                  disabled: this.state.busy,
+                  onClick: this.handleScoreAnswer('close'),
+                },
+                t('Too close'),
+              ),
+            ),
+          )
+        : h(
+            'div',
+            null,
+            h(
+              'p',
+              {
+                class: classNames(
+                  'auto-verdict',
+                  drill.reveal.correct ? 'solved' : 'failed',
+                ),
+              },
+              drill.reveal.correct ? '✓ ' : '✗ ',
+              `${t('Estimate:')} ${drill.reveal.scoreText}`,
+              drill.reveal.isClose ? ` — ${t('a close game!')}` : '',
+            ),
+            h(
+              'div',
+              {class: 'actions main'},
+              h(
+                'button',
+                {
+                  class: 'solved',
+                  disabled: this.state.busy,
+                  onClick: this.handleScoreNext,
+                },
+                t('Next position'),
+                ' →',
+              ),
+            ),
+          ),
+    )
+
+    let footer = [
+      h(
+        'p',
+        {class: 'session'},
+        `${t('This session:')} ${drill.stats.correct} ✓ · ${drill.stats.wrong} ✗ · ${t('streak')} ${drill.stats.streak}`,
+      ),
+      this.renderOverlayToggle(),
+      this.renderMenuBarToggle(),
+      this.renderBackButton(this.handleStopScoreDrill),
+    ]
+
+    return {main, footer}
+  }
+
+  renderLadderDrill(drill) {
+    let main = h(
+      'div',
+      {class: 'activity ladderdrill'},
+
+      h(
+        'div',
+        {class: 'header'},
+        h('span', {class: 'title'}, '🪜 ', t('Ladder drill')),
+        h(
+          'a',
+          {href: '#', class: 'stop', onClick: this.handleStopLadderDrill},
+          t('quit'),
+        ),
+      ),
+
+      drill.phase === 'question'
+        ? h(
+            'div',
+            null,
+            h(
+              'p',
+              {class: 'guide'},
+              t(
+                'Read it out — no stones allowed! Can Black capture the marked white stone in a ladder?',
+              ),
+            ),
+            h(
+              'div',
+              {class: 'actions main'},
+              h(
+                'button',
+                {onClick: this.handleLadderAnswer(true)},
+                t('It works'),
+              ),
+              h(
+                'button',
+                {onClick: this.handleLadderAnswer(false)},
+                t('It escapes'),
+              ),
+            ),
+          )
+        : h(
+            'div',
+            null,
+            h(
+              'p',
+              {
+                class: classNames(
+                  'auto-verdict',
+                  drill.reveal.correct ? 'solved' : 'failed',
+                ),
+              },
+              drill.reveal.correct ? '✓ ' : '✗ ',
+              drill.reveal.works
+                ? t('The ladder works — White is captured.')
+                : t('The ladder fails — White escapes.'),
+            ),
+            h(
+              'div',
+              {class: 'actions'},
+              h(
+                'button',
+                {disabled: this.state.busy, onClick: this.handleLadderWatch},
+                '▶ ',
+                t('Watch it run'),
+              ),
+              h(
+                'button',
+                {
+                  class: 'solved',
+                  disabled: this.state.busy,
+                  onClick: this.handleLadderNext,
+                },
+                t('Next ladder'),
+                ' →',
+              ),
+            ),
+          ),
+    )
+
+    let footer = [
+      h(
+        'p',
+        {class: 'session'},
+        `${t('This session:')} ${drill.stats.correct} ✓ · ${drill.stats.wrong} ✗ · ${t('streak')} ${drill.stats.streak}`,
+      ),
+      this.renderOverlayToggle(),
+      this.renderMenuBarToggle(),
+      this.renderBackButton(this.handleStopLadderDrill),
+    ]
+
+    return {main, footer}
+  }
+
+  renderRankTest(testState) {
+    let main = h(
+      'div',
+      {class: 'activity ranktest'},
+
+      h(
+        'div',
+        {class: 'header'},
+        h('span', {class: 'title'}, '🎓 ', t('Rank test')),
+        h(
+          'a',
+          {href: '#', class: 'stop', onClick: this.handleStopRankTest},
+          t('quit'),
+        ),
+      ),
+
+      testState.phase === 'question'
+        ? h(
+            'div',
+            null,
+            h(
+              'div',
+              {class: 'levelrow'},
+              h(
+                'span',
+                {class: 'level'},
+                `${t('Problem')} ${testState.index + 1}/${testState.total}`,
+              ),
+              h(
+                'span',
+                {class: 'dots'},
+                `${t('level')} ${testState.level} (${LEVEL_RANKS[testState.level]})`,
+              ),
+            ),
+            h(
+              'p',
+              {class: 'guide'},
+              (testState.toPlay === 'W'
+                ? t('White to play.')
+                : t('Black to play.')) +
+                ' ' +
+                t('No hints, no retries — wrong moves simply move on.'),
+            ),
+            testState.lastOutcome != null &&
+              h(
+                'p',
+                {class: 'session'},
+                testState.lastOutcome === 'correct'
+                  ? '✓ ' + t('Previous: solved')
+                  : '✗ ' + t('Previous: missed'),
+              ),
+          )
+        : h(
+            'div',
+            null,
+            h(
+              'p',
+              {class: 'auto-verdict solved'},
+              `${t('Estimated rank:')} ${testState.result.rank}`,
+            ),
+            h(
+              'p',
+              {class: 'guide'},
+              `${testState.result.correct}/${testState.result.total} ${t('solved')}.`,
+            ),
+            h(
+              'div',
+              {class: 'actions main'},
+              h(
+                'button',
+                {class: 'solved', onClick: this.handleRankPractice},
+                t('Practice at this level'),
+              ),
+            ),
+          ),
+    )
+
+    let footer = [
+      this.renderMenuBarToggle(),
+      this.renderBackButton(this.handleStopRankTest),
+    ]
+
+    return {main, footer}
+  }
+
   renderHome() {
     let level = setting.get('frank.tsumego_level') || 1
     let engines = katagoPlay.listKataGoEngines()
@@ -982,6 +1327,26 @@ export default class PracticeSidebar extends Component {
         ),
       ),
 
+      h(
+        'div',
+        {class: 'actions start'},
+        h(
+          'button',
+          {disabled: this.state.busy, onClick: this.handleStartScoreDrill},
+          '🔢 ' + t('Who is winning? (drill)'),
+        ),
+        h(
+          'button',
+          {disabled: this.state.busy, onClick: this.handleStartLadderDrill},
+          '🪜 ' + t('Ladder drill'),
+        ),
+        h(
+          'button',
+          {disabled: this.state.busy, onClick: this.handleStartRankTest},
+          '🎓 ' + t('Rank test'),
+        ),
+      ),
+
       this.renderStatus(),
     )
 
@@ -1004,7 +1369,15 @@ export default class PracticeSidebar extends Component {
     return {main, footer}
   }
 
-  render({frankTsumego, frankKatagoGame, frankStudy, frankShowHomePanel}) {
+  render({
+    frankTsumego,
+    frankKatagoGame,
+    frankStudy,
+    frankScoreDrill,
+    frankLadderDrill,
+    frankRankTest,
+    frankShowHomePanel,
+  }) {
     let view =
       frankTsumego != null
         ? this.renderTsumego(frankTsumego)
@@ -1012,9 +1385,15 @@ export default class PracticeSidebar extends Component {
           ? this.renderKatagoGame(frankKatagoGame)
           : frankStudy != null
             ? this.renderStudy(frankStudy)
-            : frankShowHomePanel !== false
-              ? this.renderHome()
-              : null
+            : frankScoreDrill != null
+              ? this.renderScoreDrill(frankScoreDrill)
+              : frankLadderDrill != null
+                ? this.renderLadderDrill(frankLadderDrill)
+                : frankRankTest != null
+                  ? this.renderRankTest(frankRankTest)
+                  : frankShowHomePanel !== false
+                    ? this.renderHome()
+                    : null
 
     if (view == null) return null
 

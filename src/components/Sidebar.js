@@ -138,6 +138,9 @@ export default class Sidebar extends Component {
       this.props.frankTsumego != null ||
       this.props.frankKatagoGame != null ||
       this.props.frankStudy != null ||
+      this.props.frankScoreDrill != null ||
+      this.props.frankLadderDrill != null ||
+      this.props.frankRankTest != null ||
       this.props.frankShowHomePanel !== false
 
     // frank_go: when the graph/comment area is hidden, let the practice

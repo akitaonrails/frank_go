@@ -511,7 +511,16 @@ export function isActive() {
   return currentProblem != null
 }
 
+// Starting practice cancels any other frank activity (drills, rank test)
+async function stopOtherActivities() {
+  let rank = await import('./rankTest.js')
+  rank.stopTest()
+  sabaki.setState({frankScoreDrill: null, frankLadderDrill: null})
+}
+
 export async function startPractice() {
+  await stopOtherActivities()
+
   let progress = loadProgress()
   let problem = pickProblem(getSharedStore(), {
     level: progress.level,
