@@ -301,6 +301,8 @@ export default class PracticeSidebar extends Component {
 
     this.handleRankPractice = () => rankTest.practiceAtResult()
 
+    this.handleRankSkip = () => rankTest.skipCurrent()
+
     this.handleStopRankTest = () => rankTest.stopTest()
 
     this.handleHidePanel = () => {
@@ -823,19 +825,6 @@ export default class PracticeSidebar extends Component {
       h('p', {class: 'guide'}, `${youLabel} · ${game.engineName}`),
 
       (() => {
-        // While hovering, preview what YOUR move there would be called;
-        // otherwise show the last move played
-        let hover = this.props.frankHoverMove
-
-        if (hover != null) {
-          return h(
-            'p',
-            {class: 'movename hover'},
-            `${t('This would be:')} `,
-            h('strong', null, t(hover.name)),
-          )
-        }
-
         let move = this.moveName(this.props.gameTree, this.props.treePosition)
         if (move == null) return null
 
@@ -1296,7 +1285,7 @@ export default class PracticeSidebar extends Component {
                 ? t('White to play.')
                 : t('Black to play.')) +
                 ' ' +
-                t('No hints, no retries — wrong moves simply move on.'),
+                t('Play the best move. Stuck? Skip to the next one.'),
             ),
             testState.lastOutcome != null &&
               h(
@@ -1306,6 +1295,16 @@ export default class PracticeSidebar extends Component {
                   ? '✓ ' + t('Previous: solved')
                   : '✗ ' + t('Previous: missed'),
               ),
+            h(
+              'div',
+              {class: 'actions'},
+              h(
+                'button',
+                {disabled: this.state.busy, onClick: this.handleRankSkip},
+                t('Skip (counts as missed)'),
+                ' →',
+              ),
+            ),
           )
         : h(
             'div',

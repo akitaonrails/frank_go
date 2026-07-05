@@ -55,6 +55,22 @@ export default class MainView extends Component {
         sabaki.setState({frankHoverMove: null})
       }
     }
+
+    // frank_go: position the floating move-name tooltip at the cursor
+    // via a direct DOM write (no re-render on mousemove). Last position is
+    // remembered so the tip is placed correctly the instant it appears.
+    this.frankLastMouse = {x: 0, y: 0}
+
+    this.positionFrankTip = () => {
+      if (this.frankHoverTip == null) return
+      this.frankHoverTip.style.left = `${this.frankLastMouse.x + 16}px`
+      this.frankHoverTip.style.top = `${this.frankLastMouse.y + 16}px`
+    }
+
+    this.handleFrankMouseMove = (evt) => {
+      this.frankLastMouse = {x: evt.clientX, y: evt.clientY}
+      this.positionFrankTip()
+    }
   }
 
   componentDidMount() {
@@ -171,7 +187,25 @@ export default class MainView extends Component {
 
       h(
         'main',
-        {ref: (el) => (this.mainElement = el), class: frankStoneCursor},
+        {
+          ref: (el) => (this.mainElement = el),
+          class: frankStoneCursor,
+          onMouseMove: this.handleFrankMouseMove,
+        },
+
+        // frank_go: floating move-name tooltip next to the cursor
+        this.props.frankHoverMove != null &&
+          h(
+            'div',
+            {
+              ref: (el) => {
+                this.frankHoverTip = el
+                this.positionFrankTip()
+              },
+              class: 'frank-hover-tip',
+            },
+            this.props.frankHoverMove.name,
+          ),
 
         h(Goban, {
           gameTree,

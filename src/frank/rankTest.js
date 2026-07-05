@@ -143,6 +143,19 @@ async function handleMove() {
   }
 }
 
+// Give up on the current problem — counts as missed and moves on. The
+// exam has no retries, but the player must always be able to continue.
+export async function skipCurrent() {
+  if (test == null || test.phase !== 'question' || test.busy) return
+
+  test.busy = true
+  try {
+    await advance(false)
+  } finally {
+    test.busy = false
+  }
+}
+
 export function isActive() {
   return test != null
 }

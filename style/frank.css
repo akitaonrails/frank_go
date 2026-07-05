@@ -552,3 +552,20 @@ main.frank-cursor-white #goban {
 #frank-practice-sidebar .movename.hover strong {
   color: #a4d0e0;
 }
+
+/* Floating move-name tooltip at the cursor (KataGo games) */
+
+.frank-hover-tip {
+  position: fixed;
+  z-index: 1000;
+  padding: 0.2em 0.6em;
+  border-radius: 6px;
+  background: rgba(32, 26, 18, 0.92);
+  border: 1px solid #6b5c3a;
+  color: #f2d99a;
+  font-size: 0.85em;
+  font-weight: bold;
+  pointer-events: none;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
