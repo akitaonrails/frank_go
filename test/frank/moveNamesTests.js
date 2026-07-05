@@ -13,13 +13,14 @@ describe('nameForMove', () => {
     assert.equal(nameForMove(afterAttach, 1, [2, 4]), 'Hane')
   })
 
-  it('falls back to point names in the empty corner', () => {
+  it('names opening points, including tengen', () => {
     let empty = Board.fromDimensions(19)
-    assert.equal(nameForMove(empty, 1, [2, 3]), '3-4 point')
+    assert.equal(nameForMove(empty, 1, [2, 3]), '3-4 Point')
+    assert.equal(nameForMove(empty, 1, [9, 9]), 'Tengen')
   })
 
-  it('returns null for occupied points and center nothingness', () => {
+  it('returns null for occupied points and unnamed middle moves', () => {
     assert.equal(nameForMove(board, -1, [3, 3]), null)
-    assert.equal(nameForMove(Board.fromDimensions(19), 1, [9, 9]), null)
+    assert.equal(nameForMove(Board.fromDimensions(19), 1, [7, 9]), null)
   })
 })
