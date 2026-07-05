@@ -176,15 +176,19 @@ export default class MainView extends Component {
       frankDeadStones = overlay.deadStones
     }
 
-    // frank_go: during practice, the cursor over the board becomes a
-    // translucent stone in the color to play (see style/frank.css)
-    let frankStoneCursor =
-      (this.props.frankTsumego != null || this.props.frankKatagoGame != null) &&
-      mode === 'play'
-        ? currentPlayer > 0
-          ? 'frank-cursor-black'
-          : 'frank-cursor-white'
-        : null
+    // frank_go: during practice — and while guessing the pro's move in a
+    // study — the cursor over the board becomes a translucent stone in the
+    // color to play, so you can tell you're able to place (see frank.css)
+    let frankPlacing =
+      ((this.props.frankTsumego != null ||
+        this.props.frankKatagoGame != null) &&
+        mode === 'play') ||
+      (this.props.frankStudy != null && mode === 'guess')
+    let frankStoneCursor = frankPlacing
+      ? currentPlayer > 0
+        ? 'frank-cursor-black'
+        : 'frank-cursor-white'
+      : null
 
     return h(
       'section',
@@ -217,7 +221,14 @@ export default class MainView extends Component {
           treePosition,
           board,
           highlightVertices:
-            findVertex && mode === 'find' ? [findVertex] : highlightVertices,
+            // frank_go: mark the wrong-guess point on the board
+            this.props.frankStudy != null &&
+            mode === 'guess' &&
+            this.props.frankLastWrongGuess != null
+              ? [this.props.frankLastWrongGuess]
+              : findVertex && mode === 'find'
+                ? [findVertex]
+                : highlightVertices,
           analysisType,
           analysisValueType,
           analysis:

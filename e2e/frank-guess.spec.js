@@ -25,15 +25,45 @@ test('guess mode in a study session survives a wrong guess', async ({page}) => {
   })
   await waitForRender(page)
 
-  // Wrong guess — must not crash
+  // Wrong guess — must not crash; the point is remembered for the board
+  // highlight, and NO stone is placed
   await page.evaluate(() => window.__sabaki.clickVertex([0, 0]))
   await waitForRender(page)
 
-  // Renderer still responsive and in guess mode
-  let mode = await page.evaluate(() => window.__sabaki.state.mode)
-  expect(mode).toBe('guess')
+  let afterWrong = await page.evaluate(() => ({
+    mode: window.__sabaki.state.mode,
+    wrong: window.__sabaki.state.frankLastWrongGuess,
+    level: window.__sabaki.inferredState.gameTree.getLevel(
+      window.__sabaki.state.treePosition,
+    ),
+  }))
+  expect(afterWrong.mode).toBe('guess')
+  expect(afterWrong.wrong).toEqual([0, 0])
+  expect(afterWrong.level).toBe(2)
 
-  // Can leave cleanly
+  // Correct guess (the pro's actual next move) — places a stone, advances,
+  // clears the wrong-guess highlight
+  await page.evaluate(() => {
+    let s = window.__sabaki
+    let next = s.inferredState.gameTree.navigate(
+      s.state.treePosition,
+      1,
+      s.state.gameCurrents[s.state.gameIndex],
+    )
+    let coord = next.data.B != null ? next.data.B[0] : next.data.W[0]
+    s.clickVertex([coord.charCodeAt(0) - 97, coord.charCodeAt(1) - 97])
+  })
+  await waitForRender(page)
+
+  let afterRight = await page.evaluate(() => ({
+    level: window.__sabaki.inferredState.gameTree.getLevel(
+      window.__sabaki.state.treePosition,
+    ),
+    wrong: window.__sabaki.state.frankLastWrongGuess,
+  }))
+  expect(afterRight.level).toBe(3)
+  expect(afterRight.wrong).toBe(null)
+
   await page.evaluate(() => window.__sabaki.setMode('play'))
   await waitForRender(page)
   expect(await page.evaluate(() => window.__sabaki.state.mode)).toBe('play')

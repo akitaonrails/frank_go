@@ -24,22 +24,43 @@ function attachedSyncer() {
   )
 }
 
+// Waits until the engine answers a trivial GTP command (booted and
+// responsive), or the timeout elapses. KataGo takes a second or two to
+// start, and syncing before it's ready is what caused "couldn't reach".
+async function waitUntilReady(syncer, timeoutMs = 12000) {
+  let ping = syncer
+    .queueCommand({name: 'name'})
+    .then(() => true)
+    .catch(() => false)
+
+  return Promise.race([
+    ping,
+    new Promise((resolve) => setTimeout(() => resolve(false), timeoutMs)),
+  ])
+}
+
 // Lazily attach a KataGo engine for analysis; reuse it afterwards. Returns
-// the syncer or null when no engine is configured / attach failed.
+// {syncer, status}: status is 'ready', 'starting' (attached but not
+// responsive yet), or 'none' (no engine configured / attach failed).
 async function ensureEngine() {
   let existing = attachedSyncer()
-  if (existing != null) return existing
+  if (existing != null) return {syncer: existing, status: 'ready'}
 
   let engine = findKataGoEngine()
-  if (engine == null) return null
+  if (engine == null) return {syncer: null, status: 'none'}
 
+  let syncer
   try {
-    let [syncer] = sabaki.attachEngines([engine])
-    analysisSyncerId = syncer != null ? syncer.id : null
-    return syncer
+    ;[syncer] = sabaki.attachEngines([engine])
   } catch (err) {
-    return null
+    return {syncer: null, status: 'none'}
   }
+
+  if (syncer == null) return {syncer: null, status: 'none'}
+  analysisSyncerId = syncer.id
+
+  let ready = await waitUntilReady(syncer)
+  return {syncer, status: ready ? 'ready' : 'starting'}
 }
 
 export function hasEngine() {
@@ -137,9 +158,12 @@ export async function reviewGuess(guessVertex) {
 
     let guessCoord = board.stringifyVertex(guessVertex)
 
-    let syncer = await ensureEngine()
-    if (syncer == null) {
+    let {syncer, status} = await ensureEngine()
+    if (status === 'none') {
       return `KataGo isn’t set up yet, so I can’t analyze — but the pro played ${pro.coord}.`
+    }
+    if (status === 'starting') {
+      return `KataGo is still starting up — give it a few seconds and try again. The pro played ${pro.coord}.`
     }
 
     let synced = await syncer.sync(tree, treePosition).then(
@@ -147,7 +171,7 @@ export async function reviewGuess(guessVertex) {
       () => false,
     )
     if (!synced) {
-      return `Couldn’t reach KataGo just now — the pro played ${pro.coord}.`
+      return `Couldn’t reach KataGo just now — the pro played ${pro.coord}. Try again in a moment.`
     }
 
     let scores = await analyzeCurrent(syncer, color)
