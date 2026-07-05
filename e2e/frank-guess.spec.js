@@ -41,6 +41,21 @@ test('guess mode in a study session survives a wrong guess', async ({page}) => {
   expect(afterWrong.wrong).toEqual([0, 0])
   expect(afterWrong.level).toBe(2)
 
+  // Free retry: a second wrong guess elsewhere still registers (Sabaki's
+  // hot/cold blocking is skipped in study, so no region goes dead)
+  await page.evaluate(() => window.__sabaki.clickVertex([18, 18]))
+  await waitForRender(page)
+  let afterSecond = await page.evaluate(() => ({
+    wrong: window.__sabaki.state.frankLastWrongGuess,
+    blocked: window.__sabaki.state.blockedGuesses.length,
+    level: window.__sabaki.inferredState.gameTree.getLevel(
+      window.__sabaki.state.treePosition,
+    ),
+  }))
+  expect(afterSecond.wrong).toEqual([18, 18])
+  expect(afterSecond.blocked).toBe(0)
+  expect(afterSecond.level).toBe(2)
+
   // Correct guess (the pro's actual next move) — places a stone, advances,
   // clears the wrong-guess highlight
   await page.evaluate(() => {

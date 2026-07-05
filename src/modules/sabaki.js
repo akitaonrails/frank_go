@@ -1176,8 +1176,18 @@ class Sabaki extends EventEmitter {
         this.setState({frankLastWrongGuess: null})
         this.makeMove(vertex, {player: nextNode.data.B != null ? 1 : -1})
       } else {
+        if (board.get(vertex) !== 0) return
+
+        // frank_go: in a study session, let the player keep trying freely —
+        // just mark the wrong point, skip Sabaki's hot/cold half-plane
+        // blocking (which would make regions unclickable).
+        if (this.state.frankStudy != null) {
+          this.setState({frankLastWrongGuess: vertex})
+          this.events.emit('vertexClick')
+          return
+        }
+
         if (
-          board.get(vertex) !== 0 ||
           this.state.blockedGuesses.some((v) => helper.vertexEquals(v, vertex))
         )
           return

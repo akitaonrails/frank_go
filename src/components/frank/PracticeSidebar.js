@@ -243,7 +243,14 @@ export default class PracticeSidebar extends Component {
       let vertex = this.props.frankLastWrongGuess
       if (vertex == null || this.state.reviewing) return
 
-      this.setState({reviewing: true, reviewText: t('Asking KataGo…')})
+      // First review of a session has to boot KataGo (a few seconds); say
+      // so up front instead of a silent wait.
+      this.setState({
+        reviewing: true,
+        reviewText: guessReview.isEngineWarm()
+          ? t('Asking KataGo…')
+          : t('Starting KataGo (first time takes a few seconds)…'),
+      })
       let text = await guessReview.reviewGuess(vertex)
       this.setState({reviewing: false, reviewText: text})
     }

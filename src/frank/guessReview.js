@@ -67,6 +67,12 @@ export function hasEngine() {
   return findKataGoEngine() != null
 }
 
+// True once the analysis engine has been attached (so a review will be
+// quick); false on the very first review, when KataGo still has to boot.
+export function isEngineWarm() {
+  return attachedSyncer() != null
+}
+
 // Detach the analysis engine — called when leaving study mode.
 export function releaseEngine() {
   if (analysisSyncerId != null) {
