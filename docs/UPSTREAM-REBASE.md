@@ -30,21 +30,26 @@ improvements, so every change follows these rules.
 
 Keep this table current — it is the rebase conflict map.
 
-| File                         | What we changed                                                                                                                  | Why                        |
-| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
-| `src/components/MainView.js` | import + `paintMap` else-branch when overlay enabled                                                                             | beginner area painting     |
-| `src/components/App.js`      | pass `frankShowBeginnerOverlay` to `MainMenu`                                                                                    | menu checkbox state        |
-| `src/components/Sidebar.js`  | import + `PracticeSidebar` docked above the split container, `frank-practice` class                                              | practice controls          |
-| `src/menu.js`                | guarded requires of frank modules; overlay + advanced-menus checkboxes in View; "Practice" menu; beginner-mode visibility filter | entry points               |
-| `src/setting.js`             | `frank.*` defaults block at end of defaults object                                                                               | persisted toggles/progress |
-| `src/modules/sabaki.js`      | `frank*` state keys, one `updateSettingState` mapping, `showSidebar` ORs practice state                                          | state plumbing             |
-| `index.html`                 | `style/frank.css` stylesheet link                                                                                                | styles                     |
-| `package.json`               | `frank:*` npm scripts                                                                                                            | convenience                |
-| `README.md`                  | fully replaced by the frank_go README (original preserved in docs/SABAKI.md)                                                     | product framing            |
+| File                                   | What we changed                                                                                                             | Why                        |
+| -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| `src/components/MainView.js`           | overlay `paintMap` branch (dead-stone dimming), guess-mode paint suppressed in study, stone cursor, hover move-name tooltip | overlay + move names       |
+| `src/components/App.js`                | pass `frank*` menu-state props to `MainMenu`                                                                                | menu checkbox state        |
+| `src/components/Sidebar.js`            | import + always-on `PracticeSidebar`, `frank-practice`/`frank-fill` classes                                                 | practice controls          |
+| `src/components/Goban.js`              | `onFrankVertexEnter/Leave` props wired into the vertex mouse handlers                                                       | hover move-name preview    |
+| `src/menu.js`                          | guarded requires of frank modules; View checkboxes; "Practice" menu; beginner-mode menu filter                              | entry points               |
+| `src/setting.js`                       | `frank.*` defaults block; menu-bar/update-check defaults flipped                                                            | persisted toggles/progress |
+| `src/modules/sabaki.js`                | `frank*` state keys, `updateSettingState` mappings, `showSidebar` returns true, guess-mode records `frankLastWrongGuess`    | state plumbing             |
+| `src/main.js`                          | startup update check disabled (queries upstream Sabaki releases)                                                            | no false update nags       |
+| `index.html`                           | `style/frank.css` stylesheet link                                                                                           | styles                     |
+| `package.json`                         | `frank:*` npm scripts; version reset to frank_go's own                                                                      | convenience                |
+| `README.md`                            | fully replaced by the frank_go README (original preserved in docs/SABAKI.md)                                                | product framing            |
+| `.github/workflows/ci.yml`             | also triggers on pushes to `main`                                                                                           | CI on our branch           |
+| `.github/workflows/create-release.yml` | trigger changed to `workflow_dispatch` (we release via AUR)                                                                 | avoid double releases      |
 
 New files (`.mocharc.json`, `src/frank/**`, `src/components/frank/**`,
-`style/frank.css`, `test/frank/**`, `scripts/frank/**`, `data/**`) never
-conflict. Exact hooks are annotated inline with `// frank_go:`.
+`style/frank.css`, `test/frank/**`, `scripts/frank/**`, `data/**`,
+`.github/workflows/aur-release.yml`, `docs/SABAKI.md`) never conflict. Exact
+hooks are annotated inline with `// frank_go:`.
 
 ## Rebase procedure
 
