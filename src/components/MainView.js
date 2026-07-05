@@ -160,8 +160,13 @@ export default class MainView extends Component {
     } else if (mode === 'guess') {
       paintMap = [...Array(board.height)].map((_) => Array(board.width).fill(0))
 
-      for (let [x, y] of blockedGuesses) {
-        paintMap[y][x] = 1
+      // frank_go: in a study session we give simple right/wrong feedback
+      // in the sidebar, so skip Sabaki's hot/cold half-plane shading —
+      // that big dark overlay reads like a bug to beginners.
+      if (this.props.frankStudy == null) {
+        for (let [x, y] of blockedGuesses) {
+          paintMap[y][x] = 1
+        }
       }
     } else if (this.props.frankShowBeginnerOverlay) {
       // frank_go: beginner influence overlay ("area painting") with
