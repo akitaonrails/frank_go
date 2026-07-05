@@ -8,6 +8,7 @@
 
 import sabaki from '../modules/sabaki.js'
 import * as gametree from '../modules/gametree.js'
+import sgf from '@sabaki/sgf'
 import {findKataGoEngine} from './katagoPlay.js'
 
 // Fixed budget so numbers are consistent and the wait is bounded.
@@ -113,25 +114,12 @@ function proNextMove() {
   if (color == null || next.data[color][0] === '') return null
 
   let board = gametree.getBoard(tree, treePosition)
-  let vertex = board.parseVertex(
-    // SGF coord → [x,y] via the board's own parser
-    sabakiVertexFromSgf(next.data[color][0]),
-  )
+  let vertex = sgf.parseVertex(next.data[color][0])
 
   return {
     coord: board.stringifyVertex(vertex),
     sign: color === 'B' ? 1 : -1,
   }
-}
-
-// SGF two-letter coord → the letter-number the board parser expects. The
-// board's parseVertex takes GTP coords, so convert via a fresh board.
-function sabakiVertexFromSgf(sgfCoord) {
-  let x = sgfCoord.charCodeAt(0) - 97
-  let y = sgfCoord.charCodeAt(1) - 97
-  let {gameTrees, gameIndex, treePosition} = sabaki.state
-  let board = gametree.getBoard(gameTrees[gameIndex], treePosition)
-  return board.stringifyVertex([x, y])
 }
 
 // Main entry: review the player's wrong `guessVertex` ([x,y]) against the
