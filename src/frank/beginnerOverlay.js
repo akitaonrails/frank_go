@@ -20,8 +20,28 @@ import deadstones from '@sabaki/deadstones'
 const GRADIENT_SCALE = 0.55
 const DECAY_RANGE = 2.5
 
-let cache = new WeakMap()
-let deadCache = new WeakMap() // board → {dead, paint} once the guess lands
+// Caches are keyed on a signature of the position's stones, NOT the board
+// object: gametree.getBoard() returns a FRESH board object every call for
+// the current position, so a WeakMap keyed on it would miss on every
+// render and re-run the async dead-stone guess forever (spinning cursor +
+// re-render storm). The signature makes identical positions share a
+// result and lets us skip work when nothing changed.
+let paintByKey = new Map()
+let deadByKey = new Map()
+let inFlight = new Set()
+
+function signature(signMap) {
+  let s = ''
+  for (let row of signMap) {
+    for (let value of row) s += value < 0 ? 'w' : value > 0 ? 'b' : '.'
+  }
+  return s
+}
+
+// Keep the caches from growing without bound over a long session
+function trim(map) {
+  if (map.size > 400) map.clear()
+}
 
 // Chebyshev-style BFS distance (8 neighbors) to the nearest stone of `sign`.
 // Returns Infinity everywhere when that color has no stones.
@@ -119,40 +139,64 @@ export function computeBeginnerPaintMapWithDead(signMap, deadVertices) {
   return computeBeginnerPaintMap(cleared)
 }
 
-// Memoized per board object — Sabaki caches boards per tree position, so
-// navigating back and forth doesn't recompute.
+// Memoized on the position signature (see note above).
 export function getBeginnerPaintMap(board) {
-  if (!cache.has(board)) {
-    cache.set(board, computeBeginnerPaintMap(board.signMap))
+  let key = signature(board.signMap)
+
+  if (!paintByKey.has(key)) {
+    trim(paintByKey)
+    paintByKey.set(key, computeBeginnerPaintMap(board.signMap))
   }
 
-  return cache.get(board)
+  return paintByKey.get(key)
+}
+
+// Cheap check: is a dead-stone guess even worth it? An empty or nearly
+// empty board has nothing to judge, so we skip the wasm call entirely
+// (this alone stops the idle welcome-screen board from churning).
+function worthGuessing(signMap) {
+  let stones = 0
+  for (let row of signMap) {
+    for (let value of row) {
+      if (value !== 0 && ++stones >= 8) return true
+    }
+  }
+  return false
 }
 
 // Full overlay: instant gradient paint plus, once the Monte-Carlo guess
 // finishes (a few ms, async wasm), likely-dead stones — dimmed on the
 // board with their area repainted as the opponent's. `notify` is called
-// when the refined result is ready so the caller can re-render.
+// ONCE when the refined result for a new position is ready. Keyed on the
+// position signature so repeated renders of the same board reuse the
+// result and never re-run the guess.
 export function getBeginnerOverlay(board, notify = () => {}) {
-  let refined = deadCache.get(board)
-  if (refined != null && refined.paint != null) {
-    return {paintMap: refined.paint, deadStones: refined.dead}
+  let key = signature(board.signMap)
+
+  if (deadByKey.has(key)) {
+    return deadByKey.get(key)
   }
 
-  if (refined == null) {
-    deadCache.set(board, {dead: null, paint: null})
+  let base = {paintMap: getBeginnerPaintMap(board), deadStones: []}
+
+  if (worthGuessing(board.signMap) && !inFlight.has(key)) {
+    inFlight.add(key)
 
     deadstones
       .guess(board.signMap, {finished: false, iterations: 300})
       .then((dead) => {
-        deadCache.set(board, {
-          dead,
-          paint: computeBeginnerPaintMapWithDead(board.signMap, dead),
+        trim(deadByKey)
+        deadByKey.set(key, {
+          paintMap: computeBeginnerPaintMapWithDead(board.signMap, dead),
+          deadStones: dead,
         })
-        notify()
+        inFlight.delete(key)
+        if (dead.length > 0) notify()
       })
-      .catch(() => {})
+      .catch(() => {
+        inFlight.delete(key)
+      })
   }
 
-  return {paintMap: getBeginnerPaintMap(board), deadStones: []}
+  return base
 }
