@@ -12,10 +12,14 @@
 import {spawnSync} from 'child_process'
 import {
   chmodSync,
+  closeSync,
   createWriteStream,
   existsSync,
   mkdirSync,
+  openSync,
   readdirSync,
+  readSync,
+  rmSync,
   writeFileSync,
 } from 'fs'
 import {get} from 'https'
@@ -94,12 +98,60 @@ export function katagoBootsGtp(binary, config, model) {
         input: 'name\nquit\n',
         timeout: 60000,
         encoding: 'utf8',
+        // If the binary is still an AppImage (e.g. found on PATH), keep
+        // AppImageLauncher from hijacking the exec with a GUI dialog.
+        env: {...process.env, APPIMAGELAUNCHER_DISABLE: '1'},
       },
     )
     return result.status === 0
   } catch (err) {
     return false
   }
+}
+
+// KataGo's official Linux binaries are AppImages (type 2: magic bytes
+// "AI\x02" at offset 8). Run as-is they need FUSE, and AppImageLauncher —
+// common on Arch/CachyOS — intercepts the exec with an integration dialog
+// that *moves the file away*, breaking the engine and looping the setup.
+export function isAppImage(path) {
+  let fd
+  try {
+    fd = openSync(path, 'r')
+    let magic = Buffer.alloc(3)
+    let bytes = readSync(fd, magic, 0, 3, 8)
+    return (
+      bytes === 3 && magic[0] === 0x41 && magic[1] === 0x49 && magic[2] === 0x02
+    )
+  } catch (err) {
+    return false
+  } finally {
+    if (fd != null) closeSync(fd)
+  }
+}
+
+// Turns an AppImage katago into a plain binary by unpacking it once into
+// binDir/squashfs-root (`--appimage-extract` needs no FUSE) and returning
+// its AppRun. Plain binaries pass through untouched. `force` re-extracts,
+// e.g. when a fresh CPU build must replace a previously unpacked GPU one.
+export function extractAppImage(binary, binDir, {force = false} = {}) {
+  if (!isAppImage(binary)) return binary
+
+  let appRun = join(binDir, 'squashfs-root', 'AppRun')
+
+  if (force || !existsSync(appRun)) {
+    mkdirSync(binDir, {recursive: true})
+    rmSync(join(binDir, 'squashfs-root'), {recursive: true, force: true})
+
+    let result = spawnSync(binary, ['--appimage-extract'], {
+      cwd: binDir,
+      stdio: 'pipe',
+      env: {...process.env, APPIMAGELAUNCHER_DISABLE: '1'},
+    })
+
+    if (result.status !== 0 || !existsSync(appRun)) return binary
+  }
+
+  return appRun
 }
 
 export function findKatagoOnPath() {
@@ -130,17 +182,20 @@ export async function ensureKatagoBinary({
   forceDownload = false,
   onProgress = () => {},
 }) {
-  if (!forceDownload) {
-    let onPath = findKatagoOnPath()
-    if (onPath != null) return onPath
-  }
-
   let binDir = join(dir, 'bin')
   let localBinary = join(
     binDir,
     process.platform === 'win32' ? 'katago.exe' : 'katago',
   )
-  if (existsSync(localBinary)) return localBinary
+  let extracted = join(binDir, 'squashfs-root', 'AppRun')
+
+  if (!forceDownload) {
+    let onPath = findKatagoOnPath()
+    if (onPath != null) return extractAppImage(onPath, binDir)
+
+    if (existsSync(extracted)) return extracted
+    if (existsSync(localBinary)) return extractAppImage(localBinary, binDir)
+  }
 
   if (process.platform === 'darwin') {
     throw new Error(
@@ -178,7 +233,7 @@ export async function ensureKatagoBinary({
   }
 
   if (process.platform !== 'win32') chmodSync(binary, 0o755)
-  return binary
+  return extractAppImage(binary, binDir, {force: true})
 }
 
 export async function ensureNetwork(key, {dir, onProgress = () => {}}) {

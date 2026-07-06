@@ -1,10 +1,18 @@
 import assert from 'assert'
-import {existsSync, mkdtempSync, readFileSync} from 'fs'
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  writeFileSync,
+} from 'fs'
 import {tmpdir} from 'os'
 import {join} from 'path'
 import {
   HUMAN_RANKS,
   buildEngineEntries,
+  extractAppImage,
+  isAppImage,
   mergeEngines,
   writeConfigs,
 } from '../../src/frank/katagoSetup.js'
@@ -71,6 +79,60 @@ describe('buildEngineEntries', () => {
     assert.ok(
       humanEngines.every((engine) => engine.args.includes('-human-model')),
     )
+  })
+})
+
+describe('isAppImage', () => {
+  it('detects the type-2 magic bytes at offset 8', () => {
+    let dir = mkdtempSync(join(tmpdir(), 'frank-kata-'))
+    let path = join(dir, 'katago')
+
+    writeFileSync(
+      path,
+      // 8 bytes of ELF-ish header, then the AppImage magic at offset 8
+      Buffer.concat([
+        Buffer.from('\x7fELF\x02\x01\x01\x00', 'latin1'),
+        Buffer.from('AI\x02rest', 'latin1'),
+      ]),
+    )
+    assert.ok(isAppImage(path))
+  })
+
+  it('rejects plain binaries and missing files', () => {
+    let dir = mkdtempSync(join(tmpdir(), 'frank-kata-'))
+    let plain = join(dir, 'plain')
+
+    writeFileSync(plain, 'just a regular executable, nothing to see')
+    assert.ok(!isAppImage(plain))
+    assert.ok(!isAppImage(join(dir, 'does-not-exist')))
+  })
+})
+
+describe('extractAppImage', () => {
+  it('passes plain binaries through untouched', () => {
+    let dir = mkdtempSync(join(tmpdir(), 'frank-kata-'))
+    let plain = join(dir, 'katago')
+
+    writeFileSync(plain, '\x7fELF plain binary')
+    assert.equal(extractAppImage(plain, dir), plain)
+  })
+
+  it('returns a previously extracted AppRun without re-running', () => {
+    let dir = mkdtempSync(join(tmpdir(), 'frank-kata-'))
+    let appImage = join(dir, 'katago')
+    let appRun = join(dir, 'squashfs-root', 'AppRun')
+
+    writeFileSync(
+      appImage,
+      Buffer.concat([
+        Buffer.from('\x7fELF\x02\x01\x01\x00', 'latin1'),
+        Buffer.from('AI\x02', 'latin1'),
+      ]),
+    )
+    mkdirSync(join(dir, 'squashfs-root'), {recursive: true})
+    writeFileSync(appRun, '#!/bin/sh\n')
+
+    assert.equal(extractAppImage(appImage, dir), appRun)
   })
 })
 
