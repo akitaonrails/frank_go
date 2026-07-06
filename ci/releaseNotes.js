@@ -5,16 +5,37 @@ const {version} = require('../package.json')
 // Print the CHANGELOG.md section for the current package.json version, for
 // use as the GitHub release body.
 
-const changelog = readFileSync(join(__dirname, '..', 'CHANGELOG.md'), 'utf8')
+// frank_go: we don't maintain a Sabaki-style CHANGELOG.md — changes live in
+// git history. Fall back to a generic body rather than failing the release
+// when there's no matching section (or no CHANGELOG at all).
+function fallback() {
+  process.stdout.write(
+    [
+      `**Frank GO v${version}** — a friendly, offline Go trainer for beginners.`,
+      '',
+      'Downloads below: Windows `.exe`, macOS `.dmg` (Apple Silicon + Intel),',
+      'Linux AppImage. macOS is also on Homebrew:',
+      '`brew install --cask akitaonrails/tap/frank-go`.',
+      '',
+      `Full changes: https://github.com/akitaonrails/frank_go/commits/v${version}`,
+      '',
+    ].join('\n'),
+  )
+  process.exit(0)
+}
+
+let changelog
+try {
+  changelog = readFileSync(join(__dirname, '..', 'CHANGELOG.md'), 'utf8')
+} catch (err) {
+  fallback()
+}
 const lines = changelog.split('\n')
 
 const start = lines.findIndex((line) =>
   line.startsWith(`## [Sabaki v${version}]`),
 )
-if (start < 0) {
-  console.error(`No CHANGELOG.md section found for v${version}`)
-  process.exit(1)
-}
+if (start < 0) fallback()
 
 let end = lines.findIndex((line, i) => i > start && line.startsWith('## '))
 if (end < 0) end = lines.length
