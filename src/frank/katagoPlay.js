@@ -116,6 +116,43 @@ export async function playAgainstKataGo(playerSign = 1) {
   let [syncer] = sabaki.attachEngines([engine])
   if (syncer == null) return
 
+  // Pre-flight: make sure the engine actually boots and syncs. A GPU-build
+  // KataGo with no working driver attaches fine but crashes on the first
+  // sync ("GTP engine can't be synced to current state"). Catch that here
+  // and offer to install a working CPU engine, instead of a cryptic error
+  // on the player's first move.
+  let synced = await syncer
+    .sync(sabaki.inferredState.gameTree, sabaki.state.treePosition)
+    .then(
+      () => true,
+      () => false,
+    )
+
+  if (!synced) {
+    sabaki.detachEngines([syncer.id])
+
+    let choice = await dialog.showMessageBox(
+      t(
+        [
+          'KataGo could not start.',
+          '',
+          'This usually means a GPU build (katago-opencl / katago-cuda)',
+          'with no working driver. Install a CPU engine now?',
+        ].join('\n'),
+      ),
+      'warning',
+      [t('Install CPU engine'), t('Cancel')],
+      1,
+    )
+
+    if (choice === 0) {
+      let ok = await setupKataGo()
+      if (ok) await playAgainstKataGo(playerSign)
+    }
+
+    return
+  }
+
   game = {playerSign, engineName: engine.name, syncerId: syncer.id}
 
   hideGtpConsole(sabaki)
