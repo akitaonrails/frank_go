@@ -10,6 +10,7 @@ import sabaki from '../modules/sabaki.js'
 import * as gametree from '../modules/gametree.js'
 import sgf from '@sabaki/sgf'
 import {findKataGoEngine} from './katagoPlay.js'
+import {parseScoreLeads} from './katagoAnalysis.js'
 
 // Fixed budget so numbers are consistent and the wait is bounded.
 const ANALYSIS_MS = 2500
@@ -88,29 +89,6 @@ export function releaseEngine() {
     } catch (err) {}
     analysisSyncerId = null
   }
-}
-
-// Parse `kata-analyze` output: a stream of lines each containing one or
-// more "info move <coord> ... scoreLead <n> ..." records. Returns a map
-// of GTP coord → scoreLead (player-to-move perspective) from the richest
-// (last) line seen.
-function parseScoreLeads(lines) {
-  let best = new Map()
-
-  for (let line of lines) {
-    if (!line.includes('info move')) continue
-
-    let map = new Map()
-    for (let record of line.split('info move').slice(1)) {
-      let move = record.trim().split(/\s+/)[0]
-      let scoreMatch = record.match(/scoreLead\s+(-?\d+(?:\.\d+)?)/)
-      if (move && scoreMatch) map.set(move, parseFloat(scoreMatch[1]))
-    }
-
-    if (map.size >= best.size) best = map
-  }
-
-  return best
 }
 
 // Runs a time-bounded analysis of the current engine position. Resolves to

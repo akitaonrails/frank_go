@@ -14,6 +14,11 @@ import i18n from '../i18n.js'
 import * as dialog from '../modules/dialog.js'
 import {mergeEngines, runSetup} from './katagoSetup.js'
 import {
+  listKataGoEngines as selectList,
+  selectKataGoEngine,
+  hasHumanRanks as selectHasHumanRanks,
+} from './engineSelect.js'
+import {
   setting,
   currentBoard as envCurrentBoard,
   hideGtpConsole,
@@ -23,24 +28,13 @@ const t = i18n.context('frank.katago')
 
 let game = null // {playerSign, engineName, syncerId}
 
-// All configured KataGo variants (setup-katago.mjs registers Beginner /
-// Full / Human rank engines).
+// Thin wrappers over the pure engineSelect helpers, bound to live settings.
 export function listKataGoEngines(engines = setting.get('engines.list') || []) {
-  return engines.filter((engine) => /katago/i.test(engine.name))
+  return selectList(engines)
 }
 
-// Prefers the player's chosen opponent (frank.katago_engine), then the
-// beginner-friendly engine, then any KataGo.
 export function findKataGoEngine(engines = setting.get('engines.list') || []) {
-  let preferred = setting.get('frank.katago_engine')
-
-  return (
-    (preferred && engines.find((engine) => engine.name === preferred)) ||
-    engines.find((engine) => /katago.*beginner/i.test(engine.name)) ||
-    engines.find((engine) => /katago.*human/i.test(engine.name)) ||
-    engines.find((engine) => /katago/i.test(engine.name)) ||
-    null
-  )
+  return selectKataGoEngine(engines, setting.get('frank.katago_engine'))
 }
 
 export function setPreferredEngine(name) {
@@ -48,7 +42,7 @@ export function setPreferredEngine(name) {
 }
 
 export function hasHumanRanks(engines = setting.get('engines.list') || []) {
-  return engines.some((engine) => /katago.*human/i.test(engine.name))
+  return selectHasHumanRanks(engines)
 }
 
 // In-app one-click setup. Downloads into Electron's userData directory
