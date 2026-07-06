@@ -66,9 +66,11 @@ yay -S frank-go
 ```
 
 No other setup needed: on first use the app downloads a small CPU engine and
-neural network with one click. For a stronger GPU opponent, install any backend
-first (`yay -S katago-opencl`, or `katago-cuda` / `katago-cpu`) and the app will
-use it automatically.
+neural network with one click — it works on any machine, no GPU required. If
+you'd rather use a system engine, install `katago-cpu` and the app will pick it
+up. GPU builds (`katago-opencl` / `katago-cuda`) are faster but only help if you
+have a working OpenCL/CUDA driver; without one they simply fall back to the CPU
+engine.
 
 ### From source (any platform)
 
