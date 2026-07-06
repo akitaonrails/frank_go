@@ -8,6 +8,15 @@ frank_go is a beginner-focused Go/Baduk trainer forked from
 [Sabaki](https://github.com/SabakiHQ/Sabaki) — Sabaki's own history lives in
 [docs/SABAKI-CHANGELOG.md](docs/SABAKI-CHANGELOG.md).
 
+## [0.3.6] - 2026-07-06
+
+### Changed
+
+- Release notes are now generated from this changelog, and the Homebrew cask
+  updates automatically in the tap on each release.
+- Install docs cover Windows, macOS (Homebrew + signed/notarized `.dmg`) and
+  Linux.
+
 ## [0.3.5] - 2026-07-06
 
 ### Added
@@ -49,5 +58,6 @@ frank_go is a beginner-focused Go/Baduk trainer forked from
   build; a crashing engine is handled gracefully in play and review.
 - AUR: recommend `katago-cpu`; GPU builds marked advanced.
 
+[0.3.6]: https://github.com/akitaonrails/frank_go/releases/tag/v0.3.6
 [0.3.5]: https://github.com/akitaonrails/frank_go/releases/tag/v0.3.5
 [0.3.0]: https://github.com/akitaonrails/frank_go/releases/tag/v0.3.0
