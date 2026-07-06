@@ -5,7 +5,7 @@ beginners.**
 
 ![Tsumego practice with the area painting overlay](docs/images/tsumego-practice.jpg)
 
-![Replaying a Hikaru no Go game in study mode](docs/images/hikaru-study.jpg)
+![Studying a famous game — area painting dims the settled and dead stones](docs/images/study-mode.jpg)
 
 Go is a beautiful game, but the first steps are hard: you can't tell who is
 winning, you don't know what to study, and strong software is built for strong
@@ -18,6 +18,9 @@ players. frank_go is built for the rest of us.
   plus 420 commented Go Game Guru problems, served at _your_ level. Solve 5 in a
   row to level up, from level 1 (beginner) to 10 (expert). A **focus** picker
   narrows practice to life & death, tesuji, ko or capturing races.
+
+  <img src="docs/images/focus-picker.jpg" alt="Level stepper and the focus picker" width="300">
+
 - 🤖 **The puzzles fight back** — if KataGo is installed, it answers your moves
   inside the puzzle. When it gives up the area, frank_go judges the result and
   marks the puzzle **solved automatically**. The commented problems know their
@@ -31,6 +34,9 @@ players. frank_go is built for the rest of us.
   opponent (and a full-strength one). A **live score** tells you who's ahead
   (komi included), warns when you're hopelessly behind or the game is settled,
   and move names ("Hane", "One-Point Jump") appear as you hover the board.
+
+  <img src="docs/images/play-katago.jpg" alt="Choosing a KataGo opponent and color" width="300">
+
 - 📖 **Study famous games** — from the Ear-Reddening Game (1846) to AlphaGo vs
   Lee Sedol, with the story behind each game (the AlphaGo games include
   move-by-move commentary). Auto-play through them, or switch on **Guess the
@@ -41,6 +47,9 @@ players. frank_go is built for the rest of us.
 - 🎯 **Quick drills** — _Who is winning?_ (guess the leader of a real position),
   and a **ladder** trainer that generates endless, verified capture-or-escape
   problems.
+
+  <img src="docs/images/study-and-drills.jpg" alt="Study and drills menu" width="300">
+
 - 🎌 **Hikaru no Go mode** — nearly every game in the manga is a _real_
   professional game, and 15 of them are bundled with their chapter references
   and trivia: read a chapter, then replay the actual kifu here (Sai's internet
@@ -54,8 +63,11 @@ players. frank_go is built for the rest of us.
   machine.
 
 Everything lives in the **practice panel** on the right side: pick an activity,
-play, and the controls follow along. Menus are trimmed down to the essentials
-(View → _Show Advanced Menus_ brings the full power-user menus back).
+play, and the controls follow along. New here? It points you at the rank test
+first. Menus are trimmed down to the essentials (View → _Show Advanced Menus_
+brings the full power-user menus back).
+
+<img src="docs/images/practice-panel.jpg" alt="The practice panel with the rank-test hint" width="300">
 
 ## Install
 
