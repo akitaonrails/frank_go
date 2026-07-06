@@ -56,8 +56,12 @@ test('guess mode in a study session survives a wrong guess', async ({page}) => {
   expect(afterSecond.blocked).toBe(0)
   expect(afterSecond.level).toBe(2)
 
-  // Correct guess (the pro's actual next move) — places a stone, advances,
-  // clears the wrong-guess highlight
+  let heightBeforeCorrect = await page.evaluate(() =>
+    window.__sabaki.inferredState.gameTree.getHeight(),
+  )
+
+  // Correct guess (the pro's actual next move) — advances along the
+  // recorded game WITHOUT branching a duplicate variation
   await page.evaluate(() => {
     let s = window.__sabaki
     let next = s.inferredState.gameTree.navigate(
@@ -74,14 +78,25 @@ test('guess mode in a study session survives a wrong guess', async ({page}) => {
     level: window.__sabaki.inferredState.gameTree.getLevel(
       window.__sabaki.state.treePosition,
     ),
+    height: window.__sabaki.inferredState.gameTree.getHeight(),
     wrong: window.__sabaki.state.frankLastWrongGuess,
   }))
-  expect(afterRight.level).toBe(3)
+  expect(afterRight.level).toBe(3) // advanced onto the recorded move
+  expect(afterRight.height).toBe(heightBeforeCorrect) // no variation added
   expect(afterRight.wrong).toBe(null)
 
+  // Leaving guess: the recorded game is intact and still fully navigable
   await page.evaluate(() => window.__sabaki.setMode('play'))
   await waitForRender(page)
   expect(await page.evaluate(() => window.__sabaki.state.mode)).toBe('play')
+
+  let final = await page.evaluate(() => {
+    window.__sabaki.goToEnd()
+    return window.__sabaki.inferredState.gameTree.getLevel(
+      window.__sabaki.state.treePosition,
+    )
+  })
+  expect(final).toBe(10) // all ten recorded moves still there
 
   expect(errors).toEqual([])
 })

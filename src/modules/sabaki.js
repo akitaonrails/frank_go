@@ -1174,7 +1174,15 @@ class Sabaki extends EventEmitter {
       if (helper.vertexEquals(vertex, nextVertex)) {
         // frank_go: correct guess clears any pending wrong-guess review
         this.setState({frankLastWrongGuess: null})
-        this.makeMove(vertex, {player: nextNode.data.B != null ? 1 : -1})
+
+        // frank_go: in a study, the guessed move is already the next
+        // recorded move — navigate onto it instead of appending a
+        // duplicate variation, so the recorded game stays intact.
+        if (this.state.frankStudy != null) {
+          this.goStep(1)
+        } else {
+          this.makeMove(vertex, {player: nextNode.data.B != null ? 1 : -1})
+        }
       } else {
         if (board.get(vertex) !== 0) return
 
