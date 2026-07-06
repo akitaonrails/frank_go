@@ -84,6 +84,35 @@ up. GPU builds (`katago-opencl` / `katago-cuda`) are faster but only help if you
 have a working OpenCL/CUDA driver; without one they simply fall back to the CPU
 engine.
 
+### Windows
+
+Download the latest `frank-go-vX.Y.Z-win-x64-setup.exe` (installer) or
+`-portable.exe` from the
+[Releases page](https://github.com/akitaonrails/frank_go/releases). On first use
+the app downloads a small CPU KataGo engine automatically — no GPU required.
+
+> The installer is not code-signed, so Windows SmartScreen may warn "Windows
+> protected your PC." Click **More info → Run anyway**.
+
+### macOS
+
+Download the `frank-go-vX.Y.Z-mac-arm64.dmg` (Apple Silicon) or `-x64.dmg`
+(Intel) from the
+[Releases page](https://github.com/akitaonrails/frank_go/releases).
+
+> The app is not notarized, so Gatekeeper may say it "cannot be opened."
+> **Right-click the app → Open**, then confirm once.
+
+KataGo has no official macOS binary, so for the play-vs-AI and guess-review
+features install it via [Homebrew](https://brew.sh):
+
+```sh
+brew install katago
+```
+
+The app detects it automatically. Everything else (tsumego, study, drills, area
+painting) works without it.
+
 ### From source (any platform)
 
 ```sh

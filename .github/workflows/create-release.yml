@@ -1,8 +1,12 @@
 name: Create Release
 
-# frank_go: upstream's electron-builder release is not used for frank_go
-# releases (we ship via AUR — see aur-release.yml); keep it manual-only.
+# frank_go: builds the desktop distributables (Windows .exe, macOS .dmg,
+# Linux AppImage) and attaches them to the GitHub Release for the tag.
+# Linux is also shipped via the AUR (aur-release.yml) — this AppImage is a
+# convenience for non-Arch users. Runs on the same v* tag as the AUR job.
 on:
+  push:
+    tags: ['v*']
   workflow_dispatch:
 
 permissions:
@@ -37,8 +41,10 @@ jobs:
         run: npm test
         env:
           CI: true
-      # electron-builder signs/notarizes only when these secrets are set.
-      # Scoped to macOS: CSC_LINK would otherwise also engage Windows signing.
+      # electron-builder signs/notarizes only when these secrets are set;
+      # without them the macOS build is unsigned (notarize is off in the
+      # build config). Scoped to macOS so CSC_LINK doesn't engage Windows
+      # signing.
       - name: Build distributables (macOS)
         if: runner.os == 'macOS'
         run: npm run ${{ matrix.dist }}
@@ -51,14 +57,14 @@ jobs:
       - name: Build distributables
         if: runner.os != 'macOS'
         run: npm run ${{ matrix.dist }}
-      # No auto-update client ships yet. --glob: Windows runners use
-      # PowerShell, which does not expand wildcards.
+      # No auto-update client ships in frank_go (startup check disabled).
+      # --glob: Windows runners use PowerShell, which doesn't expand globs.
       - name: Remove auto-update metadata
         run: npx rimraf --glob "./dist/*.yml" "./dist/*.yaml" "./dist/*.blockmap"
       - uses: actions/upload-artifact@v4
         with:
           name: dist-${{ runner.os }}
-          path: dist/sabaki-*
+          path: dist/frank-go-*
           if-no-files-found: error
 
   publish:
@@ -75,19 +81,17 @@ jobs:
           path: dist
           merge-multiple: true
       - name: Generate checksums
-        run: cd dist && sha256sum sabaki-* > SHA256SUMS
+        run: cd dist && sha256sum frank-go-* > SHA256SUMS
       - name: Attest build provenance
         uses: actions/attest-build-provenance@v4
         with:
-          subject-path: dist/sabaki-*
+          subject-path: dist/frank-go-*
       - name: Extract release notes
         run: node ./ci/releaseNotes.js > release-notes.md
-      # Prerelease on purpose: the in-app updater polls /releases/latest,
-      # which ignores prereleases. Promoting the release is the go-live switch.
-      - name: Create prerelease
+      - name: Create release
         run: |
-          gh release create "$GITHUB_REF_NAME" --verify-tag --prerelease \
-            --title "Sabaki $GITHUB_REF_NAME" \
+          gh release create "$GITHUB_REF_NAME" --verify-tag \
+            --title "Frank GO $GITHUB_REF_NAME" \
             --notes-file release-notes.md \
             dist/*
         env:

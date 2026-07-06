@@ -15,8 +15,8 @@
     "url": "https://github.com/SabakiHQ/Sabaki/issues"
   },
   "build": {
-    "appId": "de.yichuanshen.sabaki",
-    "copyright": "Copyright © 2015-2026 Yichuan Shen",
+    "appId": "com.akitaonrails.frank-go",
+    "copyright": "Copyright © 2026 AkitaOnRails — based on Sabaki © 2015-2026 Yichuan Shen",
     "compression": "normal",
     "electronFuses": {
       "runAsNode": false,
@@ -31,18 +31,18 @@
     "linux": {
       "target": "AppImage",
       "category": "Game",
-      "artifactName": "sabaki-v${version}-linux-${arch}.${ext}"
+      "artifactName": "frank-go-v${version}-linux-${arch}.${ext}"
     },
     "mac": {
       "target": [
         "dmg"
       ],
-      "notarize": true,
+      "notarize": false,
       "category": "public.app-category.board-games",
-      "artifactName": "sabaki-v${version}-mac-${arch}.${ext}"
+      "artifactName": "frank-go-v${version}-mac-${arch}.${ext}"
     },
     "win": {
-      "artifactName": "sabaki-v${version}-win.exe"
+      "artifactName": "frank-go-v${version}-win.exe"
     },
     "nsis": {
       "oneClick": false,
@@ -85,7 +85,8 @@
       "node_modules/dolm/**/*",
       "node_modules/{iconv-lite,safer-buffer}/**/*",
       "node_modules/pikaday/css/*"
-    ]
+    ],
+    "productName": "Frank GO"
   },
   "prettier": {
     "semi": false,
@@ -150,8 +151,8 @@
     "watch": "concurrently \"webpack --mode development --watch\" \"npm run watch-format\"",
     "dist:macos": "npm run bundle && electron-builder -m --x64 --arm64 --publish never",
     "dist:linux": "npm run bundle && electron-builder -l --x64 --arm64 --publish never && node ./ci/normalizeArtifactNames.js",
-    "dist:win64": "npm run bundle && electron-builder -w --x64 --publish never && node ./ci/mv.js ./dist/sabaki-vx.x.x-win.exe ./dist/sabaki-vx.x.x-win-x64-setup.exe",
-    "dist:win64-portable": "npm run bundle && electron-builder -w portable --x64 --publish never && node ./ci/mv.js ./dist/sabaki-vx.x.x-win.exe ./dist/sabaki-vx.x.x-win-x64-portable.exe",
+    "dist:win64": "npm run bundle && electron-builder -w --x64 --publish never && node ./ci/mv.js ./dist/frank-go-vx.x.x-win.exe ./dist/frank-go-vx.x.x-win-x64-setup.exe",
+    "dist:win64-portable": "npm run bundle && electron-builder -w portable --x64 --publish never && node ./ci/mv.js ./dist/frank-go-vx.x.x-win.exe ./dist/frank-go-vx.x.x-win-x64-portable.exe",
     "dist:win": "npm run dist:win64 && npm run dist:win64-portable",
     "i18n": "node ./ci/createI18n.js",
     "gen:engine-transcripts": "node ./scripts/engine-transcripts/capture.mjs",
