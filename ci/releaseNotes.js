@@ -32,9 +32,8 @@ try {
 }
 const lines = changelog.split('\n')
 
-const start = lines.findIndex((line) =>
-  line.startsWith(`## [Sabaki v${version}]`),
-)
+// frank_go CHANGELOG.md uses Keep a Changelog headings: `## [0.3.5] - date`
+const start = lines.findIndex((line) => line.startsWith(`## [${version}]`))
 if (start < 0) fallback()
 
 let end = lines.findIndex((line, i) => i > start && line.startsWith('## '))

@@ -43,8 +43,11 @@ Keep this table current — it is the rebase conflict map.
 | `index.html`                           | `style/frank.css` stylesheet link                                                                                           | styles                     |
 | `package.json`                         | `frank:*` npm scripts; version reset to frank_go's own                                                                      | convenience                |
 | `README.md`                            | fully replaced by the frank_go README (original preserved in docs/SABAKI.md)                                                | product framing            |
+| `CHANGELOG.md`                         | fully replaced by the frank_go changelog (original preserved in docs/SABAKI-CHANGELOG.md)                                   | product framing            |
+| `ci/releaseNotes.js`                   | parses the frank_go `## [x.y.z]` changelog heading, with a generic fallback                                                 | release notes              |
+| `package.json` (`build`)               | `productName`/`appId`/artifact names → frank_go; macOS notarize; frank-go icons                                             | desktop branding           |
 | `.github/workflows/ci.yml`             | also triggers on pushes to `main`                                                                                           | CI on our branch           |
-| `.github/workflows/create-release.yml` | trigger changed to `workflow_dispatch` (we release via AUR)                                                                 | avoid double releases      |
+| `.github/workflows/create-release.yml` | runs on `v*` tags; builds Win/Mac/Linux; publishes the GitHub Release + updates the Homebrew cask                           | desktop releases           |
 
 New files (`.mocharc.json`, `src/frank/**`, `src/components/frank/**`,
 `style/frank.css`, `test/frank/**`, `scripts/frank/**`, `data/**`,
