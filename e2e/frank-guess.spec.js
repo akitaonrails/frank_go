@@ -85,3 +85,35 @@ test('guess mode in a study session survives a wrong guess', async ({page}) => {
 
   expect(errors).toEqual([])
 })
+
+test('study replay is read-only — a board click places no stone', async ({
+  page,
+}) => {
+  let errors = []
+  page.on('pageerror', (e) => errors.push(e.message.split('\n')[0]))
+
+  await loadSgfStringAndWait(page, SGF)
+  await page.evaluate(() => {
+    window.__sabaki.setState({
+      frankStudy: {pack: 'famous', title: 'x', meta: '', text: '', cast: []},
+    })
+    window.__sabaki.goToMoveNumber(2)
+  })
+  await waitForRender(page)
+
+  let before = await page.evaluate(() => ({
+    height: window.__sabaki.inferredState.gameTree.getHeight(),
+    mode: window.__sabaki.state.mode,
+  }))
+  expect(before.mode).toBe('play') // browsing, not guessing
+
+  // A real click on an empty intersection must NOT add a stone
+  await page.click('#goban .shudan-vertex[data-x="9"][data-y="9"]')
+  await waitForRender(page)
+
+  let after = await page.evaluate(() =>
+    window.__sabaki.inferredState.gameTree.getHeight(),
+  )
+  expect(after).toBe(before.height) // tree unchanged
+  expect(errors).toEqual([])
+})

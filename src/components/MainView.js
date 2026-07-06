@@ -100,6 +100,11 @@ export default class MainView extends Component {
   }
 
   handleGobanVertexClick(evt) {
+    // frank_go: a study is a read-only replay — only accept board clicks
+    // when actively guessing the pro's move, so a stray click can't add a
+    // stone and derail the game.
+    if (this.props.frankStudy != null && this.props.mode !== 'guess') return
+
     sabaki.clickVertex(evt.vertex, evt)
   }
 
