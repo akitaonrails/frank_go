@@ -12,6 +12,7 @@ import {
   HUMAN_RANKS,
   buildEngineEntries,
   extractAppImage,
+  findKatagoInDir,
   isAppImage,
   mergeEngines,
   writeConfigs,
@@ -133,6 +134,48 @@ describe('extractAppImage', () => {
     writeFileSync(appRun, '#!/bin/sh\n')
 
     assert.equal(extractAppImage(appImage, dir), appRun)
+  })
+
+  it('falls back to the original binary when extraction fails', () => {
+    let dir = mkdtempSync(join(tmpdir(), 'frank-kata-'))
+    let fake = join(dir, 'katago')
+
+    // Has the AppImage magic but is not runnable → --appimage-extract
+    // fails → the caller gets the original path back (current behavior)
+    writeFileSync(
+      fake,
+      Buffer.concat([
+        Buffer.from('\x7fELF\x02\x01\x01\x00', 'latin1'),
+        Buffer.from('AI\x02not really an appimage', 'latin1'),
+      ]),
+    )
+
+    assert.equal(extractAppImage(fake, dir), fake)
+  })
+})
+
+describe('findKatagoInDir', () => {
+  it('finds the zip-extracted binary, never the stale squashfs-root one', () => {
+    let dir = mkdtempSync(join(tmpdir(), 'frank-kata-'))
+
+    // Decoy: a stale extraction artifact containing its own katago —
+    // must be skipped even though readdir may list it first
+    mkdirSync(join(dir, 'squashfs-root', 'usr', 'bin'), {recursive: true})
+    writeFileSync(join(dir, 'squashfs-root', 'usr', 'bin', 'katago'), 'stale')
+
+    // The freshly downloaded zip's binary, nested a level down
+    mkdirSync(join(dir, 'release'), {recursive: true})
+    writeFileSync(join(dir, 'release', 'katago'), 'fresh')
+
+    assert.equal(findKatagoInDir(dir), join(dir, 'release', 'katago'))
+  })
+
+  it('returns null when only a stale extraction exists', () => {
+    let dir = mkdtempSync(join(tmpdir(), 'frank-kata-'))
+    mkdirSync(join(dir, 'squashfs-root', 'usr', 'bin'), {recursive: true})
+    writeFileSync(join(dir, 'squashfs-root', 'usr', 'bin', 'katago'), 'stale')
+
+    assert.equal(findKatagoInDir(dir), null)
   })
 })
 

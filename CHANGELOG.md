@@ -8,6 +8,19 @@ frank_go is a beginner-focused Go/Baduk trainer forked from
 [Sabaki](https://github.com/SabakiHQ/Sabaki) — Sabaki's own history lives in
 [docs/SABAKI-CHANGELOG.md](docs/SABAKI-CHANGELOG.md).
 
+## [0.3.7] - 2026-07-06
+
+### Fixed
+
+- KataGo setup no longer loops forever on systems with AppImageLauncher (common
+  on Arch/CachyOS): the official KataGo Linux binaries are type-2 AppImages,
+  which AppImageLauncher intercepts and _moves away_ on first run. The engine is
+  now unpacked once into a plain binary during setup — which also removes the
+  FUSE requirement at play time. Thanks to Marcelo Mogami for the diagnosis and
+  fix ([#7](https://github.com/akitaonrails/frank_go/pull/7)).
+- A stale unpacked engine can no longer shadow a freshly downloaded one when
+  reinstalling.
+
 ## [0.3.6] - 2026-07-06
 
 ### Changed
@@ -58,6 +71,7 @@ frank_go is a beginner-focused Go/Baduk trainer forked from
   build; a crashing engine is handled gracefully in play and review.
 - AUR: recommend `katago-cpu`; GPU builds marked advanced.
 
+[0.3.7]: https://github.com/akitaonrails/frank_go/releases/tag/v0.3.7
 [0.3.6]: https://github.com/akitaonrails/frank_go/releases/tag/v0.3.6
 [0.3.5]: https://github.com/akitaonrails/frank_go/releases/tag/v0.3.5
 [0.3.0]: https://github.com/akitaonrails/frank_go/releases/tag/v0.3.0

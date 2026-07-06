@@ -163,6 +163,26 @@ export function findKatagoOnPath() {
   return result.stdout.toString().split('\n')[0].trim()
 }
 
+// Locates the katago binary a release zip extracted somewhere under
+// `searchDir`. Never descends into squashfs-root: that's our own AppImage
+// extraction artifact, and a stale one holds a katago binary that would
+// shadow the freshly downloaded one (readdir order is filesystem-
+// dependent), silently pinning the old engine.
+export function findKatagoInDir(searchDir) {
+  for (let entry of readdirSync(searchDir, {withFileTypes: true})) {
+    let path = join(searchDir, entry.name)
+    if (entry.isDirectory()) {
+      if (entry.name === 'squashfs-root') continue
+
+      let found = findKatagoInDir(path)
+      if (found) return found
+    } else if (/^katago(\.exe)?$/.test(entry.name)) {
+      return path
+    }
+  }
+  return null
+}
+
 function extractZip(zipPath, destination) {
   for (let [cmd, cmdArgs] of [
     ['unzip', ['-o', zipPath, '-d', destination]],
@@ -214,20 +234,7 @@ export async function ensureKatagoBinary({
     throw new Error(`Could not extract ${zipPath} (need unzip, bsdtar or tar)`)
   }
 
-  let findBinary = (searchDir) => {
-    for (let entry of readdirSync(searchDir, {withFileTypes: true})) {
-      let path = join(searchDir, entry.name)
-      if (entry.isDirectory()) {
-        let found = findBinary(path)
-        if (found) return found
-      } else if (/^katago(\.exe)?$/.test(entry.name)) {
-        return path
-      }
-    }
-    return null
-  }
-
-  let binary = findBinary(binDir)
+  let binary = findKatagoInDir(binDir)
   if (binary == null) {
     throw new Error('katago binary not found in the extracted archive')
   }
