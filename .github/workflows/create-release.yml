@@ -96,3 +96,36 @@ jobs:
             dist/*
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Update the Homebrew cask (macOS `brew install --cask`) in the tap
+      # repo with this version and the real dmg checksums. No-op when the
+      # tap token secret is not configured.
+      - name: Update Homebrew cask
+        env:
+          TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+        run: |
+          if [ -z "$TAP_TOKEN" ]; then
+            echo "HOMEBREW_TAP_TOKEN not set — skipping cask update"
+            exit 0
+          fi
+          set -e
+          VERSION="${GITHUB_REF_NAME#v}"
+          ARM_DMG=$(ls dist/frank-go-v*-mac-arm64.dmg)
+          X64_DMG=$(ls dist/frank-go-v*-mac-x64.dmg)
+          ARM_SHA=$(sha256sum "$ARM_DMG" | cut -d' ' -f1)
+          X64_SHA=$(sha256sum "$X64_DMG" | cut -d' ' -f1)
+
+          sed -e "s/__VERSION__/${VERSION}/g" \
+              -e "s/__SHA256_ARM64__/${ARM_SHA}/g" \
+              -e "s/__SHA256_X64__/${X64_SHA}/g" \
+              packaging/homebrew/frank-go.rb.template > frank-go.rb
+
+          git clone "https://x-access-token:${TAP_TOKEN}@github.com/akitaonrails/homebrew-tap.git" tap
+          mkdir -p tap/Casks
+          cp frank-go.rb tap/Casks/frank-go.rb
+          cd tap
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Casks/frank-go.rb
+          git commit -m "frank-go ${VERSION}" || echo "no changes"
+          git push

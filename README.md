@@ -96,7 +96,13 @@ the app downloads a small CPU KataGo engine automatically — no GPU required.
 
 ### macOS
 
-Download the `frank-go-vX.Y.Z-mac-arm64.dmg` (Apple Silicon) or `-x64.dmg`
+Install with [Homebrew](https://brew.sh):
+
+```sh
+brew install --cask akitaonrails/tap/frank-go
+```
+
+…or download the `frank-go-vX.Y.Z-mac-arm64.dmg` (Apple Silicon) or `-x64.dmg`
 (Intel) from the
 [Releases page](https://github.com/akitaonrails/frank_go/releases).
 
