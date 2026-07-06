@@ -104,10 +104,9 @@ brew install --cask akitaonrails/tap/frank-go
 
 …or download the `frank-go-vX.Y.Z-mac-arm64.dmg` (Apple Silicon) or `-x64.dmg`
 (Intel) from the
-[Releases page](https://github.com/akitaonrails/frank_go/releases).
-
-> The app is not notarized, so Gatekeeper may say it "cannot be opened."
-> **Right-click the app → Open**, then confirm once.
+[Releases page](https://github.com/akitaonrails/frank_go/releases). The macOS
+build is signed with a Developer ID and notarized by Apple, so it opens normally
+— no Gatekeeper warning.
 
 KataGo has no official macOS binary, so for the play-vs-AI and guess-review
 features install it via [Homebrew](https://brew.sh):

@@ -18,17 +18,13 @@ cask "frank-go" do
   desc "Friendly, offline Go (Baduk/Weiqi) trainer for beginners"
   homepage "https://github.com/akitaonrails/frank_go"
 
-  # Unsigned build — Gatekeeper needs a one-time approval on first launch.
   app "Frank GO.app"
 
   caveats <<~EOS
-    Frank GO is not notarized. On first launch, right-click the app and choose
-    Open, then confirm once.
-
     The play-vs-AI and guess-review features need KataGo, which has no official
     macOS binary. Install it with:
       brew install katago
-    Everything else works without it.
+    Everything else (tsumego, study, drills, area painting) works without it.
   EOS
 
   zap trash: [
