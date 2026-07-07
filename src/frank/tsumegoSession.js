@@ -214,6 +214,11 @@ function opponentName() {
 }
 
 function successText() {
+  // A solution-tree win isn't the engine giving up on anything — it's a
+  // verified correct line (its own comment already explains the "why").
+  // The KataGo-flavored phrasing below only fits the sparring path.
+  if (checker != null) return t('Solved!')
+
   return goal === 'live'
     ? t('KataGo gave up the attack — your group lives. Solved!')
     : t('KataGo left the fight — {{opponent}} is dead. Solved!').replace(
