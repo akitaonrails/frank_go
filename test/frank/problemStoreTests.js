@@ -3,6 +3,9 @@ import {
   ProblemStore,
   createRng,
   problemToSgf,
+  buildGGGSequence,
+  nextUnsolvedIndex,
+  firstUnsolvedIndex,
 } from '../../src/frank/data/problemStore.js'
 
 function makeIndex() {
@@ -145,6 +148,131 @@ describe('ProblemStore', () => {
       total: 4,
       byLevel: {1: 1, 2: 1, 8: 1, 9: 1},
     })
+  })
+})
+
+describe('buildGGGSequence', () => {
+  function makeGGGIndex() {
+    let stub = (id, collection, n) => ({
+      id,
+      collection,
+      n,
+      title: `problem ${n}`,
+      level: 5,
+      category: 'life-and-death',
+      toPlay: 'B',
+      size: 19,
+      AB: ['aa'],
+      AW: ['ab'],
+      region: [0, 0, 0, 0],
+    })
+
+    return {
+      version: 1,
+      collections: {},
+      // Interleaved on purpose (not already grouped by collection) so the
+      // test can't pass by accident — buildGGGSequence must do the
+      // grouping itself, not just pass the array through.
+      problems: [
+        stub('ggg-hard/1', 'ggg-hard', 1),
+        stub('cho-elementary/1', 'cho-elementary', 1), // must be excluded
+        stub('ggg-easy/1', 'ggg-easy', 1),
+        stub('ggg-intermediate/1', 'ggg-intermediate', 1),
+        stub('ggg-hard/2', 'ggg-hard', 2),
+        stub('ggg-easy/2', 'ggg-easy', 2),
+        stub('ggg-intermediate/2', 'ggg-intermediate', 2),
+      ],
+    }
+  }
+
+  it('orders easy → intermediate → hard and excludes other collections', () => {
+    let store = new ProblemStore(makeGGGIndex())
+
+    assert.deepEqual(
+      buildGGGSequence(store).map((p) => p.id),
+      [
+        'ggg-easy/1',
+        'ggg-easy/2',
+        'ggg-intermediate/1',
+        'ggg-intermediate/2',
+        'ggg-hard/1',
+        'ggg-hard/2',
+      ],
+    )
+  })
+
+  it('covers all 420 bundled GGG problems, grouped and numbered in order', () => {
+    let store = ProblemStore.fromFile()
+    let sequence = buildGGGSequence(store)
+
+    assert.equal(sequence.length, 420)
+    assert.deepEqual(
+      sequence.slice(0, 140).map((p) => p.collection),
+      Array(140).fill('ggg-easy'),
+    )
+    assert.deepEqual(
+      sequence.slice(140, 280).map((p) => p.collection),
+      Array(140).fill('ggg-intermediate'),
+    )
+    assert.deepEqual(
+      sequence.slice(280, 420).map((p) => p.collection),
+      Array(140).fill('ggg-hard'),
+    )
+    assert.deepEqual(
+      sequence.slice(0, 140).map((p) => p.n),
+      Array.from({length: 140}, (_, i) => i + 1),
+    )
+  })
+})
+
+describe('nextUnsolvedIndex', () => {
+  let sequence = [{id: 'a'}, {id: 'b'}, {id: 'c'}, {id: 'd'}, {id: 'e'}]
+
+  it('returns the very next index when it is unsolved', () => {
+    assert.equal(nextUnsolvedIndex(sequence, 0, new Set()), 1)
+  })
+
+  it('skips over solved problems, landing on the first unsolved one', () => {
+    let solved = new Set(['b', 'c', 'd'])
+    assert.equal(nextUnsolvedIndex(sequence, 0, solved), 4) // 'e'
+  })
+
+  it('wraps around past the end back to the beginning', () => {
+    let solved = new Set(['e', 'a'])
+    assert.equal(nextUnsolvedIndex(sequence, 3, solved), 1) // skips e, a → b
+  })
+
+  it('falls back to the plain next-in-order index when everything is solved', () => {
+    let solved = new Set(['a', 'b', 'c', 'd', 'e'])
+    assert.equal(nextUnsolvedIndex(sequence, 1, solved), 2)
+  })
+
+  it('returns 0 for an empty sequence', () => {
+    assert.equal(nextUnsolvedIndex([], 0, new Set()), 0)
+  })
+})
+
+describe('firstUnsolvedIndex', () => {
+  let sequence = [{id: 'a'}, {id: 'b'}, {id: 'c'}, {id: 'd'}, {id: 'e'}]
+
+  it('returns 0 when nothing is solved yet', () => {
+    assert.equal(firstUnsolvedIndex(sequence, new Set()), 0)
+  })
+
+  it('skips leading solved problems to the first unsolved one', () => {
+    assert.equal(firstUnsolvedIndex(sequence, new Set(['a', 'b'])), 2)
+  })
+
+  it('finds an unsolved gap even after later problems were solved', () => {
+    // 'c' was skipped by mistake; 'd'/'e' solved later — resume lands on 'c'.
+    assert.equal(firstUnsolvedIndex(sequence, new Set(['a', 'b', 'd', 'e'])), 2)
+  })
+
+  it('falls back to 0 (free review) once everything is solved', () => {
+    assert.equal(
+      firstUnsolvedIndex(sequence, new Set(['a', 'b', 'c', 'd', 'e'])),
+      0,
+    )
   })
 })
 

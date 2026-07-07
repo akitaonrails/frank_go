@@ -184,6 +184,8 @@ export default class PracticeSidebar extends Component {
 
     this.handleStartTsumego = () => tsumegoSession.startPractice()
 
+    this.handleStartGGGStudy = () => tsumegoSession.startSolvedStudy()
+
     this.handlePlayBlack = () => katagoPlay.playAgainstKataGo(1)
 
     this.handlePlayWhite = () => katagoPlay.playAgainstKataGo(-1)
@@ -643,9 +645,12 @@ export default class PracticeSidebar extends Component {
       focus,
       autoVerdict,
       lastEvent,
+      mode,
+      sequencePosition,
     } = tsumego
     let toPlayLabel =
       problem.toPlay === 'W' ? t('White to play') : t('Black to play')
+    let sequential = mode === 'sequential'
 
     let streakDots = [...Array(streakTarget)].map((_, i) =>
       h('span', {
@@ -660,7 +665,14 @@ export default class PracticeSidebar extends Component {
       h(
         'div',
         {class: 'header'},
-        h('span', {class: 'title'}, '🧩 ', t('Tsumego Practice')),
+        h(
+          'span',
+          {class: 'title'},
+          sequential ? '📖 ' : '🧩 ',
+          sequential
+            ? t('Tsumego — solved & commented')
+            : t('Tsumego Practice'),
+        ),
         h(
           'a',
           {href: '#', class: 'stop', onClick: this.handleStopTsumego},
@@ -668,73 +680,98 @@ export default class PracticeSidebar extends Component {
         ),
       ),
 
-      h(
-        'div',
-        {class: 'levelrow'},
-        h(
-          'span',
-          {class: 'stepper'},
-          h(
-            'button',
-            {
-              class: 'levelstep',
-              title: t('Easier problems'),
-              disabled: progress.level <= 1,
-              onClick: this.handleLevelDown,
-            },
-            '−',
+      sequential
+        ? h(
+            'div',
+            {class: 'levelrow'},
+            h(
+              'span',
+              {class: 'level'},
+              t('Problem'),
+              ' ',
+              sequencePosition.current,
+              ' ',
+              t('of'),
+              ' ',
+              sequencePosition.total,
+            ),
+          )
+        : h(
+            'div',
+            {class: 'levelrow'},
+            h(
+              'span',
+              {class: 'stepper'},
+              h(
+                'button',
+                {
+                  class: 'levelstep',
+                  title: t('Easier problems'),
+                  disabled: progress.level <= 1,
+                  onClick: this.handleLevelDown,
+                },
+                '−',
+              ),
+              h(
+                'span',
+                {class: 'level', title: t('Choose your difficulty')},
+                t('Level'),
+                ' ',
+                progress.level,
+              ),
+              h(
+                'button',
+                {
+                  class: 'levelstep',
+                  title: t('Harder problems'),
+                  disabled: progress.level >= 10,
+                  onClick: this.handleLevelUp,
+                },
+                '+',
+              ),
+            ),
+            h(
+              'span',
+              {class: 'dots', title: t('Solve 5 in a row to level up')},
+              streakDots,
+            ),
           ),
-          h(
-            'span',
-            {class: 'level', title: t('Choose your difficulty')},
-            t('Level'),
-            ' ',
-            progress.level,
-          ),
-          h(
-            'button',
-            {
-              class: 'levelstep',
-              title: t('Harder problems'),
-              disabled: progress.level >= 10,
-              onClick: this.handleLevelUp,
-            },
-            '+',
-          ),
-        ),
-        h(
-          'span',
-          {class: 'dots', title: t('Solve 5 in a row to level up')},
-          streakDots,
-        ),
-      ),
 
-      h(
-        'p',
-        {class: 'ranknote'},
-        `${LEVEL_RANKS[progress.level]} · ${t('solve 5 in a row to level up')}`,
-        lastEvent != null &&
-          h(
-            'span',
-            {class: classNames('event', lastEvent)},
-            ' ',
-            lastEvent === 'level-up' ? t('Level up!') : t('Level down'),
-          ),
-      ),
-
-      h(
-        'label',
-        {class: 'strength focusrow'},
-        t('Focus:'),
-        ' ',
+      sequential &&
         h(
-          'select',
-          {value: focus, onChange: this.handleFocusChoice},
-          Object.entries(FOCUS_LABELS).map(([value, label]) =>
-            h('option', {value}, t(label)),
+          'p',
+          {class: 'ranknote'},
+          `${sequencePosition.solved} ${t('of')} ${sequencePosition.total} ${t('solved so far')}`,
+        ),
+
+      !sequential &&
+        h(
+          'p',
+          {class: 'ranknote'},
+          `${LEVEL_RANKS[progress.level]} · ${t('solve 5 in a row to level up')}`,
+          lastEvent != null &&
+            h(
+              'span',
+              {class: classNames('event', lastEvent)},
+              ' ',
+              lastEvent === 'level-up' ? t('Level up!') : t('Level down'),
+            ),
+        ),
+
+      !sequential &&
+        h(
+          'label',
+          {class: 'strength focusrow'},
+          t('Focus:'),
+          ' ',
+          h(
+            'select',
+            {value: focus, onChange: this.handleFocusChoice},
+            Object.entries(FOCUS_LABELS).map(([value, label]) =>
+              h('option', {value}, t(label)),
+            ),
           ),
         ),
-      ),
 
       h(
         'div',
@@ -1442,6 +1479,11 @@ export default class PracticeSidebar extends Component {
           'button',
           {class: 'primary', onClick: this.handleStartTsumego},
           `🧩 ${t('Tsumego practice')} · ${t('Level')} ${level} (${LEVEL_RANKS[level]})`,
+        ),
+        h(
+          'button',
+          {onClick: this.handleStartGGGStudy},
+          `📖 ${t('Tsumego — solved & commented')}`,
         ),
       ),
 

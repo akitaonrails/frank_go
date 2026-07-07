@@ -118,6 +118,46 @@ export class ProblemStore {
   }
 }
 
+// Flattens the three GoGameGuru collections into one ordered sequence
+// (easy → intermediate → hard, each internally sorted by problem number)
+// for sequential, solution-backed study — no random draw, no level/streak.
+export function buildGGGSequence(store) {
+  return [
+    ...store.query({collection: 'ggg-easy'}),
+    ...store.query({collection: 'ggg-intermediate'}),
+    ...store.query({collection: 'ggg-hard'}),
+  ]
+}
+
+// Index of the first problem in the sequence not in `solvedIds`, in
+// strict order from the start — the natural "resume where I still have
+// work" point when reopening the mode. Falls back to 0 (free review from
+// the top) once everything is solved.
+export function firstUnsolvedIndex(sequence, solvedIds) {
+  let index = sequence.findIndex((problem) => !solvedIds.has(problem.id))
+  return index === -1 ? 0 : index
+}
+
+// Returns the index of the next problem after `from` that isn't in
+// `solvedIds`, walking forward in strict numeric order and wrapping at
+// most once — so repeat sessions naturally land only on what's left,
+// without reshuffling or a separate "review" mode. Falls back to the
+// plain next-in-order index if every remaining problem is already solved
+// (nothing left to skip to).
+export function nextUnsolvedIndex(sequence, from, solvedIds) {
+  if (sequence.length === 0) return 0
+
+  let fallback = (from + 1) % sequence.length
+  let next = fallback
+
+  for (let steps = 0; steps < sequence.length; steps++) {
+    if (!solvedIds.has(sequence[next].id)) return next
+    next = (next + 1) % sequence.length
+  }
+
+  return fallback
+}
+
 // Renders a problem as a standalone SGF so it can be loaded through
 // Sabaki's regular file loading pipeline.
 export function problemToSgf(problem) {
