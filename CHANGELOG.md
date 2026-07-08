@@ -8,6 +8,25 @@ frank_go is a beginner-focused Go/Baduk trainer forked from
 [Sabaki](https://github.com/SabakiHQ/Sabaki) — Sabaki's own history lives in
 [docs/SABAKI-CHANGELOG.md](docs/SABAKI-CHANGELOG.md).
 
+## [0.3.8] - 2026-07-08
+
+### Added
+
+- **Tsumego — solved & commented**: a separate study mode that walks all 420
+  GoGameGuru problems in order (easy → hard), graded exactly against their
+  human-curated solution trees — no level or streak, skipping problems you've
+  already solved, resuming at the first unsolved one, with a progress count and
+  a small celebration when the whole set is done. Thanks to Marcelo Mogami
+  ([#9](https://github.com/akitaonrails/frank_go/pull/9)).
+
+### Fixed
+
+- The tsumego success banner no longer credits KataGo when a solution tree
+  graded the answer — tree-verified wins now show a plain "Solved!". Thanks to
+  Marcelo Mogami ([#8](https://github.com/akitaonrails/frank_go/pull/8)).
+- A miss in the new study mode no longer resets the streak or lowers the level
+  of the regular practice mode.
+
 ## [0.3.7] - 2026-07-06
 
 ### Fixed
@@ -71,6 +90,7 @@ frank_go is a beginner-focused Go/Baduk trainer forked from
   build; a crashing engine is handled gracefully in play and review.
 - AUR: recommend `katago-cpu`; GPU builds marked advanced.
 
+[0.3.8]: https://github.com/akitaonrails/frank_go/releases/tag/v0.3.8
 [0.3.7]: https://github.com/akitaonrails/frank_go/releases/tag/v0.3.7
 [0.3.6]: https://github.com/akitaonrails/frank_go/releases/tag/v0.3.6
 [0.3.5]: https://github.com/akitaonrails/frank_go/releases/tag/v0.3.5
