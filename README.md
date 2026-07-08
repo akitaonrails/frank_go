@@ -25,6 +25,10 @@ players. frank_go is built for the rest of us.
   inside the puzzle. When it gives up the area, frank_go judges the result and
   marks the puzzle **solved automatically**. The commented problems know their
   own answers, so those are graded **exactly**, with the pro's explanation.
+- 📖 **Tsumego — solved & commented** — a separate study mode that walks all 420
+  commented problems in order (easy → hard), graded exactly against their
+  solution trees, skipping what you've already solved and tracking your progress
+  toward the full set.
 - 🎓 **Find your rank** — a ten-problem test estimates your level and drops you
   straight into practice there.
 - 🎨 **Area painting** — a toggleable overlay that paints each player's

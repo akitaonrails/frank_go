@@ -233,6 +233,7 @@ let defaults = {
   'frank.katago_engine': null,
   'frank.tsumego_focus': 'all',
   'frank.last_rank_test': null,
+  'frank.tsumego_ggg_cursor': 0,
 }
 
 let eventEmitters = {}

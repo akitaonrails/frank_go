@@ -17,7 +17,6 @@
 
 import sabaki from '../modules/sabaki.js'
 import sgf from '@sabaki/sgf'
-import * as gametree from '../modules/gametree.js'
 import * as dialog from '../modules/dialog.js'
 import i18n from '../i18n.js'
 import {
@@ -309,14 +308,23 @@ function scheduleAutoSolve() {
 // Records the miss once, shows the verdict, and lets the player choose
 // between retrying the same problem (no double penalty) or moving on.
 async function failAndPrompt(text) {
-  let progress = loadProgress()
-  let next = applyResult(progress, false)
-  saveProgress(next)
-  flashLevelEvent(next)
   sessionStats.missed++
 
+  // Sequential study mode is independent of the level/streak ladder — a
+  // miss here must not reset the streak or level-down the separate
+  // practice progress (answer() already guards its paths the same way).
+  let next = loadProgress()
+  let event = null
+
+  if (mode !== 'sequential') {
+    next = applyResult(next, false)
+    saveProgress(next)
+    flashLevelEvent(next)
+    event = next.event
+  }
+
   autoVerdict = {result: 'failed', text}
-  publishState(next, next.event)
+  publishState(next, event)
 
   let choice = await dialog.showMessageBox(
     `${text}\n\n${t('Do you want to try this problem again?')}`,
@@ -697,8 +705,8 @@ export async function answer(correct) {
     if (justCompletedAll) {
       await dialog.showMessageBox(
         t(
-          '🎉 Congratulations! You’ve worked through all 420 GoGameGuru problems. From here it’s free review — every problem is still here to revisit.',
-        ),
+          '🎉 Congratulations! You’ve worked through all {{count}} GoGameGuru problems. From here it’s free review — every problem is still here to revisit.',
+        ).replace('{{count}}', gggSequence().length),
         'info',
         [t('Nice!')],
       )
