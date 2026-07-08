@@ -20,7 +20,14 @@ import sgf from '@sabaki/sgf'
 import * as gametree from '../modules/gametree.js'
 import * as dialog from '../modules/dialog.js'
 import i18n from '../i18n.js'
-import {getSharedStore, problemToSgf, createRng} from './data/problemStore.js'
+import {
+  getSharedStore,
+  problemToSgf,
+  createRng,
+  buildGGGSequence,
+  nextUnsolvedIndex,
+  firstUnsolvedIndex,
+} from './data/problemStore.js'
 import {
   STREAK_TO_LEVEL_UP,
   applyResult,
@@ -52,6 +59,12 @@ let currentProblem = null
 let sessionStats = {solved: 0, missed: 0}
 let sparringSyncerId = null
 
+// 'level': the usual level/streak practice, random draw. 'sequential':
+// study mode — walks every GoGameGuru problem in order, no level/streak,
+// because those come with a real, comment-backed solution tree.
+let mode = 'level'
+let cachedGGGSequence = null
+
 // Per-problem auto-grading state
 let goal = null // 'kill' | 'live'
 let settled = false
@@ -73,6 +86,35 @@ function loadSolvedIds() {
 function saveSolvedIds(solvedIds) {
   let ids = [...solvedIds].slice(-MAX_SOLVED_REMEMBERED)
   setting.set('frank.tsumego_solved', JSON.stringify({ids}))
+}
+
+// Static bundled data — build the 420-problem walk order once.
+function gggSequence() {
+  if (cachedGGGSequence == null) {
+    cachedGGGSequence = buildGGGSequence(getSharedStore())
+  }
+  return cachedGGGSequence
+}
+
+// How many of the 420 GGG problems have ever been solved (persisted
+// alongside the level-mode's own solved set — the cursor only tracks
+// *position*, this is the actual progress count).
+function countGGGSolved() {
+  let solvedIds = loadSolvedIds()
+  return gggSequence().filter((problem) => solvedIds.has(problem.id)).length
+}
+
+// Always returns a valid index into the sequence, even if the stored
+// cursor is stale (e.g. the bundled GGG count changed between versions)
+// or missing — so the position display and problem lookup never disagree.
+function loadGGGCursor() {
+  let raw = Math.max(0, setting.get('frank.tsumego_ggg_cursor') || 0)
+  let length = gggSequence().length
+  return length === 0 ? 0 : raw % length
+}
+
+function saveGGGCursor(cursor) {
+  setting.set('frank.tsumego_ggg_cursor', cursor)
 }
 
 function publishState(progress, lastEvent = null) {
@@ -107,6 +149,15 @@ function publishState(progress, lastEvent = null) {
                 : null,
             autoVerdict,
             lastEvent,
+            mode,
+            sequencePosition:
+              mode === 'sequential'
+                ? {
+                    current: loadGGGCursor() + 1,
+                    total: gggSequence().length,
+                    solved: countGGGSolved(),
+                  }
+                : null,
           },
   })
 }
@@ -243,6 +294,12 @@ function scheduleAutoSolve() {
   publishState(loadProgress())
 
   cancelAutoAdvance()
+
+  // Sequential study mode is about reading the comment (often what makes
+  // the move correct in the first place) — auto-advancing after a couple
+  // seconds cuts that off. Wait for an explicit "Next problem" instead.
+  if (mode === 'sequential') return
+
   autoAdvanceTimer = setTimeout(() => {
     autoAdvanceTimer = null
     answer(true)
@@ -272,12 +329,30 @@ async function failAndPrompt(text) {
 
   if (choice === 0) {
     await retryProblem()
+  } else if (mode === 'sequential') {
+    await advanceSequential()
   } else {
     await advanceToNextProblem()
   }
 }
 
 // Advances without grading (the miss/solve has already been recorded).
+// Sequential mode's equivalent of advanceToNextProblem: moves forward in
+// the 420-long GGG walk order (still strict numeric order, still wraps),
+// skipping anything already solved — so repeat sessions naturally land
+// only on what's left, without a separate "review" mode.
+async function advanceSequential() {
+  let sequence = gggSequence()
+  if (sequence.length === 0) return
+
+  let cursor = nextUnsolvedIndex(sequence, loadGGGCursor(), loadSolvedIds())
+  saveGGGCursor(cursor)
+
+  currentProblem = sequence[cursor]
+  await loadProblemIntoBoard(currentProblem)
+  publishState(loadProgress())
+}
+
 async function advanceToNextProblem() {
   let progress = loadProgress()
   let problem = pickProblem(getSharedStore(), {
@@ -538,6 +613,7 @@ export async function startPractice() {
   if (problem == null) return
 
   sessionStats = {solved: 0, missed: 0}
+  mode = 'level'
   ensureSparringPartner()
   attachMoveListener()
 
@@ -546,6 +622,36 @@ export async function startPractice() {
   currentProblem = problem
   await loadProblemIntoBoard(problem, {firstLoad: true})
   publishState(progress)
+}
+
+// Study mode: walks every GoGameGuru problem in order (easy → intermediate
+// → hard), a real comment-backed solution tree instead of a heuristic
+// guess — no level, no streak, just working through all 420 at your pace.
+export async function startSolvedStudy() {
+  await stopOtherActivities()
+
+  let sequence = gggSequence()
+  if (sequence.length === 0) return
+
+  // Reopening from the menu always resumes at the first problem you still
+  // haven't solved — so an accidental skip is recovered just by going back
+  // and reopening, instead of having to walk all the way around. The
+  // cursor still advances normally with "Next" once you're in.
+  let cursor = firstUnsolvedIndex(sequence, loadSolvedIds())
+  saveGGGCursor(cursor)
+
+  let problem = sequence[cursor]
+
+  sessionStats = {solved: 0, missed: 0}
+  mode = 'sequential'
+  ensureSparringPartner()
+  attachMoveListener()
+
+  hideGtpConsole(sabaki)
+
+  currentProblem = problem
+  await loadProblemIntoBoard(problem, {firstLoad: true})
+  publishState(loadProgress())
 }
 
 // Manual grading — used by the auto-solve timer, the "Next" button on a
@@ -567,18 +673,44 @@ export async function answer(correct) {
   if (currentProblem == null) return
 
   cancelAutoAdvance()
+  sessionStats[correct ? 'solved' : 'missed']++
+
+  // Detect the moment a *newly* solved problem completes the whole GGG
+  // set — only true on the transition to 420/420, not on later reviews.
+  let justCompletedAll = false
+
+  if (correct) {
+    let solvedIds = loadSolvedIds()
+    let wasAlreadySolved = solvedIds.has(currentProblem.id)
+    solvedIds.add(currentProblem.id)
+    saveSolvedIds(solvedIds)
+
+    justCompletedAll =
+      mode === 'sequential' &&
+      !wasAlreadySolved &&
+      countGGGSolved() === gggSequence().length
+  }
+
+  if (mode === 'sequential') {
+    await advanceSequential()
+
+    if (justCompletedAll) {
+      await dialog.showMessageBox(
+        t(
+          '🎉 Congratulations! You’ve worked through all 420 GoGameGuru problems. From here it’s free review — every problem is still here to revisit.',
+        ),
+        'info',
+        [t('Nice!')],
+      )
+    }
+
+    return
+  }
 
   let progress = loadProgress()
   let next = applyResult(progress, correct)
   saveProgress(next)
   flashLevelEvent(next)
-  sessionStats[correct ? 'solved' : 'missed']++
-
-  if (correct) {
-    let solvedIds = loadSolvedIds()
-    solvedIds.add(currentProblem.id)
-    saveSolvedIds(solvedIds)
-  }
 
   let problem = pickProblem(getSharedStore(), {
     level: next.level,
@@ -616,7 +748,7 @@ export const LEVEL_RANKS = {
 // Lets the player choose their own difficulty; loads a fresh problem at
 // the new level without grading the current one.
 export async function setLevel(level) {
-  if (currentProblem == null) return
+  if (currentProblem == null || mode === 'sequential') return
 
   level = Math.min(10, Math.max(1, Math.round(level)))
   cancelAutoAdvance()
@@ -630,6 +762,12 @@ export async function skipProblem() {
   if (currentProblem == null) return
 
   cancelAutoAdvance()
+
+  if (mode === 'sequential') {
+    await advanceSequential()
+    return
+  }
+
   await advanceToNextProblem()
 }
 
@@ -658,6 +796,7 @@ export function stopPractice() {
   cancelAutoAdvance()
   detachMoveListener()
   currentProblem = null
+  mode = 'level'
 
   if (sparringSyncerId != null) {
     sabaki.detachEngines([sparringSyncerId])
