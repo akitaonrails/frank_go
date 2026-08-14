@@ -411,8 +411,9 @@ main.frank-cursor-white #goban {
   color: #efe6d5;
 }
 
-/* Study cast: character medallions (uniform go-stone badges, replaced by
-   user-supplied portraits from data/games/hikaru/portraits/ when present) */
+/* Study cast: character medallions (go-stone badges with a per-character
+   accent ring and motif, or initials for characters without one; replaced
+   by user-supplied portraits from data/games/hikaru/portraits/ when present) */
 
 #frank-practice-sidebar .cast {
   display: flex;
@@ -456,6 +457,11 @@ main.frank-cursor-white #goban {
   background: radial-gradient(circle at 35% 30%, #ffffff, #cfcfcf);
   border-color: #aaa;
   color: #6b5c3a;
+}
+
+#frank-practice-sidebar .castmember .medallion .motif {
+  width: 1.7em;
+  height: 1.7em;
 }
 
 #frank-practice-sidebar .castmember .portrait {

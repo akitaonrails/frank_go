@@ -38,6 +38,65 @@ const t = i18n.context('frank.practice')
 // Study auto-play: one move every couple of seconds
 const AUTO_PLAY_INTERVAL = 2000
 
+// Character medallion motifs (issue #6): original, minimalist SVG glyphs,
+// one per motif key returned by castStyle() in frank/castUtils.js. Each
+// shape is filled with the character's accent color (currentColor) unless
+// marked as a stroke. Shapes live in a 24×24 box centered on (12, 12).
+const CAST_MOTIFS = {
+  // Hikaru — shooting star
+  star: [
+    {
+      d: 'M12 4l2.3 5 5.5.6-4.1 3.7 1.1 5.4-4.8-2.8-4.8 2.8 1.1-5.4L4.2 9.6l5.5-.6z',
+    },
+  ],
+  // Sai — Heian court eboshi hat
+  eboshi: [
+    {d: 'M8 16.3c0-6 1.4-9.8 4-9.8s4 3.8 4 9.8z'},
+    {d: 'M6.5 17.1h11v1.7h-11z'},
+  ],
+  // Akira — abstract bob silhouette
+  bob: [{d: 'M7 17.5c0-6.5 1.8-11 5-11s5 4.5 5 11z'}],
+  // Ko Yongha — taegeuk
+  taegeuk: [
+    {d: 'M12 4a8 8 0 0 1 0 16 4 4 0 0 1 0-8 4 4 0 0 0 0-8z'},
+    {d: 'M12 4a8 8 0 1 0 .01 0z', stroke: true},
+  ],
+  // Ochi — young sprout
+  sprout: [
+    {d: 'M12 14c-3.2-.4-4.8-2.3-5-5.4 3.1.3 4.7 2.2 5 5.4z'},
+    {d: 'M12 14c3.2-.4 4.8-2.3 5-5.4-3.1.3-4.7 2.2-5 5.4z'},
+    {d: 'M12 14v5.5', stroke: true},
+  ],
+  // Kuwabara — folding fan
+  fan: [
+    {d: 'M12 19L5 9.8a8.2 8.2 0 0 1 14 0z'},
+    {d: 'M12 19V7.4M12 19L8.1 8.7M12 19l3.9-10.3', stroke: true, thin: true},
+  ],
+  // Ogata — glasses
+  glasses: [
+    {d: 'M5.2 12a2.8 2.8 0 1 0 5.6 0 2.8 2.8 0 1 0-5.6 0', stroke: true},
+    {d: 'M13.2 12a2.8 2.8 0 1 0 5.6 0 2.8 2.8 0 1 0-5.6 0', stroke: true},
+    {d: 'M10.8 11.6h2.4M5.2 11.4l-2.2-1.2M18.8 11.4l2.2-1.2', stroke: true},
+  ],
+  // Kadowaki — lightning bolt
+  bolt: [{d: 'M13.2 3.5L6.5 13.2h3.9l-1.1 7.3 6.8-9.7h-3.9z'}],
+  // Kaga — shogi piece
+  shogi: [{d: 'M12 4.5l5.2 3.6-.9 10.4H7.7L6.8 8.1z'}],
+  // The Rival Tutor — unknown figure
+  question: [{text: '?'}],
+  // Toya Koyo — the Meijin's crown
+  crown: [
+    {d: 'M5.5 16.8l-.9-7.8 4 3.1L12 7.2l3.4 4.9 4-3.1-.9 7.8z'},
+    {d: 'M5.8 18.3h12.4v1.5H5.8z'},
+  ],
+  // Waya — headband with knot tails
+  headband: [
+    {d: 'M4 10.2h16v3.8H4z'},
+    {d: 'M19.6 10.3l3.6-1.7-1.1 3.4z'},
+    {d: 'M19.6 13.7l3.4 2-3.7 1.3z'},
+  ],
+}
+
 export default class PracticeSidebar extends Component {
   constructor(props) {
     super(props)
@@ -982,6 +1041,14 @@ export default class PracticeSidebar extends Component {
   }
 
   renderCastMember(member) {
+    let shapes = member.motif != null ? CAST_MOTIFS[member.motif] : null
+    let style =
+      member.accent == null
+        ? undefined
+        : shapes != null
+          ? {borderColor: member.accent, color: member.accent}
+          : {borderColor: member.accent}
+
     return h(
       'div',
       {class: 'castmember'},
@@ -993,8 +1060,40 @@ export default class PracticeSidebar extends Component {
               class: classNames('medallion', {
                 white: member.color === 'W',
               }),
+              style,
             },
-            member.initials,
+            shapes != null
+              ? h(
+                  'svg',
+                  {class: 'motif', viewBox: '0 0 24 24', 'aria-hidden': 'true'},
+                  shapes.map((shape) =>
+                    shape.text != null
+                      ? h(
+                          'text',
+                          {
+                            x: 12,
+                            y: 17.5,
+                            'text-anchor': 'middle',
+                            'font-size': 15,
+                            'font-weight': 'bold',
+                            fill: 'currentColor',
+                          },
+                          shape.text,
+                        )
+                      : h('path', {
+                          d: shape.d,
+                          fill: shape.stroke ? 'none' : 'currentColor',
+                          stroke: shape.stroke ? 'currentColor' : 'none',
+                          'stroke-width': shape.stroke
+                            ? shape.thin
+                              ? 1
+                              : 1.7
+                            : 0,
+                          'stroke-linecap': 'round',
+                        }),
+                  ),
+                )
+              : member.initials,
           ),
       h('span', {class: 'castname'}, member.name),
     )

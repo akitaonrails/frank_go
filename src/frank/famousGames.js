@@ -14,7 +14,7 @@ import sabaki from '../modules/sabaki.js'
 import {createRng} from './data/problemStore.js'
 import {setting} from './env.js'
 import {locateData} from './paths.js'
-import {castInitials, findPortrait} from './castUtils.js'
+import {castInitials, castStyle, findPortrait} from './castUtils.js'
 
 let rng = createRng()
 let cachedIndexes = {}
@@ -91,12 +91,14 @@ export async function studyRandomGame(pack = 'famous') {
 // Characters of the manga scene. If the user has dropped a portrait image
 // into data/games/hikaru/portraits/ (named after the character, e.g.
 // sai.png, hikaru-shindo.jpg), it is used; otherwise the UI draws a
-// uniform go-stone medallion with the character's initials.
+// go-stone medallion with a per-character accent color and motif (or the
+// character's initials for characters without a motif).
 function resolveCast(dir, cast) {
   if (cast == null || cast.length === 0) return []
 
   return cast.map((member) => ({
     ...member,
+    ...castStyle(member.name),
     portrait: findPortrait(join(dir, 'portraits'), member.name),
     initials: castInitials(member.name),
   }))

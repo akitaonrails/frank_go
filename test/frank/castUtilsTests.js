@@ -4,6 +4,7 @@ import {tmpdir} from 'os'
 import {join} from 'path'
 import {
   castInitials,
+  castStyle,
   characterSlug,
   findPortrait,
 } from '../../src/frank/castUtils.js'
@@ -53,5 +54,35 @@ describe('findPortrait', () => {
 
     assert.equal(findPortrait(dir, 'Hikaru Shindo'), join(dir, 'hikaru.png'))
     assert.equal(findPortrait(dir, 'Hikaru (Sai)'), join(dir, 'hikaru.png'))
+  })
+})
+
+describe('castStyle', () => {
+  it('gives known characters an accent and a motif', () => {
+    assert.deepEqual(castStyle('Sai'), {accent: '#a58fd6', motif: 'eboshi'})
+    assert.deepEqual(castStyle('Akira Toya'), {
+      accent: '#6f95d8',
+      motif: 'bob',
+    })
+  })
+
+  it('falls back to the given name', () => {
+    assert.deepEqual(castStyle('Hikaru Shindo'), {
+      accent: '#d9a03f',
+      motif: 'star',
+    })
+    assert.deepEqual(castStyle('Hikaru (Sai)'), {
+      accent: '#d9a03f',
+      motif: 'star',
+    })
+  })
+
+  it('gives unknown characters a deterministic accent and no motif', () => {
+    let style = castStyle('Honinbo Dosaku')
+
+    assert.equal(style.motif, null)
+    assert.match(style.accent, /^hsl\(\d+ 35% 62%\)$/)
+    assert.deepEqual(style, castStyle('Honinbo Dosaku'))
+    assert.notDeepEqual(style, castStyle('Yasui Chitetsu'))
   })
 })
