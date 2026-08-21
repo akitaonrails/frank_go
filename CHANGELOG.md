@@ -8,6 +8,24 @@ frank_go is a beginner-focused Go/Baduk trainer forked from
 [Sabaki](https://github.com/SabakiHQ/Sabaki) — Sabaki's own history lives in
 [docs/SABAKI-CHANGELOG.md](docs/SABAKI-CHANGELOG.md).
 
+## [0.3.13] - 2026-08-21
+
+### Added
+
+- **Hikaru no Go study mode**: character medallions are no longer uniform
+  initial badges — each of the 12 characters now has its own accent color and a
+  small original motif (Sai's eboshi hat, Hikaru's star, Akira's bob, Ogata's
+  glasses, Kuwabara's fan, Kaga's shogi piece, Toya Koyo's crown, Waya's
+  headband, Ko Yongha's taegeuk, Ochi's sprout, Kadowaki's bolt, the Rival
+  Tutor's "?"). User-supplied portraits still override them
+  ([#6](https://github.com/akitaonrails/frank_go/issues/6)).
+
+### Changed
+
+- Routine dependency updates, consolidated from Dependabot PRs: uuid 14.0.2,
+  concurrently 10.0.5 ([#38](https://github.com/akitaonrails/frank_go/pull/38),
+  [#39](https://github.com/akitaonrails/frank_go/pull/39)).
+
 ## [0.3.12] - 2026-08-14
 
 ### Changed
@@ -139,6 +157,7 @@ frank_go is a beginner-focused Go/Baduk trainer forked from
   build; a crashing engine is handled gracefully in play and review.
 - AUR: recommend `katago-cpu`; GPU builds marked advanced.
 
+[0.3.13]: https://github.com/akitaonrails/frank_go/releases/tag/v0.3.13
 [0.3.12]: https://github.com/akitaonrails/frank_go/releases/tag/v0.3.12
 [0.3.11]: https://github.com/akitaonrails/frank_go/releases/tag/v0.3.11
 [0.3.10]: https://github.com/akitaonrails/frank_go/releases/tag/v0.3.10
