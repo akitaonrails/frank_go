@@ -8,6 +8,15 @@ frank_go is a beginner-focused Go/Baduk trainer forked from
 [Sabaki](https://github.com/SabakiHQ/Sabaki) — Sabaki's own history lives in
 [docs/SABAKI-CHANGELOG.md](docs/SABAKI-CHANGELOG.md).
 
+## [0.3.14] - 2026-08-28
+
+### Changed
+
+- Electron 43 → 44 (Chromium 152, Node 24.18.1). Note: Electron 44 drops support
+  for macOS 12 Monterey and 32-bit builds — frank_go already ships 64-bit only,
+  so Windows/Linux packages are unaffected
+  ([#40](https://github.com/akitaonrails/frank_go/pull/40)).
+
 ## [0.3.13] - 2026-08-21
 
 ### Added
@@ -157,6 +166,7 @@ frank_go is a beginner-focused Go/Baduk trainer forked from
   build; a crashing engine is handled gracefully in play and review.
 - AUR: recommend `katago-cpu`; GPU builds marked advanced.
 
+[0.3.14]: https://github.com/akitaonrails/frank_go/releases/tag/v0.3.14
 [0.3.13]: https://github.com/akitaonrails/frank_go/releases/tag/v0.3.13
 [0.3.12]: https://github.com/akitaonrails/frank_go/releases/tag/v0.3.12
 [0.3.11]: https://github.com/akitaonrails/frank_go/releases/tag/v0.3.11
