@@ -113,7 +113,7 @@
     "dolm": "^0.7.3-beta",
     "fix-path": "<6.0.0",
     "iconv-lite": "^0.7.2",
-    "jschardet": "^3.0.0",
+    "jschardet": "^4.0.0",
     "natsort": "^2.0.2",
     "pikaday": "^1.8.0",
     "preact": "^10.4.0",
