@@ -131,7 +131,8 @@ export function parseFile(filename) {
   let buffer = readFileSync(filename)
   let encoding = 'utf8'
   let detected = detect(buffer)
-  if (detected.confidence > 0.2) encoding = detected.encoding
+  // See gib.js for why the confidence threshold is 0.01 with jschardet 4.
+  if (detected.confidence > 0.01) encoding = detected.encoding
 
   let content = decode(buffer, encoding)
   return parse(content)

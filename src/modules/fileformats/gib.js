@@ -192,7 +192,11 @@ export function parseFile(filename) {
   let buffer = readFileSync(filename)
   let encoding = 'utf8'
   let detected = detect(buffer)
-  if (detected.confidence > 0.2) encoding = detected.encoding
+  // jschardet 4 (chardet 7 port) reports much lower confidence values than
+  // jschardet 3 for legacy CJK encodings (0.02–0.05 on real files), so the
+  // old 0.2 threshold would disable detection entirely; 0.01 only filters
+  // out pure-noise guesses.
+  if (detected.confidence > 0.01) encoding = detected.encoding
 
   let content = decode(buffer, encoding)
   return parse(content)
