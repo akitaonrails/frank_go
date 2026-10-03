@@ -8,6 +8,20 @@ frank_go is a beginner-focused Go/Baduk trainer forked from
 [Sabaki](https://github.com/SabakiHQ/Sabaki) — Sabaki's own history lives in
 [docs/SABAKI-CHANGELOG.md](docs/SABAKI-CHANGELOG.md).
 
+## [0.3.19] - 2026-10-03
+
+### Changed
+
+- Routine dependency updates, consolidated from Dependabot PRs: electron 44.5.1,
+  prettier 3.9.9, and jschardet 4.0.0 — a ground-up rewrite of the encoding
+  detector used when loading GIB/NGF/UGF game records, now a port of Python's
+  chardet 7 (far more accurate, and 0BSD-licensed instead of LGPL). Its
+  confidence scores are calibrated lower, so the parsers' detection threshold
+  was adjusted to keep legacy-encoded files loading correctly
+  ([#56](https://github.com/akitaonrails/frank_go/pull/56),
+  [#57](https://github.com/akitaonrails/frank_go/pull/57),
+  [#58](https://github.com/akitaonrails/frank_go/pull/58)).
+
 ## [0.3.18] - 2026-09-25
 
 ### Changed
@@ -210,6 +224,7 @@ frank_go is a beginner-focused Go/Baduk trainer forked from
   build; a crashing engine is handled gracefully in play and review.
 - AUR: recommend `katago-cpu`; GPU builds marked advanced.
 
+[0.3.19]: https://github.com/akitaonrails/frank_go/releases/tag/v0.3.19
 [0.3.18]: https://github.com/akitaonrails/frank_go/releases/tag/v0.3.18
 [0.3.17]: https://github.com/akitaonrails/frank_go/releases/tag/v0.3.17
 [0.3.16]: https://github.com/akitaonrails/frank_go/releases/tag/v0.3.16
