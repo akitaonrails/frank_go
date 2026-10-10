@@ -1,5 +1,5 @@
 import {ipcRenderer} from 'electron'
-import {h, render, Component} from 'preact'
+import {h, render, options, Component} from 'preact'
 import classNames from 'classnames'
 import fixPath from 'fix-path'
 
@@ -411,5 +411,20 @@ class App extends Component {
 }
 
 // Render
+
+// frank_go: Preact 11 forwards refs as regular props by default; Sabaki's
+// class components still rely on the Preact 10 behavior of `ref` yielding
+// the component instance (e.g. Sidebar's GameGraph, GameChooserDrawer's
+// GameListItems). Restore the v10 semantics as recommended by the official
+// v11 upgrade guide until upstream migrates.
+const oldVNodeHook = options.vnode
+options.vnode = (vnode) => {
+  if (vnode.props != null && vnode.props.ref != null) {
+    vnode.ref = vnode.props.ref
+    delete vnode.props.ref
+  }
+
+  if (oldVNodeHook != null) oldVNodeHook(vnode)
+}
 
 render(h(App), document.body)
