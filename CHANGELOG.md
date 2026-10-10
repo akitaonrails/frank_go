@@ -8,6 +8,22 @@ frank_go is a beginner-focused Go/Baduk trainer forked from
 [Sabaki](https://github.com/SabakiHQ/Sabaki) — Sabaki's own history lives in
 [docs/SABAKI-CHANGELOG.md](docs/SABAKI-CHANGELOG.md).
 
+## [0.3.20] - 2026-10-10
+
+### Changed
+
+- Preact 10 → 11, the UI framework the whole app renders with. The migration
+  follows the official upgrade guide: v10 ref semantics are restored via the
+  documented `options.vnode` snippet (Sabaki relies on component-instance refs
+  in a couple of places until upstream migrates), and `@sabaki/shudan` is pinned
+  to the app's single preact copy via an npm override. Verified by the full e2e
+  suite passing on Preact 11
+  ([#60](https://github.com/akitaonrails/frank_go/pull/60)).
+- Routine dependency updates, consolidated from Dependabot PRs: mocha 12.0.3,
+  @primer/octicons 19.40.0
+  ([#59](https://github.com/akitaonrails/frank_go/pull/59),
+  [#61](https://github.com/akitaonrails/frank_go/pull/61)).
+
 ## [0.3.19] - 2026-10-03
 
 ### Changed
@@ -224,6 +240,7 @@ frank_go is a beginner-focused Go/Baduk trainer forked from
   build; a crashing engine is handled gracefully in play and review.
 - AUR: recommend `katago-cpu`; GPU builds marked advanced.
 
+[0.3.20]: https://github.com/akitaonrails/frank_go/releases/tag/v0.3.20
 [0.3.19]: https://github.com/akitaonrails/frank_go/releases/tag/v0.3.19
 [0.3.18]: https://github.com/akitaonrails/frank_go/releases/tag/v0.3.18
 [0.3.17]: https://github.com/akitaonrails/frank_go/releases/tag/v0.3.17
