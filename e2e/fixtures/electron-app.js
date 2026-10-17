@@ -43,6 +43,11 @@ const test = base.extend({
     if (process.env.CI) {
       args.push('--no-sandbox')
     }
+    if (process.env.SABAKI_E2E_VIRTUAL_DISPLAY) {
+      // Do not let an Electron Wayland session bypass Xvfb and open test
+      // windows on the developer's real desktop.
+      args.push('--ozone-platform=x11')
+    }
 
     const app = await electron.launch({
       executablePath: electronPath,

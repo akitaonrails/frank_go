@@ -161,8 +161,8 @@
     "dist:win": "npm run dist:win64 && npm run dist:win64-portable",
     "i18n": "node ./ci/createI18n.js",
     "gen:engine-transcripts": "node ./scripts/engine-transcripts/capture.mjs",
-    "test:e2e": "webpack --mode development && (command -v xvfb-run >/dev/null 2>&1 && xvfb-run npx playwright test || npx playwright test)",
-    "test:e2e:smoke": "webpack --mode development && (command -v xvfb-run >/dev/null 2>&1 && xvfb-run npx playwright test --project=smoke || npx playwright test --project=smoke)",
+    "test:e2e": "webpack --mode development && node ./scripts/run-e2e.mjs",
+    "test:e2e:smoke": "webpack --mode development && node ./scripts/run-e2e.mjs --project=smoke",
     "test:e2e:headed": "webpack --mode development && npx playwright test"
   }
 }

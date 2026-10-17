@@ -9,6 +9,22 @@ test.describe('Smoke Tests', () => {
     expect(windows.length).toBeGreaterThanOrEqual(1)
   })
 
+  test('virtual display stays isolated from the desktop', async ({
+    electronApp,
+  }) => {
+    test.skip(!process.env.SABAKI_E2E_VIRTUAL_DISPLAY)
+
+    const display = await electronApp.evaluate(({app}) => ({
+      display: process.env.DISPLAY,
+      waylandDisplay: process.env.WAYLAND_DISPLAY,
+      ozonePlatform: app.commandLine.getSwitchValue('ozone-platform'),
+    }))
+
+    expect(display.display).toMatch(/^:\d+$/)
+    expect(display.waylandDisplay).toBeUndefined()
+    expect(display.ozonePlatform).toBe('x11')
+  })
+
   test('window title contains "Sabaki"', async ({page}) => {
     const title = await page.title()
     expect(title).toContain('Sabaki')
