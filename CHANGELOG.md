@@ -8,6 +8,22 @@ frank_go is a beginner-focused Go/Baduk trainer forked from
 [Sabaki](https://github.com/SabakiHQ/Sabaki) — Sabaki's own history lives in
 [docs/SABAKI-CHANGELOG.md](docs/SABAKI-CHANGELOG.md).
 
+## [0.3.21] - 2026-10-17
+
+### Changed
+
+- Routine dependency updates, consolidated from Dependabot PRs: Electron 44.9.0,
+  Playwright 1.64.1, concurrently 10.0.6, uuid 14.0.3, and Prettier 3.9.10.
+  Compatible transitive dependencies were also refreshed to resolve known
+  advisories ([#62](https://github.com/akitaonrails/frank_go/pull/62),
+  [#63](https://github.com/akitaonrails/frank_go/pull/63),
+  [#64](https://github.com/akitaonrails/frank_go/pull/64),
+  [#65](https://github.com/akitaonrails/frank_go/pull/65),
+  [#66](https://github.com/akitaonrails/frank_go/pull/66)).
+- Linux E2E tests now render into an isolated virtual display instead of opening
+  and closing windows on a developer's desktop. The explicit headed test command
+  remains available for visual debugging.
+
 ## [0.3.20] - 2026-10-10
 
 ### Changed
@@ -240,6 +256,7 @@ frank_go is a beginner-focused Go/Baduk trainer forked from
   build; a crashing engine is handled gracefully in play and review.
 - AUR: recommend `katago-cpu`; GPU builds marked advanced.
 
+[0.3.21]: https://github.com/akitaonrails/frank_go/releases/tag/v0.3.21
 [0.3.20]: https://github.com/akitaonrails/frank_go/releases/tag/v0.3.20
 [0.3.19]: https://github.com/akitaonrails/frank_go/releases/tag/v0.3.19
 [0.3.18]: https://github.com/akitaonrails/frank_go/releases/tag/v0.3.18
