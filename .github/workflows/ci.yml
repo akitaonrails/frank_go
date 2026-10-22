@@ -56,7 +56,7 @@ jobs:
       - name: Install dependencies
         run: npm install
       - name: Download dev bundle
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: webpack-dev-bundle
       - name: Install Electron system dependencies
