@@ -68,7 +68,7 @@ jobs:
 
       - name: Publish to AUR
         if: steps.guard.outputs.skip != 'true'
-        uses: KSXGitHub/github-actions-deploy-aur@v4.1.1
+        uses: KSXGitHub/github-actions-deploy-aur@v4.2.0
         with:
           pkgname: frank-go
           pkgbuild: aur-out/PKGBUILD
