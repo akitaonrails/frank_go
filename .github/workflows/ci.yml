@@ -33,7 +33,7 @@ jobs:
       - name: Build webpack dev bundle
         run: npx webpack --mode development
       - name: Upload dev bundle
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: webpack-dev-bundle
           path: bundle.js

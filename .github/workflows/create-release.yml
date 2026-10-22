@@ -61,7 +61,7 @@ jobs:
       # --glob: Windows runners use PowerShell, which doesn't expand globs.
       - name: Remove auto-update metadata
         run: npx rimraf --glob "./dist/*.yml" "./dist/*.yaml" "./dist/*.blockmap"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: dist-${{ runner.os }}
           path: dist/frank-go-*
