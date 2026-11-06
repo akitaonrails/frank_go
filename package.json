@@ -116,10 +116,10 @@
     "jschardet": "^4.1.0",
     "natsort": "^2.0.2",
     "pikaday": "^1.8.0",
-    "preact": "^11.1.0",
+    "preact": "^11.1.1",
     "react-markdown": "^10.1.0",
     "remark-breaks": "^4.0.0",
-    "rimraf": "^6.1.2",
+    "rimraf": "^6.1.4",
     "uuid": "^14.0.3",
     "winston": "^3.2.1"
   },
@@ -139,7 +139,7 @@
     "tmp": "^0.2.7",
     "tsx": "^4.0.0",
     "webpack": "^5.112.2",
-    "webpack-cli": "^7.2.1"
+    "webpack-cli": "^7.3.1"
   },
   "scripts": {
     "frank:data": "node scripts/frank/build-tsumego-index.mjs",
